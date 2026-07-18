@@ -10,7 +10,7 @@ use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\PHPStan\ModifierDsl;
+use Pizgariu\ImmutableTestBuilder\Prefix;
 
 /**
  * The public surface of a concrete builder is the DSL and nothing else:
@@ -69,7 +69,7 @@ final class ModifierNameRule implements Rule
             ];
         }
 
-        if (in_array($name, self::ALLOWED_INSTANCE_METHODS, true) || ModifierDsl::matches($name)) {
+        if (in_array($name, self::ALLOWED_INSTANCE_METHODS, true) || null !== Prefix::ofMethod($name)) {
             return [];
         }
 

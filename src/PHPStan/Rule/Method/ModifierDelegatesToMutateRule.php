@@ -15,7 +15,7 @@ use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\PHPStan\ModifierDsl;
+use Pizgariu\ImmutableTestBuilder\Prefix;
 
 /**
  * A modifier is a one-liner: a static-returning single statement delegating
@@ -51,7 +51,7 @@ final class ModifierDelegatesToMutateRule implements Rule
 
         $name = $method->name->toString();
 
-        if (!ModifierDsl::matches($name)) {
+        if (null === Prefix::ofMethod($name)) {
             return [];
         }
 

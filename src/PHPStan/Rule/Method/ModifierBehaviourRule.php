@@ -25,24 +25,21 @@ use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\PHPStan\ModifierDsl;
+use Pizgariu\ImmutableTestBuilder\Prefix;
 
 /**
- * A modifier's body must keep the promise its prefix makes. The kernel
- * funnels every mutation through the closure handed to mutate(), so the
- * semantics are statically checkable right there: without* and as* take no
- * parameters, the feeding prefixes take at least one, without* only writes
- * empty values, including* appends, excluding* never appends, and having*
- * writes more than one property or it is a with* in a having* costume.
+ * A declared modifier's body must keep the promise its prefix makes. The
+ * kernel funnels every mutation through the closure handed to mutate(), so
+ * the semantics are statically checkable right there: without* and as* take
+ * no parameters, the feeding prefixes take at least one, without* only
+ * writes empty values, including* appends, excluding* never appends, and
+ * having* writes more than one property or it is a with* in a having*
+ * costume.
  *
  * @implements Rule<InClassMethodNode>
  */
 final class ModifierBehaviourRule implements Rule
 {
-    private const array PREFIXES_LONGEST_FIRST = ['including', 'excluding', 'without', 'having', 'from', 'with', 'for', 'as'];
-
-    private const array PARAMETERLESS_PREFIXES = ['without', 'as'];
-
     public function getNodeType(): string
     {
         return InClassMethodNode::class;
@@ -67,12 +64,7 @@ final class ModifierBehaviourRule implements Rule
         }
 
         $name = $method->name->toString();
-
-        if (!ModifierDsl::matches($name)) {
-            return [];
-        }
-
-        $prefix = $this->prefixOf($name);
+        $prefix = Prefix::ofMethod($name);
 
         if (null === $prefix) {
             return [];
@@ -82,7 +74,7 @@ final class ModifierBehaviourRule implements Rule
         $parameterCount = count($method->getParams());
         $display = $class->getDisplayName();
 
-        if (in_array($prefix, self::PARAMETERLESS_PREFIXES, true)) {
+        if (!$prefix->takesParameters()) {
             if ($parameterCount > 0) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     '%s() on builder %s must not take parameters - a without* or as* modifier names the entire change in its method name.',
@@ -95,7 +87,7 @@ final class ModifierBehaviourRule implements Rule
                 '%s() on builder %s must take a parameter - %s* feeds the builder outside data. A parameterless modifier is an as*.',
                 $name,
                 $display,
-                $prefix,
+                $prefix->value,
             ))->identifier('immutableTestBuilder.modifierArity')->build();
         }
 
@@ -129,7 +121,7 @@ final class ModifierBehaviourRule implements Rule
             }
         }
 
-        if ('without' === $prefix && $nonEmptyWrites > 0) {
+        if (Prefix::Without === $prefix && $nonEmptyWrites > 0) {
             $errors[] = RuleErrorBuilder::message(sprintf(
                 '%s() on builder %s assigns a non-empty value - without* promises emptying or nullifying. A real value makes it a with* wearing a mask.',
                 $name,
@@ -137,7 +129,7 @@ final class ModifierBehaviourRule implements Rule
             ))->identifier('immutableTestBuilder.withoutSemantics')->build();
         }
 
-        if ('including' === $prefix && 0 === $appends) {
+        if (Prefix::Including === $prefix && 0 === $appends) {
             $errors[] = RuleErrorBuilder::message(sprintf(
                 '%s() on builder %s never appends - including* promises extending a collection with []=. Replacing the whole collection is a with*.',
                 $name,
@@ -145,7 +137,7 @@ final class ModifierBehaviourRule implements Rule
             ))->identifier('immutableTestBuilder.includingSemantics')->build();
         }
 
-        if ('excluding' === $prefix && $appends > 0) {
+        if (Prefix::Excluding === $prefix && $appends > 0) {
             $errors[] = RuleErrorBuilder::message(sprintf(
                 '%s() on builder %s appends with []= - excluding* promises shrinking a collection, not growing it.',
                 $name,
@@ -153,7 +145,7 @@ final class ModifierBehaviourRule implements Rule
             ))->identifier('immutableTestBuilder.excludingSemantics')->build();
         }
 
-        if ('having' === $prefix && count($propertyWrites) < 2) {
+        if (Prefix::Having === $prefix && count($propertyWrites) < 2) {
             $errors[] = RuleErrorBuilder::message(sprintf(
                 '%s() on builder %s mutates a single property - having* is for one inseparable multi-property concept. A single write is a with*.',
                 $name,
@@ -162,17 +154,6 @@ final class ModifierBehaviourRule implements Rule
         }
 
         return $errors;
-    }
-
-    private function prefixOf(string $methodName): ?string
-    {
-        foreach (self::PREFIXES_LONGEST_FIRST as $prefix) {
-            if (1 === preg_match(sprintf('/^%s[A-Z0-9]/', $prefix), $methodName)) {
-                return $prefix;
-            }
-        }
-
-        return null;
     }
 
     /**

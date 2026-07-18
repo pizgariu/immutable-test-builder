@@ -14,7 +14,7 @@ use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\PHPStan\ModifierDsl;
+use Pizgariu\ImmutableTestBuilder\Prefix;
 
 /**
  * seed() fills the perfect default and nothing else: it stays protected
@@ -85,7 +85,7 @@ final class SeedDisciplineRule implements Rule
                 continue;
             }
 
-            if (ModifierDsl::matches($name)) {
+            if (null !== Prefix::ofMethod($name)) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     'seed() on builder %s calls %s() - a modifier returns a new clone that seed() throws away. Assign the property directly instead.',
                     $class->getDisplayName(),
