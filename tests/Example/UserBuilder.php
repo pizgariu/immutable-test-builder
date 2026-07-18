@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
-use Faker\Generator;
-use Pizgariu\ImmutableTestBuilder\BaseBuilder;
+use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
 
 /**
- * @extends BaseBuilder<User>
+ * @extends AbstractBuilder<User>
  */
-final class UserBuilder extends BaseBuilder
+final class UserBuilder extends AbstractBuilder
 {
     private string $name;
 
@@ -22,10 +21,12 @@ final class UserBuilder extends BaseBuilder
 
     private bool $active;
 
-    protected function seed(Generator $faker): void
+    protected function seed(): void
     {
-        $this->name = $faker->name();
-        $this->email = $faker->safeEmail();
+        $suffix = random_int(1, 9999);
+
+        $this->name = sprintf('User %04d', $suffix);
+        $this->email = sprintf('user-%04d@example.test', $suffix);
         $this->roles = ['user'];
         $this->active = true;
     }

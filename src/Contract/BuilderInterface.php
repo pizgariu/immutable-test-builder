@@ -11,10 +11,10 @@ use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
  *
  * Perfect default: create() returns a builder that is complete from the very
  * first moment. Calling build() with no further setup succeeds and produces an
- * object seeded with realistic faker data. A test therefore states only the
- * values it asserts on; everything else is already in place and plausibly
- * random, which keeps tests short and stops them from over-specifying data
- * they do not care about.
+ * object seeded with realistic defaults. A test therefore states only the
+ * values it asserts on; everything else is already in place and valid, which
+ * keeps tests short and stops them from over-specifying data they do not
+ * care about.
  *
  * Immutability: every modifier returns a NEW builder instance and leaves the
  * receiver untouched. Two guarantees follow. Test isolation: a builder held in
@@ -27,8 +27,8 @@ use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
  * must be replaced inside a modifier, never mutated in place, or deep-copied
  * in an overridden __clone().
  *
- * Modifier naming DSL (a documented contract of this library; static
- * enforcement ships in a later release): with*(value) sets a value,
+ * Modifier naming DSL (a documented contract of this library, statically
+ * enforced by the bundled PHPStan rule set): with*(value) sets a value,
  * without*() empties or nullifies a value, as*() performs a semantic boolean
  * or state transition, from*(source) hydrates the builder from an existing
  * object, append*(item) adds an item to a collection without replacing it.
@@ -41,19 +41,17 @@ use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
  *
  * @template-covariant T
  */
-interface Builder
+interface BuilderInterface
 {
     /**
-     * Perfect default - the returned builder must build() successfully with
-     * no further calls.
+     * Perfect default - the returned builder must build() successfully with no further calls.
      */
     public static function create(): static;
 
     /**
      * @return T
      *
-     * @throws UnbuildableState when the builder is in a state that cannot
-     *                          produce a valid object
+     * @throws UnbuildableState when the builder is in a state that cannot produce a valid object
      */
     public function build(): mixed;
 }

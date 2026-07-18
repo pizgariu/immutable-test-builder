@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Fixture;
 
-use Faker\Generator;
-use Pizgariu\ImmutableTestBuilder\BaseBuilder;
+use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
 
 /**
- * @extends BaseBuilder<Spaceship>
+ * @extends AbstractBuilder<Spaceship>
  */
-final class SpaceshipBuilder extends BaseBuilder
+final class SpaceshipBuilder extends AbstractBuilder
 {
     private string $name;
 
@@ -21,11 +20,11 @@ final class SpaceshipBuilder extends BaseBuilder
 
     private bool $launched;
 
-    protected function seed(Generator $faker): void
+    protected function seed(): void
     {
-        $this->name = $faker->name();
-        $this->fuel = $faker->numberBetween(1, 100);
-        $this->crew = $faker->numberBetween(1, 12);
+        $this->name = sprintf('Vessel-%04d', random_int(1, 9999));
+        $this->fuel = random_int(1, 100);
+        $this->crew = random_int(1, 12);
         $this->launched = false;
     }
 

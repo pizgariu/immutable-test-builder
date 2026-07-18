@@ -8,24 +8,12 @@ use Closure;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
-use Pizgariu\ImmutableTestBuilder\Fakers;
-use Pizgariu\ImmutableTestBuilder\Tests\Fixture\PolishNameBuilder;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\Spaceship;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\SpaceshipBuilder;
 use ReflectionClass;
 
-final class BaseBuilderTest extends TestCase
+final class AbstractBuilderTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        Fakers::flush();
-    }
-
-    protected function tearDown(): void
-    {
-        Fakers::flush();
-    }
-
     public function testCreateReturnsBuilderThatBuildsImmediately(): void
     {
         $ship = SpaceshipBuilder::create()->build();
@@ -34,34 +22,6 @@ final class BaseBuilderTest extends TestCase
         self::assertGreaterThan(0, $ship->fuel);
         self::assertGreaterThan(0, $ship->crew);
         self::assertFalse($ship->launched);
-    }
-
-    public function testCreateFixesDefaultLocale(): void
-    {
-        self::assertSame(Fakers::DEFAULT_LOCALE, SpaceshipBuilder::create()->locale());
-    }
-
-    public function testCreateUsesOverriddenDefaultLocale(): void
-    {
-        self::assertSame('pl_PL', PolishNameBuilder::create()->locale());
-    }
-
-    public function testCreateInSeedsFromRequestedLocaleGenerator(): void
-    {
-        $faker = Fakers::locale('pl_PL');
-        $faker->seed(20260718);
-        $expectedName = $faker->name();
-        $expectedFuel = $faker->numberBetween(1, 100);
-        $expectedCrew = $faker->numberBetween(1, 12);
-
-        $faker->seed(20260718);
-        $builder = SpaceshipBuilder::createIn('pl_PL');
-        $ship = $builder->build();
-
-        self::assertSame('pl_PL', $builder->locale());
-        self::assertSame($expectedName, $ship->name);
-        self::assertSame($expectedFuel, $ship->fuel);
-        self::assertSame($expectedCrew, $ship->crew);
     }
 
     #[DataProvider('provideModifiers')]
@@ -118,7 +78,7 @@ final class BaseBuilderTest extends TestCase
         ];
     }
 
-    public function testBranchingFromOneBaseBuilderProducesIndependentResults(): void
+    public function testBranchingFromOneTrunkBuilderProducesIndependentResults(): void
     {
         $base = SpaceshipBuilder::create()->withName('Rocinante')->withCrew(4);
 
