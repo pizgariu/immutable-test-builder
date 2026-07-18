@@ -1,5 +1,9 @@
 rules:
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Class\FinalBuilderRule
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\BuildReturnTypeRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\ModifierDelegatesToMutateRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\ModifierNameRule
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\SeedDisciplineRule
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\StaticMutationClosureRule
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Property\PerfectDefaultPropertyRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Property\WritableStateRule

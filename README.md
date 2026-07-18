@@ -102,7 +102,7 @@ final class UserBuilder extends AbstractBuilder
         });
     }
 
-    public function appendRole(string $role): static
+    public function includingRole(string $role): static
     {
         return $this->mutate(static function (self $builder) use ($role): void {
             $builder->roles[] = $role;
@@ -155,7 +155,7 @@ final class UserBuilderTest extends TestCase
             ->withName('Ellen Ripley')
             ->withEmail('ripley@example.test');
 
-        $admin = $base->appendRole('admin');
+        $admin = $base->includingRole('admin');
         $deactivated = $base->asDeactivated();
 
         $baseUser = $base->build();
@@ -191,7 +191,7 @@ Three things in that test are the entire idea.
 
 **The default built immediately.** The first test puts nothing between `create()` and `build()`. The name and the email are generated in `seed()` around one random suffix, so every default user is complete and unique without any test typing them - the assertions check shape, not exact strings. The other two assertions pin deliberate constants - one sensible role, an active account - because a perfect default mixes generated uniqueness with opinionated fixed choices. Either way, no future test breaks because a required field was forgotten: the builder cannot exist without them.
 
-**Three variants, one trunk, zero interference.** The second test tailors a base builder, then branches it twice. `appendRole()` gave the admin variant a second role, `asDeactivated()` switched the other variant off, and the assertions on the trunk still hold after both branches were taken: one role, active. Each modifier returned a new instance, so the trunk never learned about its descendants and the two branches never learned about each other.
+**Three variants, one trunk, zero interference.** The second test tailors a base builder, then branches it twice. `includingRole()` gave the admin variant a second role, `asDeactivated()` switched the other variant off, and the assertions on the trunk still hold after both branches were taken: one role, active. Each modifier returned a new instance, so the trunk never learned about its descendants and the two branches never learned about each other.
 
 **The impossible state refused to build.** `withoutEmail()` removes an ingredient `User` cannot exist without. `build()` does not hand back a broken object or a null - it throws `UnbuildableState`, and the asserted message names the builder, names the missing ingredient, and ends with the way out.
 
@@ -294,11 +294,14 @@ Modifier names are a documented contract of this library, not a suggestion:
 | `without*()` | empties or nullifies a value | `withoutEmail()` |
 | `as*()` | a semantic boolean or state transition | `asDeactivated()` |
 | `from*(source)` | hydrates the builder from an existing object | `fromRegistrationRequest($request)` |
-| `append*(item)` | adds to a collection without replacing it | `appendRole('admin')` |
+| `for*(owner)` | establishes context or ownership | `forCustomer($customer)` |
+| `including*(item)` | adds to a collection without replacing it | `includingRole('admin')` |
+| `excluding*(item)` | removes from a collection without replacing it | `excludingRole('guest')` |
+| `having*(...)` | atomic mutation of one inseparable domain concept | `havingAge(18)` |
 
 Every modifier returns a new instance via `mutate()`, no exceptions.
 
-The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-place write, and nothing here writes in place - a `setName()` that returns a fresh instance is a name telling a lie. `add*` leaves open whether the collection is replaced or extended; `append*` commits to extending. `make*` says nothing about anything. The table is not a style guide waiting for review vigilance - the bundled PHPStan rule set turns it into analysis errors; the next section shows how.
+The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-place write, and nothing here writes in place - a `setName()` that returns a fresh instance is a name telling a lie. `add*` leaves open whether the collection is replaced or extended; `including*` commits to extending and `excluding*` to shrinking. `make*` says nothing about anything. The table is not a style guide waiting for review vigilance - the bundled PHPStan rule set turns it into analysis errors; the next section shows how.
 
 ---
 
@@ -311,14 +314,18 @@ includes:
     - vendor/pizgariu/immutable-test-builder/extension.neon
 ```
 
-Four rules, one directory per abstraction type:
+Eight rules, one directory per abstraction type:
 
 | Rule | Lives in | What it refuses |
 | --- | --- | --- |
 | `FinalBuilderRule` | `Rule/Class` | a concrete builder that is not final - a builder is a leaf, extension points belong in an abstract base |
 | `ModifierNameRule` | `Rule/Method` | a public method outside the DSL - and `set*`, `make*`, `add*` each get a message explaining why the name lies |
 | `ModifierDelegatesToMutateRule` | `Rule/Method` | a modifier that is not a static-returning one-liner through `mutate()` - the whole immutability proof in one shape check |
+| `SeedDisciplineRule` | `Rule/Method` | a public `seed()` (re-seeding a live builder is mutation through the back door) and any `seed()` that calls a modifier or `build()` - the returned clone would be silently thrown away |
+| `BuildReturnTypeRule` | `Rule/Method` | a `build()` without a concrete non-nullable return type - an impossible state throws `UnbuildableState`, it never leaks out as null or mixed |
+| `StaticMutationClosureRule` | `Rule/Method` | a non-static mutation closure - it keeps `$this` bound to the original builder, and one `$this->` write inside would mutate the trunk behind `mutate()`'s back |
 | `WritableStateRule` | `Rule/Property` | builder state that is not private, is static, or is readonly - readonly state would make `mutate()` throw at runtime |
+| `PerfectDefaultPropertyRule` | `Rule/Property` | a property with neither an inline default nor a direct assignment in `seed()` - the per-property face of the perfect default promise |
 
 Abstract bases are exempt where it matters: they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
 
@@ -340,7 +347,7 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). 
 
 - **2.0.0** - an entity integrity check, and a Rector set that removes trivial modifiers.
 
-A built-in data generator is not on any roadmap - randomness stays the project's choice, plugged in through `seed()`. Collection helper utilities are out of scope as well; `append*` modifiers stay hand-written one-liners.
+A built-in data generator is not on any roadmap - randomness stays the project's choice, plugged in through `seed()`. Collection helper utilities are out of scope as well; `including*` and `excluding*` modifiers stay hand-written one-liners.
 
 ---
 
