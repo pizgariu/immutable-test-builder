@@ -10,7 +10,7 @@ namespace Pizgariu\ImmutableTestBuilder\PHPStan;
  */
 final class ModifierDsl
 {
-    public const string PATTERN = '/^(?:with|without|as|from|append)[A-Z0-9]/';
+    public const string PATTERN = '/^(?:with|without|as|from|for|including|excluding|having)[A-Z0-9]/';
 
     private function __construct()
     {

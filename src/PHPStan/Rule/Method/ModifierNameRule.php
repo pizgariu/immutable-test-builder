@@ -77,7 +77,7 @@ final class ModifierNameRule implements Rule
             if (1 === preg_match(sprintf('/^%s[A-Z0-9]/', $prefix), $name)) {
                 return [
                     RuleErrorBuilder::message(sprintf(
-                        '%s() on builder %s starts with %s* - set* promises an in-place write, add* hides whether the collection is replaced, make* says nothing. Modifiers are with*, without*, as*, from* or append* and always return a new instance.',
+                        '%s() on builder %s starts with %s* - set* promises an in-place write, add* hides whether the collection is replaced, make* says nothing. Modifiers are with*, without*, as*, from*, for*, including*, excluding* or having* and always return a new instance.',
                         $name,
                         $class->getDisplayName(),
                         $prefix,
@@ -88,7 +88,7 @@ final class ModifierNameRule implements Rule
 
         return [
             RuleErrorBuilder::message(sprintf(
-                'Public method %s() on builder %s is outside the DSL - the public surface is build() and modifiers prefixed with*, without*, as*, from* or append*.',
+                'Public method %s() on builder %s is outside the DSL - the public surface is build() and modifiers prefixed with*, without*, as*, from*, for*, including*, excluding* or having*.',
                 $name,
                 $class->getDisplayName(),
             ))->identifier('immutableTestBuilder.publicSurface')->build(),

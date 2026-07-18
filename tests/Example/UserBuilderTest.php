@@ -25,7 +25,7 @@ final class UserBuilderTest extends TestCase
             ->withName('Ellen Ripley')
             ->withEmail('ripley@example.test');
 
-        $admin = $base->appendRole('admin');
+        $admin = $base->includingRole('admin');
         $deactivated = $base->asDeactivated();
 
         $baseUser = $base->build();

@@ -59,7 +59,7 @@ final class UserBuilder extends AbstractBuilder
         });
     }
 
-    public function appendRole(string $role): static
+    public function includingRole(string $role): static
     {
         return $this->mutate(static function (self $builder) use ($role): void {
             $builder->roles[] = $role;

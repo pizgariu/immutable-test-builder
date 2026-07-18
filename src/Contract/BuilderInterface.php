@@ -31,9 +31,11 @@ use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
  * enforced by the bundled PHPStan rule set): with*(value) sets a value,
  * without*() empties or nullifies a value, as*() performs a semantic boolean
  * or state transition, from*(source) hydrates the builder from an existing
- * object, append*(item) adds an item to a collection without replacing it.
- * The prefixes set*, make* and add* are never used. Every modifier returns a
- * new instance.
+ * object, for*(owner) establishes context or ownership, including*(item) and
+ * excluding*(item) extend or shrink a collection without replacing it, and
+ * having*() atomically mutates the properties of one inseparable domain
+ * concept. The prefixes set*, make* and add* are never used. Every modifier
+ * returns a new instance.
  *
  * A builder driven into an impossible state never produces a broken object:
  * build() fails loudly with UnbuildableState, whose message names the builder
