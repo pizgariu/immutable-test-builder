@@ -9,7 +9,8 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\ClassPropertyNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
+use PHPStan\ShouldNotHappenException;
+use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
 
 /**
  * Builder state is sealed and writable: private (modifiers write through
@@ -26,15 +27,14 @@ final class WritableStateRule implements Rule
         return ClassPropertyNode::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = $scope->getClassReflection();
+        $class = ConcreteBuilder::fromScope($scope);
 
-        if (null === $class || $class->isInterface() || $class->isEnum() || $class->isAbstract()) {
-            return [];
-        }
-
-        if (!$class->implementsInterface(BuilderInterface::class)) {
+        if (null === $class) {
             return [];
         }
 

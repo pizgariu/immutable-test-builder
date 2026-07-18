@@ -14,8 +14,9 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\Prefix;
+use PHPStan\ShouldNotHappenException;
+use Pizgariu\ImmutableTestBuilder\Enum\KernelMethod;
+use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
 
 /**
  * A modifier is a one-liner: a static-returning single statement delegating
@@ -31,27 +32,21 @@ final class ModifierDelegatesToMutateRule implements Rule
         return InClassMethodNode::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = $scope->getClassReflection();
+        $class = ConcreteBuilder::fromScope($scope);
 
-        if (null === $class || $class->isInterface() || $class->isEnum() || $class->isAbstract()) {
-            return [];
-        }
-
-        if (!$class->implementsInterface(BuilderInterface::class)) {
+        if (null === $class) {
             return [];
         }
 
         $method = $node->getOriginalNode();
+        $name = ConcreteBuilder::declaredModifierName($method);
 
-        if (!$method->isPublic() || $method->isStatic()) {
-            return [];
-        }
-
-        $name = $method->name->toString();
-
-        if (null === Prefix::ofMethod($name)) {
+        if (null === $name) {
             return [];
         }
 
@@ -112,6 +107,6 @@ final class ModifierDelegatesToMutateRule implements Rule
 
         $call = $statement->expr;
 
-        return $call->var instanceof Variable && is_string($call->var->name) && 'this' === $call->var->name && $call->name instanceof Identifier && 'mutate' === $call->name->toString();
+        return $call->var instanceof Variable && is_string($call->var->name) && 'this' === $call->var->name && $call->name instanceof Identifier && KernelMethod::Mutate->value === $call->name->toString();
     }
 }

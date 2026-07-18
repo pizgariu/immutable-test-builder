@@ -13,7 +13,9 @@ use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
+use Pizgariu\ImmutableTestBuilder\Enum\KernelMethod;
 
 /**
  * The mutation closure receives the clone as its parameter and has no
@@ -30,6 +32,9 @@ final class StaticMutationClosureRule implements Rule
         return MethodCall::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         $class = $scope->getClassReflection();
@@ -42,7 +47,7 @@ final class StaticMutationClosureRule implements Rule
             return [];
         }
 
-        if (!$node->name instanceof Identifier || 'mutate' !== $node->name->toString()) {
+        if (!$node->name instanceof Identifier || KernelMethod::Mutate->value !== $node->name->toString()) {
             return [];
         }
 

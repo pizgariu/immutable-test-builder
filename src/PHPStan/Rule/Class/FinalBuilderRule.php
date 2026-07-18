@@ -9,11 +9,11 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
 
 /**
- * A concrete builder is a leaf: extension points belong in an abstract base,
- * never in a buildable class.
+ * A concrete builder is a leaf: extension points belong in an abstract base, never in a buildable class.
  *
  * @implements Rule<InClassNode>
  */
@@ -24,6 +24,9 @@ final class FinalBuilderRule implements Rule
         return InClassNode::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         $class = $node->getClassReflection();

@@ -24,8 +24,10 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\Prefix;
+use PHPStan\ShouldNotHappenException;
+use Pizgariu\ImmutableTestBuilder\Enum\KernelMethod;
+use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
 
 /**
  * A declared modifier's body must keep the promise its prefix makes. The
@@ -46,25 +48,24 @@ final class ModifierBehaviourRule implements Rule
         return InClassMethodNode::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = $scope->getClassReflection();
+        $class = ConcreteBuilder::fromScope($scope);
 
-        if (null === $class || $class->isInterface() || $class->isEnum() || $class->isAbstract()) {
-            return [];
-        }
-
-        if (!$class->implementsInterface(BuilderInterface::class)) {
+        if (null === $class) {
             return [];
         }
 
         $method = $node->getOriginalNode();
+        $name = ConcreteBuilder::declaredModifierName($method);
 
-        if (!$method->isPublic() || $method->isStatic()) {
+        if (null === $name) {
             return [];
         }
 
-        $name = $method->name->toString();
         $prefix = Prefix::ofMethod($name);
 
         if (null === $prefix) {
@@ -218,7 +219,7 @@ final class ModifierBehaviourRule implements Rule
             return null;
         }
 
-        if (!$call->name instanceof Identifier || 'mutate' !== $call->name->toString() || $call->isFirstClassCallable()) {
+        if (!$call->name instanceof Identifier || KernelMethod::Mutate->value !== $call->name->toString() || $call->isFirstClassCallable()) {
             return null;
         }
 

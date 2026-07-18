@@ -13,8 +13,10 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\Prefix;
+use PHPStan\ShouldNotHappenException;
+use Pizgariu\ImmutableTestBuilder\Enum\KernelMethod;
+use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
 
 /**
  * seed() fills the perfect default and nothing else: it stays protected
@@ -31,21 +33,20 @@ final class SeedDisciplineRule implements Rule
         return InClassMethodNode::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = $scope->getClassReflection();
+        $class = ConcreteBuilder::fromScope($scope);
 
-        if (null === $class || $class->isInterface() || $class->isEnum() || $class->isAbstract()) {
-            return [];
-        }
-
-        if (!$class->implementsInterface(BuilderInterface::class)) {
+        if (null === $class) {
             return [];
         }
 
         $method = $node->getOriginalNode();
 
-        if ('seed' !== $method->name->toString()) {
+        if (KernelMethod::Seed->value !== $method->name->toString()) {
             return [];
         }
 
@@ -79,7 +80,7 @@ final class SeedDisciplineRule implements Rule
 
             $name = $call->name->toString();
 
-            if ('build' === $name) {
+            if (KernelMethod::Build->value === $name) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     'seed() on builder %s calls build() - the builder is not complete while it is being seeded.',
                     $class->getDisplayName(),

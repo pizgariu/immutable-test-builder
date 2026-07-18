@@ -7,6 +7,7 @@ namespace Pizgariu\ImmutableTestBuilder;
 use BadMethodCallException;
 use Closure;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
+use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
 use ReflectionClass;
 use ReflectionNamedType;
 

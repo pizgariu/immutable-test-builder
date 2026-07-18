@@ -16,8 +16,10 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
-use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
+use Pizgariu\ImmutableTestBuilder\Enum\KernelMethod;
+use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
 
 /**
  * The perfect default as a per-property obligation: every non-static
@@ -35,19 +37,14 @@ final class PerfectDefaultPropertyRule implements Rule
         return InClassNode::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = $node->getClassReflection();
+        $class = ConcreteBuilder::fromScope($scope);
 
-        if ($class->isInterface() || $class->isTrait() || $class->isEnum()) {
-            return [];
-        }
-
-        if ($class->isAbstract() || $class->isAnonymous()) {
-            return [];
-        }
-
-        if (!$class->implementsInterface(BuilderInterface::class) || !$class->isSubclassOf(AbstractBuilder::class)) {
+        if (null === $class || !$class->isSubclassOf(AbstractBuilder::class)) {
             return [];
         }
 
@@ -96,7 +93,7 @@ final class PerfectDefaultPropertyRule implements Rule
      */
     private function propertiesAssignedInSeed(Class_ $classNode): array
     {
-        $seed = $classNode->getMethod('seed');
+        $seed = $classNode->getMethod(KernelMethod::Seed->value);
 
         if (null === $seed || null === $seed->stmts) {
             return [];

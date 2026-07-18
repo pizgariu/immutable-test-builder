@@ -6,7 +6,7 @@ namespace Pizgariu\ImmutableTestBuilder\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Pizgariu\ImmutableTestBuilder\Prefix;
+use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
 
 final class PrefixTest extends TestCase
 {

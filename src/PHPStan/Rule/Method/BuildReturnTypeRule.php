@@ -12,7 +12,9 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
+use PHPStan\ShouldNotHappenException;
+use Pizgariu\ImmutableTestBuilder\Enum\KernelMethod;
+use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
 
 /**
  * build() never hands back a half-thing: a concrete builder declares a
@@ -28,21 +30,20 @@ final class BuildReturnTypeRule implements Rule
         return InClassMethodNode::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = $scope->getClassReflection();
+        $class = ConcreteBuilder::fromScope($scope);
 
-        if (null === $class || $class->isInterface() || $class->isEnum() || $class->isAbstract()) {
-            return [];
-        }
-
-        if (!$class->implementsInterface(BuilderInterface::class)) {
+        if (null === $class) {
             return [];
         }
 
         $method = $node->getOriginalNode();
 
-        if ('build' !== $method->name->toString() || $method->isStatic()) {
+        if (KernelMethod::Build->value !== $method->name->toString() || $method->isStatic()) {
             return [];
         }
 

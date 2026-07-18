@@ -9,21 +9,18 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\Prefix;
+use PHPStan\ShouldNotHappenException;
+use Pizgariu\ImmutableTestBuilder\Enum\KernelMethod;
+use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
 
 /**
- * The public surface of a concrete builder is the DSL and nothing else:
- * build(), the create() factory and the modifier prefixes.
+ * The public surface of a concrete builder is the DSL and nothing else: build(), the create() factory and the modifier prefixes.
  *
  * @implements Rule<InClassMethodNode>
  */
 final class ModifierNameRule implements Rule
 {
-    private const array ALLOWED_INSTANCE_METHODS = ['build'];
-
-    private const array ALLOWED_STATIC_METHODS = ['create'];
-
     private const array FORBIDDEN_PREFIXES = ['set', 'make', 'add'];
 
     public function getNodeType(): string
@@ -31,15 +28,14 @@ final class ModifierNameRule implements Rule
         return InClassMethodNode::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = $scope->getClassReflection();
+        $class = ConcreteBuilder::fromScope($scope);
 
-        if (null === $class || $class->isInterface() || $class->isEnum() || $class->isAbstract()) {
-            return [];
-        }
-
-        if (!$class->implementsInterface(BuilderInterface::class)) {
+        if (null === $class) {
             return [];
         }
 
@@ -56,7 +52,7 @@ final class ModifierNameRule implements Rule
         }
 
         if ($method->isStatic()) {
-            if (in_array($name, self::ALLOWED_STATIC_METHODS, true)) {
+            if (KernelMethod::Create->value === $name) {
                 return [];
             }
 
@@ -71,7 +67,7 @@ final class ModifierNameRule implements Rule
             ];
         }
 
-        if (in_array($name, self::ALLOWED_INSTANCE_METHODS, true) || null !== Prefix::ofMethod($name)) {
+        if (KernelMethod::Build->value === $name || null !== Prefix::ofMethod($name)) {
             return [];
         }
 

@@ -11,7 +11,7 @@ use PHPStan\Type\ArrayType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
-use Pizgariu\ImmutableTestBuilder\Prefix;
+use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
 
 /**
  * Teaches PHPStan every magic modifier the kernel implements at runtime.
