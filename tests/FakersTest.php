@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Pizgariu\ImmutableTestBuilder\Fakers;
@@ -28,13 +29,31 @@ final class FakersTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * @return iterable<string, array{locale: string}>
      */
     public static function provideLocales(): iterable
     {
-        yield 'default locale' => [Fakers::DEFAULT_LOCALE];
-        yield 'polish locale' => ['pl_PL'];
-        yield 'romanian locale' => ['ro_RO'];
+        yield 'default locale' => ['locale' => Fakers::DEFAULT_LOCALE];
+        yield 'polish locale' => ['locale' => 'pl_PL'];
+        yield 'romanian locale' => ['locale' => 'ro_RO'];
+    }
+
+    #[DataProvider('provideUnknownLocales')]
+    public function testLocaleRejectsUnknownLocale(string $locale): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($locale);
+
+        Fakers::locale($locale);
+    }
+
+    /**
+     * @return iterable<string, array{locale: string}>
+     */
+    public static function provideUnknownLocales(): iterable
+    {
+        yield 'hyphen instead of underscore' => ['locale' => 'pl-PL'];
+        yield 'made up locale' => ['locale' => 'xx_XX'];
     }
 
     public function testLocaleReturnsDifferentGeneratorsForDifferentLocales(): void

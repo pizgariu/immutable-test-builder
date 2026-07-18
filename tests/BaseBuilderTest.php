@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
 use Pizgariu\ImmutableTestBuilder\Fakers;
+use Pizgariu\ImmutableTestBuilder\Tests\Fixture\PolishNameBuilder;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\Spaceship;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\SpaceshipBuilder;
 use ReflectionClass;
@@ -38,6 +39,11 @@ final class BaseBuilderTest extends TestCase
     public function testCreateFixesDefaultLocale(): void
     {
         self::assertSame(Fakers::DEFAULT_LOCALE, SpaceshipBuilder::create()->locale());
+    }
+
+    public function testCreateUsesOverriddenDefaultLocale(): void
+    {
+        self::assertSame('pl_PL', PolishNameBuilder::create()->locale());
     }
 
     public function testCreateInSeedsFromRequestedLocaleGenerator(): void
@@ -79,34 +85,34 @@ final class BaseBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{Closure(SpaceshipBuilder): SpaceshipBuilder, Closure(Spaceship): void}>
+     * @return iterable<string, array{modify: Closure(SpaceshipBuilder): SpaceshipBuilder, assertModified: Closure(Spaceship): void}>
      */
     public static function provideModifiers(): iterable
     {
         yield 'withName' => [
-            static fn (SpaceshipBuilder $builder): SpaceshipBuilder => $builder->withName('Nostromo'),
-            static function (Spaceship $ship): void {
+            'modify' => static fn (SpaceshipBuilder $builder): SpaceshipBuilder => $builder->withName('Nostromo'),
+            'assertModified' => static function (Spaceship $ship): void {
                 self::assertSame('Nostromo', $ship->name);
             },
         ];
 
         yield 'withCrew' => [
-            static fn (SpaceshipBuilder $builder): SpaceshipBuilder => $builder->withCrew(7),
-            static function (Spaceship $ship): void {
+            'modify' => static fn (SpaceshipBuilder $builder): SpaceshipBuilder => $builder->withCrew(7),
+            'assertModified' => static function (Spaceship $ship): void {
                 self::assertSame(7, $ship->crew);
             },
         ];
 
         yield 'asLaunched' => [
-            static fn (SpaceshipBuilder $builder): SpaceshipBuilder => $builder->asLaunched(),
-            static function (Spaceship $ship): void {
+            'modify' => static fn (SpaceshipBuilder $builder): SpaceshipBuilder => $builder->asLaunched(),
+            'assertModified' => static function (Spaceship $ship): void {
                 self::assertTrue($ship->launched);
             },
         ];
 
         yield 'withoutFuel' => [
-            static fn (SpaceshipBuilder $builder): SpaceshipBuilder => $builder->withoutFuel(),
-            static function (Spaceship $ship): void {
+            'modify' => static fn (SpaceshipBuilder $builder): SpaceshipBuilder => $builder->withoutFuel(),
+            'assertModified' => static function (Spaceship $ship): void {
                 self::assertSame(0, $ship->fuel);
             },
         ];

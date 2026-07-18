@@ -21,7 +21,7 @@ use Pizgariu\ImmutableTestBuilder\Contract\Builder;
  * seeded values in the old locale, a whole class of stale-randomization
  * bugs this API makes unrepresentable.
  *
- * @template T
+ * @template-covariant T
  * @implements Builder<T>
  */
 abstract class BaseBuilder implements Builder
@@ -31,12 +31,21 @@ abstract class BaseBuilder implements Builder
     }
 
     /**
-     * Perfect default in the default locale: the returned builder must
-     * build() successfully with no further calls.
+     * Perfect default in the builder's default locale: the returned builder
+     * must build() successfully with no further calls.
      */
     final public static function create(): static
     {
-        return static::createIn(Fakers::DEFAULT_LOCALE);
+        return static::createIn(static::defaultLocale());
+    }
+
+    /**
+     * The locale create() seeds from. Override in a project-wide base
+     * builder to move every create() call site to another locale at once.
+     */
+    protected static function defaultLocale(): string
+    {
+        return Fakers::DEFAULT_LOCALE;
     }
 
     /**
@@ -65,6 +74,9 @@ abstract class BaseBuilder implements Builder
         return Fakers::locale($this->locale);
     }
 
+    /**
+     * The locale this builder was created in.
+     */
     final public function locale(): string
     {
         return $this->locale;
@@ -74,6 +86,11 @@ abstract class BaseBuilder implements Builder
      * The immutability engine: clones this builder, invokes the mutation
      * with the clone and returns the clone. Every public modifier of a
      * concrete builder is a one-liner delegating here.
+     *
+     * The clone is shallow: isolation holds for scalar, array and immutable
+     * object ingredients. A mutable object ingredient is shared with the
+     * clone - replace it inside the modifier instead of mutating it in
+     * place, or deep-copy it in an overridden __clone().
      *
      * @param Closure(static): void $mutation
      */

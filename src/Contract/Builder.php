@@ -22,7 +22,10 @@ use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
  * by one test on behalf of the next, because no call site can mutate it.
  * Safe reuse and branching: a partially tailored builder can serve as the
  * trunk for several divergent variants inside a single test, and none of the
- * variants observes the changes made to the others.
+ * variants observes the changes made to the others. Both guarantees hold for
+ * scalar, array and immutable-object ingredients; a mutable object ingredient
+ * must be replaced inside a modifier, never mutated in place, or deep-copied
+ * in an overridden __clone().
  *
  * Modifier naming DSL (a documented contract of this library; static
  * enforcement ships in a later release): with*(value) sets a value,
