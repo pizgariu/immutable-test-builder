@@ -178,21 +178,40 @@ abstract class AbstractBuilder implements BuilderInterface
     }
 
     /**
-     * The immutability engine: clones this builder, invokes the mutation
-     * with the clone and returns the clone. Every public modifier of a
-     * concrete builder is a one-liner delegating here.
+     * The immutability engine: clones this builder, applies the mutation to
+     * the clone and returns the clone. Every public modifier of a concrete
+     * builder is a one-liner delegating here.
+     *
+     * The mutation is either a closure receiving the clone or a plain
+     * property map - the dialect PHP 8.5's clone-with speaks, portable back
+     * to 8.3 through a write bound into the concrete class scope. Once 8.5
+     * becomes this package's floor the map form swaps its internals for the
+     * native call and no call site moves.
      *
      * The clone is shallow: isolation holds for scalar, array and immutable
      * object ingredients. A mutable object ingredient is shared with the
      * clone - replace it inside the modifier instead of mutating it in
      * place, or deep-copy it in an overridden __clone().
      *
-     * @param Closure(static): void $mutation
+     * @param Closure(static): void|array<string, mixed> $mutation
      */
-    final protected function mutate(Closure $mutation): static
+    final protected function mutate(Closure|array $mutation): static
     {
         $clone = clone $this;
-        $mutation($clone);
+
+        if ($mutation instanceof Closure) {
+            $mutation($clone);
+
+            return $clone;
+        }
+
+        $write = static function (object $target) use ($mutation): void {
+            foreach ($mutation as $property => $value) {
+                $target->{$property} = $value;
+            }
+        };
+
+        Closure::bind($write, null, static::class)($clone);
 
         return $clone;
     }

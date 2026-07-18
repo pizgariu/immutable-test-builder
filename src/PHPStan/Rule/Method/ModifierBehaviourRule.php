@@ -29,8 +29,9 @@ use Pizgariu\ImmutableTestBuilder\Prefix;
 
 /**
  * A declared modifier's body must keep the promise its prefix makes. The
- * kernel funnels every mutation through the closure handed to mutate(), so
- * the semantics are statically checkable right there: without* and as* take
+ * kernel funnels every mutation through the closure or property map handed
+ * to mutate(), so the semantics are statically checkable right there:
+ * without* and as* take
  * no parameters, the feeding prefixes take at least one, without* only
  * writes empty values, including* appends, excluding* never appends, and
  * having* writes more than one property or it is a with* in a having*
@@ -98,32 +99,53 @@ final class ModifierBehaviourRule implements Rule
             ;
         }
 
-        $mutation = $this->mutationClosure($method->stmts);
+        $mutation = $this->mutationExpression($method->stmts);
 
         if (null === $mutation) {
             return $errors;
         }
 
-        $finder = new NodeFinder();
-        /** @var list<Assign> $assignments */
-        $assignments = $finder->findInstanceOf([$mutation], Assign::class);
-
         $appends = 0;
         $propertyWrites = [];
         $nonEmptyWrites = 0;
 
-        foreach ($assignments as $assignment) {
-            if ($assignment->var instanceof ArrayDimFetch && null === $assignment->var->dim) {
-                ++$appends;
+        if ($mutation instanceof Array_) {
+            foreach ($mutation->items as $item) {
+                if (!$item->key instanceof String_) {
+                    continue;
+                }
 
-                continue;
-            }
+                $propertyWrites[$item->key->value] = true;
 
-            if ($assignment->var instanceof PropertyFetch && $assignment->var->name instanceof Identifier) {
-                $propertyWrites[$assignment->var->name->toString()] = true;
-
-                if (!$this->isEmptyingValue($assignment->expr)) {
+                if ($item->value instanceof Array_ && $this->containsSpread($item->value)) {
+                    ++$appends;
                     ++$nonEmptyWrites;
+
+                    continue;
+                }
+
+                if (!$this->isEmptyingValue($item->value)) {
+                    ++$nonEmptyWrites;
+                }
+            }
+        } else {
+            $finder = new NodeFinder();
+            /** @var list<Assign> $assignments */
+            $assignments = $finder->findInstanceOf([$mutation], Assign::class);
+
+            foreach ($assignments as $assignment) {
+                if ($assignment->var instanceof ArrayDimFetch && null === $assignment->var->dim) {
+                    ++$appends;
+
+                    continue;
+                }
+
+                if ($assignment->var instanceof PropertyFetch && $assignment->var->name instanceof Identifier) {
+                    $propertyWrites[$assignment->var->name->toString()] = true;
+
+                    if (!$this->isEmptyingValue($assignment->expr)) {
+                        ++$nonEmptyWrites;
+                    }
                 }
             }
         }
@@ -178,7 +200,7 @@ final class ModifierBehaviourRule implements Rule
     /**
      * @param array<Node\Stmt>|null $statements
      */
-    private function mutationClosure(?array $statements): Closure|ArrowFunction|null
+    private function mutationExpression(?array $statements): Closure|ArrowFunction|Array_|null
     {
         if (null === $statements || 1 !== count($statements)) {
             return null;
@@ -208,7 +230,18 @@ final class ModifierBehaviourRule implements Rule
 
         $mutation = $arguments[0]->value;
 
-        return $mutation instanceof Closure || $mutation instanceof ArrowFunction ? $mutation : null;
+        return $mutation instanceof Closure || $mutation instanceof ArrowFunction || $mutation instanceof Array_ ? $mutation : null;
+    }
+
+    private function containsSpread(Array_ $array): bool
+    {
+        foreach ($array->items as $item) {
+            if ($item->unpack) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function isEmptyingValue(Node $value): bool

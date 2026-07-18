@@ -206,11 +206,20 @@ public function withName(string $name): static
 }
 ```
 
+A trivial write can skip the closure entirely - hand mutate() the property map instead:
+
+```php
+public function withCrew(int $crew): static
+{
+    return $this->mutate(['crew' => $crew]);
+}
+```
+
 After `seed()` runs, no builder instance is ever written again. Two guarantees follow. A builder held in a shared fixture, a class property or a helper method cannot be corrupted by one test on behalf of the next, because no call site can mutate it. And a partially tailored builder can serve as the trunk for several divergent variants inside a single test - the branching test above - with none of the variants observing the others.
 
 One boundary to know about: the clone is shallow. Isolation holds for scalar, array and immutable-object ingredients; a mutable object ingredient (an entity, an `ArrayObject`) is shared between trunk and branches. Replace such an ingredient inside the modifier instead of mutating it in place, or deep-copy it in an overridden `__clone()`.
 
-When PHP 8.5's clone-with syntax becomes this package's floor, `mutate()` swaps its internals for the expression form - the signature and the contract stay put.
+The property-map form already speaks PHP 8.5's clone-with dialect, portable back to 8.3 through a write bound into the concrete class scope. When 8.5 becomes this package's floor, `mutate()` swaps its internals for the native call and no call site moves.
 
 ---
 

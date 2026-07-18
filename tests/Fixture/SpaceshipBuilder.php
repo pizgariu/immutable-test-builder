@@ -29,9 +29,7 @@ final class SpaceshipBuilder extends AbstractBuilder
 
     public function withCrew(int $crew): static
     {
-        return $this->mutate(static function (self $builder) use ($crew): void {
-            $builder->crew = $crew;
-        });
+        return $this->mutate(['crew' => $crew]);
     }
 
     public function asLaunched(): static

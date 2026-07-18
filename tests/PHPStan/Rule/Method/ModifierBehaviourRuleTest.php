@@ -21,6 +21,7 @@ final class ModifierBehaviourRuleTest extends RuleTestCase
     public function testReportsModifiersBreakingTheirPrefixPromise(): void
     {
         $builder = 'Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\ModifierBehaviour\CargoBuilder';
+        $arrayBuilder = 'Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\ModifierBehaviour\ArrayCargoBuilder';
 
         $this->analyse([__DIR__ . '/../../data/modifier-behaviour.php'], [
             [
@@ -50,6 +51,18 @@ final class ModifierBehaviourRuleTest extends RuleTestCase
             [
                 sprintf('havingWeight() on builder %s mutates a single property - having* is for one inseparable multi-property concept. A single write is a with*.', $builder),
                 74,
+            ],
+            [
+                sprintf('withoutWeight() on builder %s assigns a non-empty value - without* promises emptying or nullifying. A real value makes it a with* wearing a mask.', $arrayBuilder),
+                149,
+            ],
+            [
+                sprintf('includingTag() on builder %s never appends - including* promises extending a collection with []=. Replacing the whole collection is a with*.', $arrayBuilder),
+                159,
+            ],
+            [
+                sprintf('havingWeight() on builder %s mutates a single property - having* is for one inseparable multi-property concept. A single write is a with*.', $arrayBuilder),
+                169,
             ],
         ]);
     }

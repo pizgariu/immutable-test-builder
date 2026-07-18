@@ -126,3 +126,63 @@ final class CargoBuilder extends AbstractBuilder
         return sprintf('%s %s %s %d %d %d', $this->owner ?? '', $this->city, $this->street, $this->weight, (int) $this->sealed, count($this->tags));
     }
 }
+
+/**
+ * @extends AbstractBuilder<string>
+ */
+final class ArrayCargoBuilder extends AbstractBuilder
+{
+    /** @var list<string> */
+    private array $tags = [];
+
+    private int $weight = 0;
+
+    private string $city = '';
+
+    private string $street = '';
+
+    public function withWeight(int $weight): static
+    {
+        return $this->mutate(['weight' => $weight]);
+    }
+
+    public function withoutWeight(): static
+    {
+        return $this->mutate(['weight' => 10]);
+    }
+
+    public function withoutTags(): static
+    {
+        return $this->mutate(['tags' => []]);
+    }
+
+    public function includingTag(string $tag): static
+    {
+        return $this->mutate(['tags' => [$tag]]);
+    }
+
+    public function includingStripedTag(string $tag): static
+    {
+        return $this->mutate(['tags' => [...$this->tags, $tag]]);
+    }
+
+    public function havingWeight(int $weight): static
+    {
+        return $this->mutate(['weight' => $weight]);
+    }
+
+    public function havingAddress(string $city, string $street): static
+    {
+        return $this->mutate(['city' => $city, 'street' => $street]);
+    }
+
+    public function build(): string
+    {
+        return sprintf('%s %s %d %d', $this->city, $this->street, $this->weight, count($this->tags));
+    }
+
+    protected function seed(): void
+    {
+        $this->city = 'LV';
+    }
+}
