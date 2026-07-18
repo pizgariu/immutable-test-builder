@@ -68,16 +68,6 @@ final class UserBuilder extends AbstractBuilder
 
     private bool $active;
 
-    protected function seed(): void
-    {
-        $suffix = random_int(1, 9999);
-
-        $this->name = sprintf('User %04d', $suffix);
-        $this->email = sprintf('user-%04d@example.test', $suffix);
-        $this->roles = ['user'];
-        $this->active = true;
-    }
-
     public function asDeactivated(): static
     {
         return $this->mutate(static function (self $builder): void {
@@ -99,6 +89,16 @@ final class UserBuilder extends AbstractBuilder
         }
 
         return new User($this->name, $this->email, $this->roles, $this->active);
+    }
+
+    protected function seed(): void
+    {
+        $suffix = random_int(1, 9999);
+
+        $this->name = sprintf('User %04d', $suffix);
+        $this->email = sprintf('user-%04d@example.test', $suffix);
+        $this->roles = ['user'];
+        $this->active = true;
     }
 }
 ```

@@ -27,16 +27,6 @@ final class FreighterBuilder extends AbstractBuilder
     /** @var list<string> */
     private array $decals;
 
-    protected function seed(): void
-    {
-        $this->pilot = 'Ripley';
-        $this->callsign = sprintf('NX-%04d', random_int(1, 9999));
-        $this->cargo = random_int(1, 100);
-        $this->fuel = 1.5;
-        $this->armed = false;
-        $this->decals = ['stripe'];
-    }
-
     /**
      * @return array<string, mixed>
      */
@@ -50,5 +40,15 @@ final class FreighterBuilder extends AbstractBuilder
             'armed' => $this->armed,
             'decals' => $this->decals,
         ];
+    }
+
+    protected function seed(): void
+    {
+        $this->pilot = 'Ripley';
+        $this->callsign = sprintf('NX-%04d', random_int(1, 9999));
+        $this->cargo = random_int(1, 100);
+        $this->fuel = 1.5;
+        $this->armed = false;
+        $this->decals = ['stripe'];
     }
 }

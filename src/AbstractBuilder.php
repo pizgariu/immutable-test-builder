@@ -9,7 +9,6 @@ use Closure;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
 use ReflectionClass;
 use ReflectionNamedType;
-use ReflectionProperty;
 
 /**
  * Base class for immutable test data builders.
@@ -37,8 +36,7 @@ abstract class AbstractBuilder implements BuilderInterface
     final protected function __construct() {}
 
     /**
-     * Perfect default: the returned builder must build() successfully with
-     * no further calls.
+     * Perfect default: the returned builder must build() successfully with no further calls.
      */
     final public static function create(): static
     {
@@ -49,20 +47,13 @@ abstract class AbstractBuilder implements BuilderInterface
     }
 
     /**
-     * Fill the perfect default here. Called exactly once by create().
-     */
-    abstract protected function seed(): void;
-
-    /**
      * The magic half of the DSL. Resolves the prefix, the target property
      * and the written value, then funnels the change through mutate() like
      * every handwritten modifier.
      *
      * @param array<int, mixed> $arguments
      *
-     * @throws BadMethodCallException when the name is outside the DSL, the
-     *                                prefix is never magic, no property
-     *                                matches or the arity is wrong
+     * @throws BadMethodCallException when the name is outside the DSL, the prefix is never magic, no property matches or the arity is wrong
      */
     final public function __call(string $method, array $arguments): static
     {
@@ -87,7 +78,32 @@ abstract class AbstractBuilder implements BuilderInterface
             ));
         }
 
-        $property = $this->magicProperty($prefix, $method);
+        $property = null;
+        $reflection = new ReflectionClass(static::class);
+
+        foreach ($prefix->propertyCandidates($method) as $candidate) {
+            if (!$reflection->hasProperty($candidate)) {
+                continue;
+            }
+
+            $candidateProperty = $reflection->getProperty($candidate);
+
+            if (!$candidateProperty->isStatic()) {
+                $property = $candidateProperty;
+
+                break;
+            }
+        }
+
+        if (null === $property) {
+            throw new BadMethodCallException(sprintf(
+                '%s() has no matching property on %s (tried $%s) - declare the property or write the modifier explicitly.',
+                $method,
+                static::class,
+                implode(', $', $prefix->propertyCandidates($method)),
+            ));
+        }
+
         $expectedArguments = $prefix->takesParameters() ? 1 : 0;
 
         if (count($arguments) !== $expectedArguments) {
@@ -102,11 +118,39 @@ abstract class AbstractBuilder implements BuilderInterface
         }
 
         $name = $property->getName();
-        $value = match ($prefix) {
-            Prefix::Without => self::emptyValueFor($property, $method),
-            Prefix::As => true,
-            default => $arguments[0] ?? null,
-        };
+        $value = $arguments[0] ?? null;
+
+        if (Prefix::As === $prefix) {
+            $value = true;
+        }
+
+        if (Prefix::Without === $prefix) {
+            $type = $property->getType();
+
+            if (null === $type || $type->allowsNull()) {
+                $value = null;
+            } elseif ($type instanceof ReflectionNamedType) {
+                $value = match ($type->getName()) {
+                    'array' => [],
+                    'string' => '',
+                    'int' => 0,
+                    'float' => 0.0,
+                    'bool' => false,
+                    default => throw new BadMethodCallException(sprintf(
+                        'Cannot infer an empty value for $%s of type %s - write %s() explicitly.',
+                        $name,
+                        $type->getName(),
+                        $method,
+                    )),
+                };
+            } else {
+                throw new BadMethodCallException(sprintf(
+                    'Cannot infer an empty value for $%s - write %s() explicitly.',
+                    $name,
+                    $method,
+                ));
+            }
+        }
 
         $write = match ($prefix) {
             Prefix::With, Prefix::Without, Prefix::As => static function (object $clone) use ($name, $value): void {
@@ -153,58 +197,8 @@ abstract class AbstractBuilder implements BuilderInterface
         return $clone;
     }
 
-    private function magicProperty(Prefix $prefix, string $method): ReflectionProperty
-    {
-        $reflection = new ReflectionClass(static::class);
-
-        foreach ($prefix->propertyCandidates($method) as $candidate) {
-            if (!$reflection->hasProperty($candidate)) {
-                continue;
-            }
-
-            $property = $reflection->getProperty($candidate);
-
-            if (!$property->isStatic()) {
-                return $property;
-            }
-        }
-
-        throw new BadMethodCallException(sprintf(
-            '%s() has no matching property on %s (tried $%s) - declare the property or write the modifier explicitly.',
-            $method,
-            static::class,
-            implode(', $', $prefix->propertyCandidates($method)),
-        ));
-    }
-
-    private static function emptyValueFor(ReflectionProperty $property, string $method): mixed
-    {
-        $type = $property->getType();
-
-        if (null === $type || $type->allowsNull()) {
-            return null;
-        }
-
-        if ($type instanceof ReflectionNamedType) {
-            return match ($type->getName()) {
-                'array' => [],
-                'string' => '',
-                'int' => 0,
-                'float' => 0.0,
-                'bool' => false,
-                default => throw new BadMethodCallException(sprintf(
-                    'Cannot infer an empty value for $%s of type %s - write %s() explicitly.',
-                    $property->getName(),
-                    $type->getName(),
-                    $method,
-                )),
-            };
-        }
-
-        throw new BadMethodCallException(sprintf(
-            'Cannot infer an empty value for $%s - write %s() explicitly.',
-            $property->getName(),
-            $method,
-        ));
-    }
+    /**
+     * Fill the perfect default here. Called exactly once by create().
+     */
+    abstract protected function seed(): void;
 }

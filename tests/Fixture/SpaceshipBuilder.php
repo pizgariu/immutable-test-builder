@@ -20,14 +20,6 @@ final class SpaceshipBuilder extends AbstractBuilder
 
     private bool $launched;
 
-    protected function seed(): void
-    {
-        $this->name = sprintf('Vessel-%04d', random_int(1, 9999));
-        $this->fuel = random_int(1, 100);
-        $this->crew = random_int(1, 12);
-        $this->launched = false;
-    }
-
     public function withName(string $name): static
     {
         return $this->mutate(static function (self $builder) use ($name): void {
@@ -70,5 +62,13 @@ final class SpaceshipBuilder extends AbstractBuilder
         }
 
         return new Spaceship($this->name, $this->fuel, $this->crew, $this->launched);
+    }
+
+    protected function seed(): void
+    {
+        $this->name = sprintf('Vessel-%04d', random_int(1, 9999));
+        $this->fuel = random_int(1, 100);
+        $this->crew = random_int(1, 12);
+        $this->launched = false;
     }
 }
