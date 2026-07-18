@@ -11,18 +11,18 @@ namespace Pizgariu\ImmutableTestBuilder;
  */
 enum Prefix: string
 {
-    case With = 'with';
-    case Without = 'without';
-    case As = 'as';
     case From = 'from';
     case For = 'for';
+    case As = 'as';
+    case Having = 'having';
     case Including = 'including';
     case Excluding = 'excluding';
-    case Having = 'having';
+    case Without = 'without';
+    case With = 'with';
 
     public static function ofMethod(string $methodName): ?self
     {
-        foreach (self::matchOrder() as $prefix) {
+        foreach (self::cases() as $prefix) {
             if (1 === preg_match(sprintf('/^%s[A-Z0-9]/', $prefix->value), $methodName)) {
                 return $prefix;
             }
@@ -81,14 +81,4 @@ enum Prefix: string
         };
     }
 
-    /**
-     * Longest prefixes first, so with never swallows without and for never
-     * shadows anything it should not.
-     *
-     * @return list<self>
-     */
-    private static function matchOrder(): array
-    {
-        return [self::Including, self::Excluding, self::Without, self::Having, self::From, self::With, self::For, self::As];
-    }
 }
