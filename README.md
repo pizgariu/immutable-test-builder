@@ -4,7 +4,7 @@ Declare one valid object, once. Every test rents a tailored copy through modifie
 
 [![CI](https://github.com/pizgariu/immutable-test-builder/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/pizgariu/immutable-test-builder/actions/workflows/ci.yml)
 [![Packagist](https://img.shields.io/packagist/v/pizgariu/immutable-test-builder.svg)](https://packagist.org/packages/pizgariu/immutable-test-builder)
-[![PHP versions](https://img.shields.io/badge/php-8.3%20%7C%208.4-blue.svg)](https://github.com/pizgariu/immutable-test-builder)
+[![PHP versions](https://img.shields.io/badge/php-8.3%20%7C%208.4%20%7C%208.5-blue.svg)](https://github.com/pizgariu/immutable-test-builder)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Immutable test data builders for PHP. A builder is born with a perfect default: `build()` succeeds immediately, seeded with realistic faker data, so a test states only the values it asserts on. Every modifier returns a NEW instance, so a builder can sit in a shared fixture or serve as the trunk for divergent variants and no test corrupts another. One contract, one base class, one generator registry, one exception - `fakerphp/faker` is the only runtime dependency.
@@ -188,7 +188,7 @@ final class UserBuilderTest extends TestCase
 
 Three things in that test are the entire idea.
 
-**The default built immediately.** The first test puts nothing between `create()` and `build()`. Its assertions prove the seeded data is plausible - a non-empty name, a real-shaped email address, one sensible role, an active account - not that it equals any particular value. Nobody typed those values, and no future test will break because a required field was forgotten: the builder cannot exist without them.
+**The default built immediately.** The first test puts nothing between `create()` and `build()`. Two of its assertions prove the seeded data is plausible - a non-empty name, a real-shaped email address - not that it equals any particular value; nobody typed those. The other two pin deliberate constants from `seed()` - one sensible role, an active account - because a perfect default mixes plausible randomness with opinionated fixed choices. Either way, no future test breaks because a required field was forgotten: the builder cannot exist without them.
 
 **Three variants, one trunk, zero interference.** The second test tailors a base builder, then branches it twice. `appendRole()` gave the admin variant a second role, `asDeactivated()` switched the other variant off, and the assertions on the trunk still hold after both branches were taken: one role, active. Each modifier returned a new instance, so the trunk never learned about its descendants and the two branches never learned about each other.
 
@@ -231,6 +231,8 @@ public function withName(string $name): static
 
 After `seed()` runs, no builder instance is ever written again. Two guarantees follow. A builder held in a shared fixture, a class property or a helper method cannot be corrupted by one test on behalf of the next, because no call site can mutate it. And a partially tailored builder can serve as the trunk for several divergent variants inside a single test - the branching test above - with none of the variants observing the others.
 
+One boundary to know about: the clone is shallow. Isolation holds for scalar, array and immutable-object ingredients; a mutable object ingredient (an entity, an `ArrayObject`) is shared between trunk and branches. Replace such an ingredient inside the modifier instead of mutating it in place, or deep-copy it in an overridden `__clone()`.
+
 ---
 
 ## Loud failure
@@ -264,6 +266,17 @@ $polishUser = UserBuilder::createIn('pl_PL')->build();
 
 The locale is deliberately not a modifier. A `withLocale()` call after creation would arrive too late: `seed()` has already run, so every already-seeded value would still be in the old locale and only later writes would follow the new one - half an object in one language, half in another, and no way to see it in a green test. That whole class of stale-randomization bugs is unrepresentable here, because there is no moment at which a builder's locale can change.
 
+`locale()` returns the locale a builder was created in. A project that wants a different default everywhere overrides one hook in its own base builder - and every `create()` call site follows:
+
+```php
+protected static function defaultLocale(): string
+{
+    return 'pl_PL';
+}
+```
+
+An unknown locale does not silently produce default-locale data. `createIn('pl-PL')` - a typo for `pl_PL` - would quietly fall back to `en_US` inside Faker and keep every test green; `Fakers::locale()` refuses it instead with an `InvalidArgumentException` naming the rejected string.
+
 Behind the scenes, `Fakers` memoizes one `Faker\Generator` per locale per process, so seeding stays cheap no matter how many builders a suite creates. `Fakers::flush()` drops the memoized instances when a test needs generator-level isolation.
 
 ---
@@ -292,7 +305,7 @@ The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-pl
 composer require --dev pizgariu/immutable-test-builder
 ```
 
-PHP 8.3 or 8.4 and `fakerphp/faker` are all it needs.
+PHP 8.3+ (`^8.3`) and `fakerphp/faker` are all it needs.
 
 ---
 
@@ -315,7 +328,7 @@ vendor/bin/phpunit
 vendor/bin/phpstan analyse
 ```
 
-PHPStan runs at level max over `src` and `tests`. CI validates `composer.json` strictly, then runs the suite and the analysis on PHP 8.3 and 8.4, on every push to `master` and every pull request. `fail-fast` is off, so a break on one interpreter does not hide the other.
+PHPStan runs at level max over `src` and `tests`. CI validates `composer.json` strictly, then runs the suite and the analysis on PHP 8.3, 8.4 and 8.5, on every push to `master` and every pull request. `fail-fast` is off, so a break on one interpreter does not hide the others.
 
 ---
 
