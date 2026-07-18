@@ -55,7 +55,10 @@ final class SeedDisciplineRule implements Rule
             $errors[] = RuleErrorBuilder::message(sprintf(
                 'seed() on builder %s must stay protected - a public seed() can be re-run on a live builder, and re-seeding is mutation through the back door.',
                 $class->getDisplayName(),
-            ))->identifier('immutableTestBuilder.seedVisibility')->build();
+            ))
+                ->identifier('immutableTestBuilder.seedVisibility')
+                ->build()
+            ;
         }
 
         if (null === $method->stmts) {
@@ -80,7 +83,11 @@ final class SeedDisciplineRule implements Rule
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     'seed() on builder %s calls build() - the builder is not complete while it is being seeded.',
                     $class->getDisplayName(),
-                ))->identifier('immutableTestBuilder.seedCallsBuild')->line($call->getStartLine())->build();
+                ))
+                    ->identifier('immutableTestBuilder.seedCallsBuild')
+                    ->line($call->getStartLine())
+                    ->build()
+                ;
 
                 continue;
             }
@@ -90,7 +97,11 @@ final class SeedDisciplineRule implements Rule
                     'seed() on builder %s calls %s() - a modifier returns a new clone that seed() throws away. Assign the property directly instead.',
                     $class->getDisplayName(),
                     $name,
-                ))->identifier('immutableTestBuilder.seedCallsModifier')->line($call->getStartLine())->build();
+                ))
+                    ->identifier('immutableTestBuilder.seedCallsModifier')
+                    ->line($call->getStartLine())
+                    ->build()
+                ;
             }
         }
 

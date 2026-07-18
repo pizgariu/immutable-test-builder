@@ -34,9 +34,7 @@ use ReflectionProperty;
  */
 abstract class AbstractBuilder implements BuilderInterface
 {
-    final protected function __construct()
-    {
-    }
+    final protected function __construct() {}
 
     /**
      * Perfect default: the returned builder must build() successfully with

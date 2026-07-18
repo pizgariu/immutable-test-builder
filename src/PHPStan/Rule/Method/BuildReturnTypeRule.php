@@ -54,7 +54,9 @@ final class BuildReturnTypeRule implements Rule
             RuleErrorBuilder::message(sprintf(
                 'build() on builder %s must declare a concrete non-nullable return type - an impossible state throws UnbuildableState, it never returns null or a half-thing.',
                 $class->getDisplayName(),
-            ))->identifier('immutableTestBuilder.buildReturnType')->build(),
+            ))
+                ->identifier('immutableTestBuilder.buildReturnType')
+                ->build(),
         ];
     }
 

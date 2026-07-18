@@ -81,7 +81,10 @@ final class ModifierBehaviourRule implements Rule
                     $name,
                     $display,
                     implode(' or ', array_map(static fn (Prefix $bare): string => $bare->value . '*', Prefix::parameterless())),
-                ))->identifier('immutableTestBuilder.modifierArity')->build();
+                ))
+                    ->identifier('immutableTestBuilder.modifierArity')
+                    ->build()
+                ;
             }
         } elseif (0 === $parameterCount) {
             $errors[] = RuleErrorBuilder::message(sprintf(
@@ -89,7 +92,10 @@ final class ModifierBehaviourRule implements Rule
                 $name,
                 $display,
                 $prefix->value,
-            ))->identifier('immutableTestBuilder.modifierArity')->build();
+            ))
+                ->identifier('immutableTestBuilder.modifierArity')
+                ->build()
+            ;
         }
 
         $mutation = $this->mutationClosure($method->stmts);
@@ -127,7 +133,10 @@ final class ModifierBehaviourRule implements Rule
                 '%s() on builder %s assigns a non-empty value - without* promises emptying or nullifying. A real value makes it a with* wearing a mask.',
                 $name,
                 $display,
-            ))->identifier('immutableTestBuilder.withoutSemantics')->build();
+            ))
+                ->identifier('immutableTestBuilder.withoutSemantics')
+                ->build()
+            ;
         }
 
         if (Prefix::Including === $prefix && 0 === $appends) {
@@ -135,7 +144,10 @@ final class ModifierBehaviourRule implements Rule
                 '%s() on builder %s never appends - including* promises extending a collection with []=. Replacing the whole collection is a with*.',
                 $name,
                 $display,
-            ))->identifier('immutableTestBuilder.includingSemantics')->build();
+            ))
+                ->identifier('immutableTestBuilder.includingSemantics')
+                ->build()
+            ;
         }
 
         if (Prefix::Excluding === $prefix && $appends > 0) {
@@ -143,7 +155,10 @@ final class ModifierBehaviourRule implements Rule
                 '%s() on builder %s appends with []= - excluding* promises shrinking a collection, not growing it.',
                 $name,
                 $display,
-            ))->identifier('immutableTestBuilder.excludingSemantics')->build();
+            ))
+                ->identifier('immutableTestBuilder.excludingSemantics')
+                ->build()
+            ;
         }
 
         if (Prefix::Having === $prefix && count($propertyWrites) < 2) {
@@ -151,7 +166,10 @@ final class ModifierBehaviourRule implements Rule
                 '%s() on builder %s mutates a single property - having* is for one inseparable multi-property concept. A single write is a with*.',
                 $name,
                 $display,
-            ))->identifier('immutableTestBuilder.havingSemantics')->build();
+            ))
+                ->identifier('immutableTestBuilder.havingSemantics')
+                ->build()
+            ;
         }
 
         return $errors;

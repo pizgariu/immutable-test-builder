@@ -45,7 +45,10 @@ final class WritableStateRule implements Rule
                 'Property $%s of builder %s must be private - builder state is sealed and modifiers write through closures that share class scope.',
                 $node->getName(),
                 $class->getDisplayName(),
-            ))->identifier('immutableTestBuilder.propertyVisibility')->build();
+            ))
+                ->identifier('immutableTestBuilder.propertyVisibility')
+                ->build()
+            ;
         }
 
         if ($node->isStatic()) {
@@ -53,7 +56,10 @@ final class WritableStateRule implements Rule
                 'Property $%s of builder %s must not be static - builder instances and their clones are independent, static state would leak across all of them.',
                 $node->getName(),
                 $class->getDisplayName(),
-            ))->identifier('immutableTestBuilder.staticProperty')->build();
+            ))
+                ->identifier('immutableTestBuilder.staticProperty')
+                ->build()
+            ;
         }
 
         if ($node->isReadonly()) {
@@ -61,7 +67,10 @@ final class WritableStateRule implements Rule
                 'Property $%s of builder %s must not be readonly - mutate() writes to the clone at runtime, readonly would make every modifier throw.',
                 $node->getName(),
                 $class->getDisplayName(),
-            ))->identifier('immutableTestBuilder.readonlyProperty')->build();
+            ))
+                ->identifier('immutableTestBuilder.readonlyProperty')
+                ->build()
+            ;
         }
 
         return $errors;

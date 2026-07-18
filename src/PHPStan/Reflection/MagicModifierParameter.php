@@ -13,11 +13,7 @@ use PHPStan\Type\Type;
  */
 final class MagicModifierParameter implements ParameterReflection
 {
-    public function __construct(
-        private readonly string $name,
-        private readonly Type $type,
-    ) {
-    }
+    public function __construct(private readonly string $name, private readonly Type $type) {}
 
     public function getName(): string
     {

@@ -26,8 +26,7 @@ final class MagicModifierMethod implements MethodReflection
         private readonly ClassReflection $declaringClass,
         private readonly string $name,
         private readonly array $parameters,
-    ) {
-    }
+    ) {}
 
     public function getDeclaringClass(): ClassReflection
     {

@@ -69,7 +69,9 @@ final class StaticMutationClosureRule implements Rule
             RuleErrorBuilder::message(sprintf(
                 'The mutation closure passed to mutate() in %s must be static - a non-static closure keeps $this bound to the original builder, and a single $this-> write inside it would mutate the trunk behind mutate()\'s back.',
                 $class->getDisplayName(),
-            ))->identifier('immutableTestBuilder.mutationClosureNotStatic')->build(),
+            ))
+                ->identifier('immutableTestBuilder.mutationClosureNotStatic')
+                ->build(),
         ];
     }
 }

@@ -17,6 +17,5 @@ final readonly class User
         public string $email,
         public array $roles,
         public bool $active,
-    ) {
-    }
+    ) {}
 }

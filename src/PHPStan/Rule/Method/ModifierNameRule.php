@@ -65,7 +65,9 @@ final class ModifierNameRule implements Rule
                     'Public static method %s() on builder %s is outside the DSL - the only static surface is create().',
                     $name,
                     $class->getDisplayName(),
-                ))->identifier('immutableTestBuilder.staticSurface')->build(),
+                ))
+                    ->identifier('immutableTestBuilder.staticSurface')
+                    ->build(),
             ];
         }
 
@@ -81,7 +83,9 @@ final class ModifierNameRule implements Rule
                         $name,
                         $class->getDisplayName(),
                         $prefix,
-                    ))->identifier('immutableTestBuilder.forbiddenPrefix')->build(),
+                    ))
+                        ->identifier('immutableTestBuilder.forbiddenPrefix')
+                        ->build(),
                 ];
             }
         }
@@ -91,7 +95,9 @@ final class ModifierNameRule implements Rule
                 'Public method %s() on builder %s is outside the DSL - the public surface is build() and modifiers prefixed with*, without*, as*, from*, for*, including*, excluding* or having*.',
                 $name,
                 $class->getDisplayName(),
-            ))->identifier('immutableTestBuilder.publicSurface')->build(),
+            ))
+                ->identifier('immutableTestBuilder.publicSurface')
+                ->build(),
         ];
     }
 }

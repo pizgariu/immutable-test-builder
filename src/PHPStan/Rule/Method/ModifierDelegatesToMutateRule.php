@@ -62,7 +62,10 @@ final class ModifierDelegatesToMutateRule implements Rule
                 'Modifier %s() on builder %s must declare a static return type - every modifier hands back a new builder instance.',
                 $name,
                 $class->getDisplayName(),
-            ))->identifier('immutableTestBuilder.modifierReturnType')->build();
+            ))
+                ->identifier('immutableTestBuilder.modifierReturnType')
+                ->build()
+            ;
         }
 
         if (null !== $method->stmts && !$this->isSingleReturnThroughMutate($method->stmts)) {
@@ -70,7 +73,10 @@ final class ModifierDelegatesToMutateRule implements Rule
                 'Modifier %s() on builder %s must be a single return through $this->mutate(...) - the clone-and-write lives in the kernel, not in modifiers.',
                 $name,
                 $class->getDisplayName(),
-            ))->identifier('immutableTestBuilder.modifierBody')->build();
+            ))
+                ->identifier('immutableTestBuilder.modifierBody')
+                ->build()
+            ;
         }
 
         return $errors;

@@ -14,6 +14,5 @@ final readonly class Spaceship
         public int $fuel,
         public int $crew,
         public bool $launched,
-    ) {
-    }
+    ) {}
 }
