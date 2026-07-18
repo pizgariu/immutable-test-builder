@@ -1,0 +1,40 @@
+{
+    "name": "pizgariu/immutable-test-builder",
+    "description": "Immutable test data builders for PHP - perfect defaults from faker, per-test tailoring through clone-based modifiers, loud failure on contradictory state",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "testing",
+        "test-data",
+        "builder",
+        "faker",
+        "immutable",
+        "fixtures"
+    ],
+    "authors": [
+        {
+            "name": "Grzegorz Stolarz"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "fakerphp/faker": "^1.24"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.12",
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pizgariu\\ImmutableTestBuilder\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pizgariu\\ImmutableTestBuilder\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
