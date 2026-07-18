@@ -72,13 +72,14 @@ abstract class AbstractBuilder implements BuilderInterface
 
         if (null === $prefix) {
             throw new BadMethodCallException(sprintf(
-                'Call to undefined method %s::%s() - no DSL prefix matches. The magic surface is with*, without*, as*, including* and excluding* over declared properties.',
+                'Call to undefined method %s::%s() - no DSL prefix matches. The magic surface is %s over declared properties.',
                 static::class,
                 $method,
+                implode(', ', array_map(static fn (Prefix $magic): string => $magic->value . '*', Prefix::magic())),
             ));
         }
 
-        if (in_array($prefix, [Prefix::From, Prefix::For, Prefix::Having], true)) {
+        if (!$prefix->autoImplementable()) {
             throw new BadMethodCallException(sprintf(
                 '%s() on %s is a %s* modifier and %s* is never magic - hydration, ownership and multi-property concepts are written explicitly.',
                 $method,

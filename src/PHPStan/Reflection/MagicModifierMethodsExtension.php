@@ -70,7 +70,7 @@ final class MagicModifierMethodsExtension implements MethodsClassReflectionExten
 
         return [
             new MagicModifierParameter(
-                Prefix::With === $prefix ? $property : lcfirst($prefix->rest($methodName)),
+                Prefix::With === $prefix ? $property : $prefix->propertyCandidates($methodName)[0],
                 $this->parameterType($classReflection, $prefix, $property),
             ),
         ];

@@ -22,7 +22,7 @@ enum Prefix: string
 
     public static function ofMethod(string $methodName): ?self
     {
-        foreach (self::longestFirst() as $prefix) {
+        foreach (self::matchOrder() as $prefix) {
             if (1 === preg_match(sprintf('/^%s[A-Z0-9]/', $prefix->value), $methodName)) {
                 return $prefix;
             }
@@ -31,31 +31,37 @@ enum Prefix: string
         return null;
     }
 
-    public function rest(string $methodName): string
+    /**
+     * The prefixes that name the entire change in the method name. Every
+     * other prefix feeds the builder outside data.
+     *
+     * @return list<self>
+     */
+    public static function parameterless(): array
     {
-        return substr($methodName, strlen($this->value));
+        return [self::Without, self::As];
     }
 
-    /**
-     * without* and as* name the entire change in the method name. Every
-     * other prefix feeds the builder outside data.
-     */
     public function takesParameters(): bool
     {
-        return self::Without !== $this && self::As !== $this;
+        return !in_array($this, self::parameterless(), true);
     }
 
     /**
      * The prefixes the kernel can implement from a property declaration
      * alone. from*, for* and having* are never magic - hydration, ownership
      * and multi-property concepts deserve a handwritten body.
+     *
+     * @return list<self>
      */
+    public static function magic(): array
+    {
+        return [self::With, self::Without, self::As, self::Including, self::Excluding];
+    }
+
     public function autoImplementable(): bool
     {
-        return match ($this) {
-            self::With, self::Without, self::As, self::Including, self::Excluding => true,
-            self::From, self::For, self::Having => false,
-        };
+        return in_array($this, self::magic(), true);
     }
 
     /**
@@ -67,7 +73,7 @@ enum Prefix: string
      */
     public function propertyCandidates(string $methodName): array
     {
-        $base = lcfirst($this->rest($methodName));
+        $base = lcfirst(substr($methodName, strlen($this->value)));
 
         return match ($this) {
             self::Including, self::Excluding => [$base, $base . 's'],
@@ -76,9 +82,12 @@ enum Prefix: string
     }
 
     /**
+     * Longest prefixes first, so with never swallows without and for never
+     * shadows anything it should not.
+     *
      * @return list<self>
      */
-    private static function longestFirst(): array
+    private static function matchOrder(): array
     {
         return [self::Including, self::Excluding, self::Without, self::Having, self::From, self::With, self::For, self::As];
     }
