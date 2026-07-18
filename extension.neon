@@ -1,0 +1,5 @@
+rules:
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Class\FinalBuilderRule
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\ModifierDelegatesToMutateRule
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\ModifierNameRule
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Property\WritableStateRule
