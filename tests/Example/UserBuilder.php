@@ -8,6 +8,11 @@ use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
 
 /**
+ * withName(), withEmail(), withoutEmail() and includingRole() are never
+ * written here - the kernel derives them from the property declarations.
+ * Only the meaningful modifier has a body: asDeactivated() flips $active,
+ * a property no prefix could guess from the method name.
+ *
  * @extends AbstractBuilder<User>
  */
 final class UserBuilder extends AbstractBuilder
@@ -31,38 +36,10 @@ final class UserBuilder extends AbstractBuilder
         $this->active = true;
     }
 
-    public function withName(string $name): static
-    {
-        return $this->mutate(static function (self $builder) use ($name): void {
-            $builder->name = $name;
-        });
-    }
-
-    public function withEmail(string $email): static
-    {
-        return $this->mutate(static function (self $builder) use ($email): void {
-            $builder->email = $email;
-        });
-    }
-
-    public function withoutEmail(): static
-    {
-        return $this->mutate(static function (self $builder): void {
-            $builder->email = null;
-        });
-    }
-
     public function asDeactivated(): static
     {
         return $this->mutate(static function (self $builder): void {
             $builder->active = false;
-        });
-    }
-
-    public function includingRole(string $role): static
-    {
-        return $this->mutate(static function (self $builder) use ($role): void {
-            $builder->roles[] = $role;
         });
     }
 

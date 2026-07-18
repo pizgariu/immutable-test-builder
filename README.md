@@ -51,6 +51,11 @@ use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
 
 /**
+ * withName(), withEmail(), withoutEmail() and includingRole() are never
+ * written here - the kernel derives them from the property declarations.
+ * Only the meaningful modifier has a body: asDeactivated() flips $active,
+ * a property no prefix could guess from the method name.
+ *
  * @extends AbstractBuilder<User>
  */
 final class UserBuilder extends AbstractBuilder
@@ -74,38 +79,10 @@ final class UserBuilder extends AbstractBuilder
         $this->active = true;
     }
 
-    public function withName(string $name): static
-    {
-        return $this->mutate(static function (self $builder) use ($name): void {
-            $builder->name = $name;
-        });
-    }
-
-    public function withEmail(string $email): static
-    {
-        return $this->mutate(static function (self $builder) use ($email): void {
-            $builder->email = $email;
-        });
-    }
-
-    public function withoutEmail(): static
-    {
-        return $this->mutate(static function (self $builder): void {
-            $builder->email = null;
-        });
-    }
-
     public function asDeactivated(): static
     {
         return $this->mutate(static function (self $builder): void {
             $builder->active = false;
-        });
-    }
-
-    public function includingRole(string $role): static
-    {
-        return $this->mutate(static function (self $builder) use ($role): void {
-            $builder->roles[] = $role;
         });
     }
 
@@ -191,7 +168,7 @@ Three things in that test are the entire idea.
 
 **The default built immediately.** The first test puts nothing between `create()` and `build()`. The name and the email are generated in `seed()` around one random suffix, so every default user is complete and unique without any test typing them - the assertions check shape, not exact strings. The other two assertions pin deliberate constants - one sensible role, an active account - because a perfect default mixes generated uniqueness with opinionated fixed choices. Either way, no future test breaks because a required field was forgotten: the builder cannot exist without them.
 
-**Three variants, one trunk, zero interference.** The second test tailors a base builder, then branches it twice. `includingRole()` gave the admin variant a second role, `asDeactivated()` switched the other variant off, and the assertions on the trunk still hold after both branches were taken: one role, active. Each modifier returned a new instance, so the trunk never learned about its descendants and the two branches never learned about each other.
+**Three variants, one trunk, zero interference.** The second test tailors a base builder, then branches it twice. `includingRole()` gave the admin variant a second role, `asDeactivated()` switched the other variant off, and the assertions on the trunk still hold after both branches were taken: one role, active. Each modifier returned a new instance, so the trunk never learned about its descendants and the two branches never learned about each other. And look back at the builder - `withName()`, `withEmail()` and `includingRole()` are called here yet declared nowhere. The kernel derived them from `$name`, `$email` and `$roles`. Only `asDeactivated()` has a body, because no property could tell the engine that deactivating means `$active = false`.
 
 **The impossible state refused to build.** `withoutEmail()` removes an ingredient `User` cannot exist without. `build()` does not hand back a broken object or a null - it throws `UnbuildableState`, and the asserted message names the builder, names the missing ingredient, and ends with the way out.
 
@@ -301,7 +278,27 @@ Modifier names are a documented contract of this library, not a suggestion:
 
 Every modifier returns a new instance via `mutate()`, no exceptions.
 
-The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-place write, and nothing here writes in place - a `setName()` that returns a fresh instance is a name telling a lie. `add*` leaves open whether the collection is replaced or extended; `including*` commits to extending and `excluding*` to shrinking. `make*` says nothing about anything. The table is not a style guide waiting for review vigilance - the bundled PHPStan rule set turns it into analysis errors; the next section shows how.
+The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-place write, and nothing here writes in place - a `setName()` that returns a fresh instance is a name telling a lie. `add*` leaves open whether the collection is replaced or extended; `including*` commits to extending and `excluding*` to shrinking. `make*` says nothing about anything. The table is not a style guide waiting for review vigilance - the bundled PHPStan rule set turns it into analysis errors; the next sections show how.
+
+---
+
+## Magic modifiers
+
+The trivial modifiers do not exist as code. `__call` and the `Prefix` enum implement five of the eight prefixes straight from the property declarations:
+
+| Prefix | Derived behaviour |
+| --- | --- |
+| `with*(value)` | assigns the argument to the matching property |
+| `without*()` | assigns the inferred empty value - `null` for nullable, `[]`, `''`, `0`, `0.0`, `false` by type |
+| `as*()` | raises the matching boolean flag to `true` |
+| `including*(item)` | appends with `[]=`, resolving the simple plural (`includingRole` writes `$roles`) |
+| `excluding*(item)` | filters the item out, resolving the same plural |
+
+`from*`, `for*` and `having*` are never magic - hydration, ownership and multi-property concepts deserve a handwritten body. A declared method always wins, because the engine only answers when no method exists: `asDeactivated()` above is handwritten precisely because no `$deactivated` property could tell the kernel what deactivating means.
+
+Sealed state stays sealed. The magic writer is bound into the concrete class scope with `Closure::bind`, so properties remain private and every derived modifier still funnels through `mutate()` - same clone, same isolation, same branching guarantees. A call outside the contract fails loudly with `BadMethodCallException` and the way out: unknown prefix, a prefix that is never magic, a missing property or the wrong arity.
+
+And the types hold. The bundled `MagicModifierMethodsExtension`, registered by the same `extension.neon`, teaches PHPStan every derived signature from the same `Prefix` semantics - `->withName('x')` analyses at level max with zero annotations and no mapper.
 
 ---
 
@@ -328,7 +325,7 @@ Nine rules, one directory per abstraction type:
 | `WritableStateRule` | `Rule/Property` | builder state that is not private, is static, or is readonly - readonly state would make `mutate()` throw at runtime |
 | `PerfectDefaultPropertyRule` | `Rule/Property` | a property with neither an inline default nor a direct assignment in `seed()` - the per-property face of the perfect default promise |
 
-Abstract bases are exempt where it matters: they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
+Abstract bases are exempt where it matters: they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. The rules police what you write by hand - a derived modifier is correct by construction, because the kernel implements each prefix's semantics exactly once. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
 
 ---
 
