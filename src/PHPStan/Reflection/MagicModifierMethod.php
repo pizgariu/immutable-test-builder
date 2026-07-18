@@ -17,15 +17,15 @@ use PHPStan\Type\Type;
  * The reflection of one derived modifier: public, non-static, returning
  * static, parameters shaped by the prefix.
  */
-final class MagicModifierMethod implements MethodReflection
+final readonly class MagicModifierMethod implements MethodReflection
 {
     /**
      * @param list<MagicModifierParameter> $parameters
      */
     public function __construct(
-        private readonly ClassReflection $declaringClass,
-        private readonly string $name,
-        private readonly array $parameters,
+        private ClassReflection $declaringClass,
+        private string $name,
+        private array $parameters,
     ) {}
 
     public function getDeclaringClass(): ClassReflection

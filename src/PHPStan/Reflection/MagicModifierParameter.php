@@ -11,9 +11,9 @@ use PHPStan\Type\Type;
 /**
  * The single by-value, required parameter a feeding magic modifier takes.
  */
-final class MagicModifierParameter implements ParameterReflection
+final readonly class MagicModifierParameter implements ParameterReflection
 {
-    public function __construct(private readonly string $name, private readonly Type $type) {}
+    public function __construct(private string $name, private Type $type) {}
 
     public function getName(): string
     {
