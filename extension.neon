@@ -1,6 +1,7 @@
 rules:
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Class\FinalBuilderRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\BuildReturnTypeRule
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\ModifierBehaviourRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\ModifierDelegatesToMutateRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\ModifierNameRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\SeedDisciplineRule

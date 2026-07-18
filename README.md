@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
 /**
- * Value object produced by UserBuilder; part of the library's living documentation.
+ * Value object produced by UserBuilder. Part of the library's living documentation.
  */
 final readonly class User
 {
@@ -314,12 +314,13 @@ includes:
     - vendor/pizgariu/immutable-test-builder/extension.neon
 ```
 
-Eight rules, one directory per abstraction type:
+Nine rules, one directory per abstraction type:
 
 | Rule | Lives in | What it refuses |
 | --- | --- | --- |
 | `FinalBuilderRule` | `Rule/Class` | a concrete builder that is not final - a builder is a leaf, extension points belong in an abstract base |
 | `ModifierNameRule` | `Rule/Method` | a public method outside the DSL - and `set*`, `make*`, `add*` each get a message explaining why the name lies |
+| `ModifierBehaviourRule` | `Rule/Method` | a body that breaks its prefix's promise - `without*`/`as*` taking parameters, `without*` assigning real values, `including*` that never appends, `excluding*` that appends, `having*` that writes a single property |
 | `ModifierDelegatesToMutateRule` | `Rule/Method` | a modifier that is not a static-returning one-liner through `mutate()` - the whole immutability proof in one shape check |
 | `SeedDisciplineRule` | `Rule/Method` | a public `seed()` (re-seeding a live builder is mutation through the back door) and any `seed()` that calls a modifier or `build()` - the returned clone would be silently thrown away |
 | `BuildReturnTypeRule` | `Rule/Method` | a `build()` without a concrete non-nullable return type - an impossible state throws `UnbuildableState`, it never leaks out as null or mixed |
