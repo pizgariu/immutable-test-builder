@@ -1,3 +1,9 @@
+services:
+    -
+        class: Pizgariu\ImmutableTestBuilder\PHPStan\Reflection\MagicModifierMethodsExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+
 rules:
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Class\FinalBuilderRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\BuildReturnTypeRule
