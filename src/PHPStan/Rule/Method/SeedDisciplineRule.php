@@ -87,7 +87,7 @@ final class SeedDisciplineRule implements Rule
 
             if (ModifierDsl::matches($name)) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
-                    'seed() on builder %s calls %s() - a modifier returns a new clone that seed() throws away; assign the property directly instead.',
+                    'seed() on builder %s calls %s() - a modifier returns a new clone that seed() throws away. Assign the property directly instead.',
                     $class->getDisplayName(),
                     $name,
                 ))->identifier('immutableTestBuilder.seedCallsModifier')->line($call->getStartLine())->build();

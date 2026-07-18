@@ -67,7 +67,7 @@ final class ModifierDelegatesToMutateRule implements Rule
 
         if (null !== $method->stmts && !$this->isSingleReturnThroughMutate($method->stmts)) {
             $errors[] = RuleErrorBuilder::message(sprintf(
-                'Modifier %s() on builder %s must be a single statement - return $this->mutate(...); the clone-and-write lives in the kernel, not in modifiers.',
+                'Modifier %s() on builder %s must be a single return through $this->mutate(...) - the clone-and-write lives in the kernel, not in modifiers.',
                 $name,
                 $class->getDisplayName(),
             ))->identifier('immutableTestBuilder.modifierBody')->build();
@@ -106,10 +106,6 @@ final class ModifierDelegatesToMutateRule implements Rule
 
         $call = $statement->expr;
 
-        return $call->var instanceof Variable
-            && is_string($call->var->name)
-            && 'this' === $call->var->name
-            && $call->name instanceof Identifier
-            && 'mutate' === $call->name->toString();
+        return $call->var instanceof Variable && is_string($call->var->name) && 'this' === $call->var->name && $call->name instanceof Identifier && 'mutate' === $call->name->toString();
     }
 }

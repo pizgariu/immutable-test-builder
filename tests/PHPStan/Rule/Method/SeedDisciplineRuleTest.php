@@ -26,7 +26,7 @@ final class SeedDisciplineRuleTest extends RuleTestCase
                 16,
             ],
             [
-                'seed() on builder Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\SeedDiscipline\ChattySeedBuilder calls withLabel() - a modifier returns a new clone that seed() throws away; assign the property directly instead.',
+                'seed() on builder Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\SeedDiscipline\ChattySeedBuilder calls withLabel() - a modifier returns a new clone that seed() throws away. Assign the property directly instead.',
                 36,
             ],
             [

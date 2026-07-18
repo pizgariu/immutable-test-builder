@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
 /**
- * Value object produced by UserBuilder; part of the library's living documentation.
+ * Value object produced by UserBuilder. Part of the library's living documentation.
  */
 final readonly class User
 {

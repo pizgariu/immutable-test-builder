@@ -41,7 +41,7 @@ abstract class AbstractBuilder implements BuilderInterface
     }
 
     /**
-     * Fill the perfect default here; called exactly once by create().
+     * Fill the perfect default here. Called exactly once by create().
      */
     abstract protected function seed(): void;
 

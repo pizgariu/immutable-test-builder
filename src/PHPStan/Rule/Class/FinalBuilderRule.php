@@ -42,7 +42,7 @@ final class FinalBuilderRule implements Rule
 
         return [
             RuleErrorBuilder::message(sprintf(
-                'Builder %s must be final - a concrete builder is a leaf; put extension points in an abstract base instead.',
+                'Builder %s must be final - a concrete builder is a leaf. Put extension points in an abstract base instead.',
                 $class->getDisplayName(),
             ))->identifier('immutableTestBuilder.builderNotFinal')->build(),
         ];

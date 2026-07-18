@@ -28,11 +28,11 @@ final class ModifierDelegatesToMutateRuleTest extends RuleTestCase
                 30,
             ],
             [
-                sprintf('Modifier asExpress() on builder %s must be a single statement - return $this->mutate(...); the clone-and-write lives in the kernel, not in modifiers.', $builder),
+                sprintf('Modifier asExpress() on builder %s must be a single return through $this->mutate(...) - the clone-and-write lives in the kernel, not in modifiers.', $builder),
                 37,
             ],
             [
-                sprintf('Modifier withoutParcels() on builder %s must be a single statement - return $this->mutate(...); the clone-and-write lives in the kernel, not in modifiers.', $builder),
+                sprintf('Modifier withoutParcels() on builder %s must be a single return through $this->mutate(...) - the clone-and-write lives in the kernel, not in modifiers.', $builder),
                 46,
             ],
             [

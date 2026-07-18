@@ -22,7 +22,7 @@ final class FinalBuilderRuleTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../data/final-builder.php'], [
             [
-                'Builder Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\FinalBuilder\OpenNameBuilder must be final - a concrete builder is a leaf; put extension points in an abstract base instead.',
+                'Builder Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\FinalBuilder\OpenNameBuilder must be final - a concrete builder is a leaf. Put extension points in an abstract base instead.',
                 12,
             ],
         ]);

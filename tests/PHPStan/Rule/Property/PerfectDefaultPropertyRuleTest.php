@@ -24,11 +24,11 @@ final class PerfectDefaultPropertyRuleTest extends RuleTestCase
 
         $this->analyse([__DIR__ . '/../../data/perfect-default.php'], [
             [
-                sprintf('Property $forgotten of builder %s has no perfect default - give it an inline default or assign it directly in seed(); create() promises a builder that builds immediately.', $builder),
+                sprintf('Property $forgotten of builder %s has no perfect default - give it an inline default or assign it directly in seed(). create() promises a builder that builds immediately.', $builder),
                 18,
             ],
             [
-                sprintf('Property $nullableForgotten of builder %s has no perfect default - give it an inline default or assign it directly in seed(); create() promises a builder that builds immediately.', $builder),
+                sprintf('Property $nullableForgotten of builder %s has no perfect default - give it an inline default or assign it directly in seed(). create() promises a builder that builds immediately.', $builder),
                 20,
             ],
         ]);

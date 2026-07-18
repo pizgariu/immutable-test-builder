@@ -12,7 +12,7 @@ use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
  * Perfect default: create() returns a builder that is complete from the very
  * first moment. Calling build() with no further setup succeeds and produces an
  * object seeded with realistic defaults. A test therefore states only the
- * values it asserts on; everything else is already in place and valid, which
+ * values it asserts on. Everything else is already in place and valid, which
  * keeps tests short and stops them from over-specifying data they do not
  * care about.
  *
@@ -23,7 +23,7 @@ use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
  * Safe reuse and branching: a partially tailored builder can serve as the
  * trunk for several divergent variants inside a single test, and none of the
  * variants observes the changes made to the others. Both guarantees hold for
- * scalar, array and immutable-object ingredients; a mutable object ingredient
+ * scalar, array and immutable-object ingredients. A mutable object ingredient
  * must be replaced inside a modifier, never mutated in place, or deep-copied
  * in an overridden __clone().
  *

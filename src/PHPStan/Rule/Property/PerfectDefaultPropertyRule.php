@@ -77,7 +77,7 @@ final class PerfectDefaultPropertyRule implements Rule
                 }
 
                 $errors[] = RuleErrorBuilder::message(sprintf(
-                    'Property $%s of builder %s has no perfect default - give it an inline default or assign it directly in seed(); create() promises a builder that builds immediately.',
+                    'Property $%s of builder %s has no perfect default - give it an inline default or assign it directly in seed(). create() promises a builder that builds immediately.',
                     $name,
                     $class->getDisplayName(),
                 ))->identifier('immutableTestBuilder.perfectDefault')->line($declaration->getStartLine())->build();
