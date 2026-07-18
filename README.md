@@ -7,7 +7,7 @@ Declare one valid object, once. Every test rents a tailored copy through modifie
 [![PHP versions](https://img.shields.io/badge/php-8.3%20%7C%208.4%20%7C%208.5-blue.svg)](https://github.com/pizgariu/immutable-test-builder)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Immutable test data builders for PHP. A builder is born with a perfect default: `build()` succeeds immediately, seeded with realistic faker data, so a test states only the values it asserts on. Every modifier returns a NEW instance, so a builder can sit in a shared fixture or serve as the trunk for divergent variants and no test corrupts another. One contract, one base class, one generator registry, one exception - `fakerphp/faker` is the only runtime dependency.
+Immutable test data builders for PHP. A builder is born with a perfect default: `build()` succeeds immediately, seeded with realistic faker data, so a test states only the values it asserts on. Every modifier returns a NEW instance, so a builder can sit in a shared fixture or serve as the trunk for divergent variants and no test corrupts another. One contract, one abstract base, one exception and a PHPStan rule set that polices the DSL. Pure standard library, zero runtime dependencies.
 
 ---
 
@@ -47,14 +47,13 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
-use Faker\Generator;
-use Pizgariu\ImmutableTestBuilder\BaseBuilder;
+use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
 
 /**
- * @extends BaseBuilder<User>
+ * @extends AbstractBuilder<User>
  */
-final class UserBuilder extends BaseBuilder
+final class UserBuilder extends AbstractBuilder
 {
     private string $name;
 
@@ -65,10 +64,12 @@ final class UserBuilder extends BaseBuilder
 
     private bool $active;
 
-    protected function seed(Generator $faker): void
+    protected function seed(): void
     {
-        $this->name = $faker->name();
-        $this->email = $faker->safeEmail();
+        $suffix = random_int(1, 9999);
+
+        $this->name = sprintf('User %04d', $suffix);
+        $this->email = sprintf('user-%04d@example.test', $suffix);
         $this->roles = ['user'];
         $this->active = true;
     }
@@ -188,7 +189,7 @@ final class UserBuilderTest extends TestCase
 
 Three things in that test are the entire idea.
 
-**The default built immediately.** The first test puts nothing between `create()` and `build()`. Two of its assertions prove the seeded data is plausible - a non-empty name, a real-shaped email address - not that it equals any particular value; nobody typed those. The other two pin deliberate constants from `seed()` - one sensible role, an active account - because a perfect default mixes plausible randomness with opinionated fixed choices. Either way, no future test breaks because a required field was forgotten: the builder cannot exist without them.
+**The default built immediately.** The first test puts nothing between `create()` and `build()`. The name and the email are generated in `seed()` around one random suffix, so every default user is complete and unique without any test typing them - the assertions check shape, not exact strings. The other two assertions pin deliberate constants - one sensible role, an active account - because a perfect default mixes generated uniqueness with opinionated fixed choices. Either way, no future test breaks because a required field was forgotten: the builder cannot exist without them.
 
 **Three variants, one trunk, zero interference.** The second test tailors a base builder, then branches it twice. `appendRole()` gave the admin variant a second role, `asDeactivated()` switched the other variant off, and the assertions on the trunk still hold after both branches were taken: one role, active. Each modifier returned a new instance, so the trunk never learned about its descendants and the two branches never learned about each other.
 
@@ -198,15 +199,15 @@ Three things in that test are the entire idea.
 
 ## Perfect default
 
-The contract's first law: `create()` returns a builder that must `build()` successfully with no further calls. A concrete builder keeps that promise in one place, `seed()`, which fills every ingredient with realistic faker data and is called exactly once at creation.
+The contract's first law: `create()` returns a builder that must `build()` successfully with no further calls. A concrete builder keeps that promise in one place, `seed()`, which fills every ingredient with a realistic default and is called exactly once at creation.
 
-The payoff is what tests stop saying. A test that fills every field before it can build drowns the one value it actually asserts on in noise, and every reader has to guess which lines matter. With a perfect default, a test states its assertion targets and nothing else; everything it stays silent about is already valid and plausibly random. Random beats hardcoded here for the same reason property-based testing works: a suite that only ever sees `'test'` and `0` keeps passing on code that would fall over on real-shaped data.
+The payoff is what tests stop saying. A test that fills every field before it can build drowns the one value it actually asserts on in noise, and every reader has to guess which lines matter. With a perfect default, a test states its assertion targets and nothing else; everything it stays silent about is already valid. How a default is produced is deliberately outside the kernel: a constant, a `random_int()` suffix, a full data generator - `seed()` is plain PHP and the choice stays with the project.
 
 ---
 
 ## Immutability via mutate()
 
-`BaseBuilder` carries the whole engine in one method:
+`AbstractBuilder` carries the whole engine in one method:
 
 ```php
 final protected function mutate(Closure $mutation): static
@@ -233,6 +234,8 @@ After `seed()` runs, no builder instance is ever written again. Two guarantees f
 
 One boundary to know about: the clone is shallow. Isolation holds for scalar, array and immutable-object ingredients; a mutable object ingredient (an entity, an `ArrayObject`) is shared between trunk and branches. Replace such an ingredient inside the modifier instead of mutating it in place, or deep-copy it in an overridden `__clone()`.
 
+When PHP 8.5's clone-with syntax becomes this package's floor, `mutate()` swaps its internals for the expression form - the signature and the contract stay put.
+
 ---
 
 ## Loud failure
@@ -255,29 +258,29 @@ The alternative is worse than a crash: a builder that quietly hands back a half-
 
 ---
 
-## Creation-time locale
+## Bring your own randomness
 
-`create()` seeds from the default locale (`en_US`). `createIn()` seeds from any other, and the locale is fixed for the builder's whole lifetime:
+The kernel ships zero runtime dependencies and imposes no randomness strategy. `seed()` is plain PHP: the example above builds its perfect default around one `random_int()` suffix, and that is all the uniqueness most suites need.
 
-```php
-$user = UserBuilder::create()->build();
-$polishUser = UserBuilder::createIn('pl_PL')->build();
-```
-
-The locale is deliberately not a modifier. A `withLocale()` call after creation would arrive too late: `seed()` has already run, so every already-seeded value would still be in the old locale and only later writes would follow the new one - half an object in one language, half in another, and no way to see it in a green test. That whole class of stale-randomization bugs is unrepresentable here, because there is no moment at which a builder's locale can change.
-
-`locale()` returns the locale a builder was created in. A project that wants a different default everywhere overrides one hook in its own base builder - and every `create()` call site follows:
+A project that wants richer generated data plugs its own generator in through its own abstract base - the kernel never knows:
 
 ```php
-protected static function defaultLocale(): string
+use Faker\Factory;
+use Faker\Generator;
+use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
+
+abstract class ProjectBuilder extends AbstractBuilder
 {
-    return 'pl_PL';
+    private static ?Generator $faker = null;
+
+    final protected static function faker(): Generator
+    {
+        return self::$faker ??= Factory::create('pl_PL');
+    }
 }
 ```
 
-An unknown locale does not silently produce default-locale data. `createIn('pl-PL')` - a typo for `pl_PL` - would quietly fall back to `en_US` inside Faker and keep every test green; `Fakers::locale()` refuses it instead with an `InvalidArgumentException` naming the rejected string.
-
-Behind the scenes, `Fakers` memoizes one `Faker\Generator` per locale per process, so seeding stays cheap no matter how many builders a suite creates. `Fakers::flush()` drops the memoized instances when a test needs generator-level isolation.
+Concrete builders extend `ProjectBuilder` and call `static::faker()` inside `seed()`. The generator library (`fakerphp/faker` above) lives in the project's own `require-dev`, not in this package - swapping it, localizing it or dropping it never touches the kernel.
 
 ---
 
@@ -295,7 +298,29 @@ Modifier names are a documented contract of this library, not a suggestion:
 
 Every modifier returns a new instance via `mutate()`, no exceptions.
 
-The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-place write, and nothing here writes in place - a `setName()` that returns a fresh instance is a name telling a lie. `add*` leaves open whether the collection is replaced or extended; `append*` commits to extending. `make*` says nothing about anything. Static enforcement of the DSL ships as a PHPStan rule set in 1.1.0; until then the table above is the contract.
+The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-place write, and nothing here writes in place - a `setName()` that returns a fresh instance is a name telling a lie. `add*` leaves open whether the collection is replaced or extended; `append*` commits to extending. `make*` says nothing about anything. The table is not a style guide waiting for review vigilance - the bundled PHPStan rule set turns it into analysis errors; the next section shows how.
+
+---
+
+## Enforced by PHPStan
+
+The package bundles a PHPStan rule set that enforces the DSL on every class implementing `BuilderInterface`. One include turns it on:
+
+```neon
+includes:
+    - vendor/pizgariu/immutable-test-builder/extension.neon
+```
+
+Four rules, one directory per abstraction type:
+
+| Rule | Lives in | What it refuses |
+| --- | --- | --- |
+| `FinalBuilderRule` | `Rule/Class` | a concrete builder that is not final - a builder is a leaf, extension points belong in an abstract base |
+| `ModifierNameRule` | `Rule/Method` | a public method outside the DSL - and `set*`, `make*`, `add*` each get a message explaining why the name lies |
+| `ModifierDelegatesToMutateRule` | `Rule/Method` | a modifier that is not a static-returning one-liner through `mutate()` - the whole immutability proof in one shape check |
+| `WritableStateRule` | `Rule/Property` | builder state that is not private, is static, or is readonly - readonly state would make `mutate()` throw at runtime |
+
+Abstract bases are exempt where it matters: they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
 
 ---
 
@@ -305,7 +330,7 @@ The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-pl
 composer require --dev pizgariu/immutable-test-builder
 ```
 
-PHP 8.3+ (`^8.3`) and `fakerphp/faker` are all it needs.
+PHP 8.3+ (`^8.3`). Nothing else - the package has zero runtime dependencies.
 
 ---
 
@@ -313,10 +338,9 @@ PHP 8.3+ (`^8.3`) and `fakerphp/faker` are all it needs.
 
 The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The API surface described above is stable for 1.0.0.
 
-- **1.1.0** - a PHPStan rule set enforcing the naming DSL, organized per abstraction type in `Class/`, `Method/` and `Property/` subdirectories, so a `setFoo()` on a builder fails analysis instead of code review.
 - **2.0.0** - an entity integrity check, and a Rector set that removes trivial modifiers.
 
-Locale re-switching is not on any roadmap - it is the bug this API exists to make unrepresentable. Collection helper utilities are out of scope as well; `append*` modifiers stay hand-written one-liners.
+A built-in data generator is not on any roadmap - randomness stays the project's choice, plugged in through `seed()`. Collection helper utilities are out of scope as well; `append*` modifiers stay hand-written one-liners.
 
 ---
 
@@ -328,7 +352,7 @@ vendor/bin/phpunit
 vendor/bin/phpstan analyse
 ```
 
-PHPStan runs at level max over `src` and `tests`. CI validates `composer.json` strictly, then runs the suite and the analysis on PHP 8.3, 8.4 and 8.5, on every push to `master` and every pull request. `fail-fast` is off, so a break on one interpreter does not hide the others.
+PHPStan runs at level max over `src` and `tests`, with the bundled rule set included - the package dogfoods its own DSL. CI validates `composer.json` strictly, then runs the suite and the analysis on PHP 8.3, 8.4 and 8.5, on every push to `master` and every pull request. `fail-fast` is off, so a break on one interpreter does not hide the others.
 
 ---
 
