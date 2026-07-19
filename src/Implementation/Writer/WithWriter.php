@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Writer;
+namespace Pizgariu\ImmutableTestBuilder\Implementation\Writer;
 
 use Closure;
 use Pizgariu\ImmutableTestBuilder\Contract\Writer\PrefixWriterInterface;
 use ReflectionProperty;
 
 /**
- * including*() appends to a collection property without replacing it.
+ * with*() assigns the given argument to the property.
  *
  * @internal
  */
-final class IncludingWriter implements PrefixWriterInterface
+final class WithWriter implements PrefixWriterInterface
 {
     public function write(ReflectionProperty $property, array $arguments): Closure
     {
@@ -21,7 +21,7 @@ final class IncludingWriter implements PrefixWriterInterface
         $value = $arguments[0] ?? null;
 
         return static function (object $clone) use ($name, $value): void {
-            $clone->{$name}[] = $value;
+            $clone->{$name} = $value;
         };
     }
 }

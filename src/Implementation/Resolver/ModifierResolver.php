@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Resolver;
+namespace Pizgariu\ImmutableTestBuilder\Implementation\Resolver;
 
 use BadMethodCallException;
 use Closure;
 use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
-use Pizgariu\ImmutableTestBuilder\Writer\AsWriter;
-use Pizgariu\ImmutableTestBuilder\Writer\ExcludingWriter;
-use Pizgariu\ImmutableTestBuilder\Writer\IncludingWriter;
-use Pizgariu\ImmutableTestBuilder\Writer\WithoutWriter;
-use Pizgariu\ImmutableTestBuilder\Writer\WithWriter;
+use Pizgariu\ImmutableTestBuilder\Implementation\Writer\AsWriter;
+use Pizgariu\ImmutableTestBuilder\Implementation\Writer\ExcludingWriter;
+use Pizgariu\ImmutableTestBuilder\Implementation\Writer\IncludingWriter;
+use Pizgariu\ImmutableTestBuilder\Implementation\Writer\WithoutWriter;
+use Pizgariu\ImmutableTestBuilder\Implementation\Writer\WithWriter;
 use ReflectionClass;
 
 /**

@@ -7,7 +7,7 @@ namespace Pizgariu\ImmutableTestBuilder\Implementation;
 use BadMethodCallException;
 use Closure;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\Resolver\ModifierResolver;
+use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\ModifierResolver;
 
 /**
  * Base class for immutable test data builders.

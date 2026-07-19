@@ -8,7 +8,7 @@ use BadMethodCallException;
 use Closure;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Pizgariu\ImmutableTestBuilder\Resolver\ModifierResolver;
+use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\ModifierResolver;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\FreighterBuilder;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\GadgetBuilder;
 
@@ -102,5 +102,6 @@ final class ModifierResolverTest extends TestCase
         yield 'with wants an argument' => ['class' => FreighterBuilder::class, 'method' => 'withCallsign', 'arguments' => [], 'fragment' => 'takes exactly 1 argument'];
         yield 'as wants none' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => [true], 'fragment' => 'takes exactly 0 argument'];
         yield 'uninferrable empty value' => ['class' => GadgetBuilder::class, 'method' => 'withoutInstalledAt', 'arguments' => [], 'fragment' => 'Cannot infer an empty value'];
+        yield 'as on a non-bool property' => ['class' => FreighterBuilder::class, 'method' => 'asCargo', 'arguments' => [], 'fragment' => 'raises a boolean flag'];
     }
 }
