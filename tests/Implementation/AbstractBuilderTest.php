@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Tests;
+namespace Pizgariu\ImmutableTestBuilder\Tests\Implementation;
 
 use Closure;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -80,7 +80,7 @@ final class AbstractBuilderTest extends TestCase
 
     public function testBranchingFromOneTrunkBuilderProducesIndependentResults(): void
     {
-        $base = SpaceshipBuilder::create()->withName('Rocinante')->withCrew(4);
+        $base = SpaceshipBuilder::create()->withName('Nostromo')->withCrew(4);
 
         $launched = $base->asLaunched();
         $drained = $base->withoutFuel();
@@ -95,9 +95,9 @@ final class AbstractBuilderTest extends TestCase
         self::assertSame($baseShip->fuel, $launchedShip->fuel);
         self::assertFalse($drainedShip->launched);
         self::assertSame(0, $drainedShip->fuel);
-        self::assertSame('Rocinante', $baseShip->name);
-        self::assertSame('Rocinante', $launchedShip->name);
-        self::assertSame('Rocinante', $drainedShip->name);
+        self::assertSame('Nostromo', $baseShip->name);
+        self::assertSame('Nostromo', $launchedShip->name);
+        self::assertSame('Nostromo', $drainedShip->name);
         self::assertSame(4, $drainedShip->crew);
     }
 

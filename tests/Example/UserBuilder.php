@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
-use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
  * withName(), withEmail(), withoutEmail() and includingRole() are never

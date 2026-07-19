@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Fixture;
 
-use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
  * @extends AbstractBuilder<Spaceship>
@@ -64,7 +64,7 @@ final class SpaceshipBuilder extends AbstractBuilder
 
     protected function seed(): void
     {
-        $this->name = sprintf('Vessel-%04d', random_int(1, 9999));
+        $this->name = sprintf('Nostromo-%04d', random_int(1, 9999));
         $this->fuel = random_int(1, 100);
         $this->crew = random_int(1, 12);
         $this->launched = false;

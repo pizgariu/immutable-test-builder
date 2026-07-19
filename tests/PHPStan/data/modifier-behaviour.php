@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\ModifierBehaviour;
 
-use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
+use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
  * @extends AbstractBuilder<string>

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Fixture;
 
-use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
+use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
  * Declares only state, seed() and build() - every modifier exercised by the
@@ -45,7 +45,7 @@ final class FreighterBuilder extends AbstractBuilder
     protected function seed(): void
     {
         $this->pilot = 'Ripley';
-        $this->callsign = sprintf('NX-%04d', random_int(1, 9999));
+        $this->callsign = sprintf('Rocinante-%04d', random_int(1, 9999));
         $this->cargo = random_int(1, 100);
         $this->fuel = 1.5;
         $this->armed = false;

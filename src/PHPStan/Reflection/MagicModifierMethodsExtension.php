@@ -10,8 +10,8 @@ use PHPStan\Reflection\MethodsClassReflectionExtension;
 use PHPStan\Type\ArrayType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
-use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
  * Teaches PHPStan every magic modifier the kernel implements at runtime.
