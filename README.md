@@ -358,6 +358,8 @@ Nine rules, one directory per abstraction type:
 
 Abstract bases are exempt where it matters: they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. The rules police what you write by hand - a derived modifier is correct by construction, because the kernel implements each prefix's semantics exactly once. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
 
+The rule set reads the `PhpParser\Node` types, so it wants php-parser 5.* under analysis. The builders themselves have no such requirement - the kernel stays zero-dependency and runs anywhere on PHP 8.3+.
+
 ---
 
 ## Install
