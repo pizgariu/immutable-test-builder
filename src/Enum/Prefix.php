@@ -23,12 +23,22 @@ enum Prefix: string
     public static function ofMethod(string $methodName): ?self
     {
         foreach (self::cases() as $prefix) {
-            if (1 === preg_match(sprintf('/^%s[A-Z0-9]/', $prefix->value), $methodName)) {
+            if ($prefix->matches($methodName)) {
                 return $prefix;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Whether the method name opens with this prefix followed by a capitalized
+     * property name. The uppercase boundary keeps with* from swallowing
+     * without* - the lowercase 'o' fails the match.
+     */
+    public function matches(string $methodName): bool
+    {
+        return 1 === preg_match(sprintf('/^%s[A-Z0-9]/', $this->value), $methodName);
     }
 
     /**

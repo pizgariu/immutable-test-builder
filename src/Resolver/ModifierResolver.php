@@ -8,15 +8,16 @@ use BadMethodCallException;
 use Closure;
 use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
 use ReflectionClass;
-use ReflectionNamedType;
+use ReflectionProperty;
 
 /**
- * Turns a magic modifier call into the write it performs - the single source
- * of truth for what with*, without*, as*, including* and excluding* mean over
- * a builder's declared properties. AbstractBuilder::__call hands the result
- * straight to mutate(), so a magic call travels the same path as a handwritten
- * one. The returned closure is already bound into the concrete class scope, so
- * it writes sealed private state without unsealing it.
+ * Turns a magic modifier call into the write it performs. It parses the prefix,
+ * maps it to the one resolver that owns its meaning (assign, empty, append,
+ * filter), resolves the target property and checks the arity, then delegates
+ * the write. AbstractBuilder::__call hands the result straight to mutate(), so a
+ * magic call travels the same path as a handwritten one. The returned closure
+ * is already bound into the concrete class scope, so it writes sealed private
+ * state without unsealing it.
  *
  * @internal the kernel's derivation engine, not part of the public API
  */
@@ -45,17 +46,32 @@ final class ModifierResolver
             ));
         }
 
-        if (!$prefix->autoImplementable()) {
-            throw new BadMethodCallException(sprintf(
+        $resolver = match ($prefix) {
+            Prefix::With => new WithResolver(),
+            Prefix::Without => new WithoutResolver(),
+            Prefix::As => new AsResolver(),
+            Prefix::Including => new IncludingResolver(),
+            Prefix::Excluding => new ExcludingResolver(),
+            Prefix::From, Prefix::For, Prefix::Having => throw new BadMethodCallException(sprintf(
                 '%s() on %s is a %s* modifier and %s* is never magic - hydration, ownership and multi-property concepts are written explicitly.',
                 $method,
                 $class,
                 $prefix->value,
                 $prefix->value,
-            ));
-        }
+            )),
+        };
 
-        $property = null;
+        $property = self::property($prefix, $class, $method);
+        self::assertArity($prefix, $class, $method, $arguments);
+
+        return Closure::bind($resolver->write($property, $arguments), null, $class);
+    }
+
+    /**
+     * @param class-string $class
+     */
+    private static function property(Prefix $prefix, string $class, string $method): ReflectionProperty
+    {
         $reflection = new ReflectionClass($class);
 
         foreach ($prefix->propertyCandidates($method) as $candidate) {
@@ -63,94 +79,37 @@ final class ModifierResolver
                 continue;
             }
 
-            $candidateProperty = $reflection->getProperty($candidate);
+            $property = $reflection->getProperty($candidate);
 
-            if (!$candidateProperty->isStatic()) {
-                $property = $candidateProperty;
-
-                break;
+            if (!$property->isStatic()) {
+                return $property;
             }
         }
 
-        if (null === $property) {
-            throw new BadMethodCallException(sprintf(
-                '%s() has no matching property on %s (tried $%s) - declare the property or write the modifier explicitly.',
-                $method,
-                $class,
-                implode(', $', $prefix->propertyCandidates($method)),
-            ));
-        }
+        throw new BadMethodCallException(sprintf(
+            '%s() has no matching property on %s (tried $%s) - declare the property or write the modifier explicitly.',
+            $method,
+            $class,
+            implode(', $', $prefix->propertyCandidates($method)),
+        ));
+    }
 
-        $expectedArguments = $prefix->takesParameters() ? 1 : 0;
+    /**
+     * @param array<int, mixed> $arguments
+     */
+    private static function assertArity(Prefix $prefix, string $class, string $method, array $arguments): void
+    {
+        $expected = $prefix->takesParameters() ? 1 : 0;
 
-        if (count($arguments) !== $expectedArguments) {
+        if (count($arguments) !== $expected) {
             throw new BadMethodCallException(sprintf(
                 '%s() on %s takes exactly %d argument(s), %d given - %s* modifiers have a fixed arity.',
                 $method,
                 $class,
-                $expectedArguments,
+                $expected,
                 count($arguments),
                 $prefix->value,
             ));
         }
-
-        $name = $property->getName();
-        $value = $arguments[0] ?? null;
-
-        if (Prefix::As === $prefix) {
-            $value = true;
-        }
-
-        if (Prefix::Without === $prefix) {
-            $type = $property->getType();
-
-            if (null === $type || $type->allowsNull()) {
-                $value = null;
-            } elseif ($type instanceof ReflectionNamedType) {
-                $value = match ($type->getName()) {
-                    'array' => [],
-                    'string' => '',
-                    'int' => 0,
-                    'float' => 0.0,
-                    'bool' => false,
-                    default => throw new BadMethodCallException(sprintf(
-                        'Cannot infer an empty value for $%s of type %s - write %s() explicitly.',
-                        $name,
-                        $type->getName(),
-                        $method,
-                    )),
-                };
-            } else {
-                throw new BadMethodCallException(sprintf(
-                    'Cannot infer an empty value for $%s - write %s() explicitly.',
-                    $name,
-                    $method,
-                ));
-            }
-        }
-
-        $write = match ($prefix) {
-            Prefix::With, Prefix::Without, Prefix::As => static function (object $clone) use ($name, $value): void {
-                $clone->{$name} = $value;
-            },
-            Prefix::Including => static function (object $clone) use ($name, $value): void {
-                $clone->{$name}[] = $value;
-            },
-            Prefix::Excluding => static function (object $clone) use ($name, $value): void {
-                /** @var array<int|string, mixed> $current */
-                $current = $clone->{$name};
-                $clone->{$name} = array_values(array_filter(
-                    $current,
-                    static fn (mixed $item): bool => $item !== $value,
-                ));
-            },
-            Prefix::From, Prefix::For, Prefix::Having => throw new BadMethodCallException(sprintf(
-                '%s() on %s is never magic.',
-                $method,
-                $class,
-            )),
-        };
-
-        return Closure::bind($write, null, $class);
     }
 }
