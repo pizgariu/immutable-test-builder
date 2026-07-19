@@ -91,17 +91,28 @@ final class ModifierResolver
             ));
         }
 
-        $expected = $prefix->takesParameters() ? 1 : 0;
+        if (Prefix::As === $prefix) {
+            if (count($arguments) > 1) {
+                throw new BadMethodCallException(sprintf(
+                    '%s() on %s takes at most 1 argument, %d given - as* raises a flag, optionally to an explicit bool.',
+                    $method,
+                    $class,
+                    count($arguments),
+                ));
+            }
+        } else {
+            $expected = $prefix->takesParameters() ? 1 : 0;
 
-        if (count($arguments) !== $expected) {
-            throw new BadMethodCallException(sprintf(
-                '%s() on %s takes exactly %d argument(s), %d given - %s* modifiers have a fixed arity.',
-                $method,
-                $class,
-                $expected,
-                count($arguments),
-                $prefix->value,
-            ));
+            if (count($arguments) !== $expected) {
+                throw new BadMethodCallException(sprintf(
+                    '%s() on %s takes exactly %d argument(s), %d given - %s* modifiers have a fixed arity.',
+                    $method,
+                    $class,
+                    $expected,
+                    count($arguments),
+                    $prefix->value,
+                ));
+            }
         }
 
         return Closure::bind($writer->write($property, $arguments), null, $class);

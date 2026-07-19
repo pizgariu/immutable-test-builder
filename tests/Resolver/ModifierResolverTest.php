@@ -58,6 +58,24 @@ final class ModifierResolverTest extends TestCase
         self::assertTrue($freighter->build()['armed']);
     }
 
+    public function testAsWritesAnExplicitBoolWhenGiven(): void
+    {
+        $freighter = FreighterBuilder::create();
+
+        ModifierResolver::resolve(FreighterBuilder::class, 'asArmed', [false])($freighter);
+
+        self::assertFalse($freighter->build()['armed']);
+    }
+
+    public function testAsWritesNullIntoANullableFlag(): void
+    {
+        $freighter = FreighterBuilder::create();
+
+        ModifierResolver::resolve(FreighterBuilder::class, 'asMothballed', [null])($freighter);
+
+        self::assertNull($freighter->build()['mothballed']);
+    }
+
     public function testIncludingResolvesThePluralPropertyAndAppends(): void
     {
         $freighter = FreighterBuilder::create();
@@ -100,8 +118,10 @@ final class ModifierResolverTest extends TestCase
         yield 'having is never magic' => ['class' => FreighterBuilder::class, 'method' => 'havingCrew', 'arguments' => [3], 'fragment' => 'never magic'];
         yield 'missing property' => ['class' => FreighterBuilder::class, 'method' => 'withSerial', 'arguments' => ['s'], 'fragment' => 'no matching property'];
         yield 'with wants an argument' => ['class' => FreighterBuilder::class, 'method' => 'withCallsign', 'arguments' => [], 'fragment' => 'takes exactly 1 argument'];
-        yield 'as wants none' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => [true], 'fragment' => 'takes exactly 0 argument'];
+        yield 'as takes at most one argument' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => [true, false], 'fragment' => 'takes at most 1 argument'];
         yield 'uninferrable empty value' => ['class' => GadgetBuilder::class, 'method' => 'withoutInstalledAt', 'arguments' => [], 'fragment' => 'Cannot infer an empty value'];
         yield 'as on a non-bool property' => ['class' => FreighterBuilder::class, 'method' => 'asCargo', 'arguments' => [], 'fragment' => 'raises a boolean flag'];
+        yield 'as with a non-bool value' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => ['yes'], 'fragment' => 'takes a bool'];
+        yield 'as null into a non-nullable flag' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => [null], 'fragment' => 'not nullable'];
     }
 }

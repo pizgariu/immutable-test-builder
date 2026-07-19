@@ -11,10 +11,10 @@ use ReflectionNamedType;
 use ReflectionProperty;
 
 /**
- * as*() raises a boolean flag. It names the whole change, so it takes no
- * argument and always writes true. The opposite lowering is without*(), which
- * infers false for a bool. The property must be a bool - raising a flag on any
- * other type would write a lie, so the writer refuses loudly instead.
+ * as*() sets a boolean flag - true by default, or an explicit bool when given,
+ * or null when the property is nullable. The property must be a bool, so it
+ * refuses loudly on any other type rather than writing a lie. asArmed() raises
+ * the flag, asArmed(false) lowers it, asMothballed(null) clears a ?bool.
  *
  * @internal
  */
@@ -34,8 +34,27 @@ final class AsWriter implements PrefixWriterInterface
             ));
         }
 
-        return static function (object $clone) use ($name): void {
-            $clone->{$name} = true;
+        $value = array_key_exists(0, $arguments) ? $arguments[0] : true;
+
+        if (null === $value && !$type->allowsNull()) {
+            throw new BadMethodCallException(sprintf(
+                'as%s() was given null but $%s is not nullable - pass true or false, or make the property ?bool.',
+                ucfirst($name),
+                $name,
+            ));
+        }
+
+        if (null !== $value && !is_bool($value)) {
+            throw new BadMethodCallException(sprintf(
+                'as%s() takes a bool%s but %s was given - as* sets a flag.',
+                ucfirst($name),
+                $type->allowsNull() ? ' or null' : '',
+                get_debug_type($value),
+            ));
+        }
+
+        return static function (object $clone) use ($name, $value): void {
+            $clone->{$name} = $value;
         };
     }
 }

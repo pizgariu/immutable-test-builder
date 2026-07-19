@@ -24,6 +24,8 @@ final class FreighterBuilder extends AbstractBuilder
 
     private bool $armed;
 
+    private ?bool $mothballed;
+
     /** @var list<string> */
     private array $decals;
 
@@ -38,6 +40,7 @@ final class FreighterBuilder extends AbstractBuilder
             'cargo' => $this->cargo,
             'fuel' => $this->fuel,
             'armed' => $this->armed,
+            'mothballed' => $this->mothballed,
             'decals' => $this->decals,
         ];
     }
@@ -49,6 +52,7 @@ final class FreighterBuilder extends AbstractBuilder
         $this->cargo = random_int(1, 100);
         $this->fuel = 1.5;
         $this->armed = false;
+        $this->mothballed = false;
         $this->decals = ['stripe'];
     }
 }
