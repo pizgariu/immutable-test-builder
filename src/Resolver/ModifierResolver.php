@@ -7,11 +7,16 @@ namespace Pizgariu\ImmutableTestBuilder\Resolver;
 use BadMethodCallException;
 use Closure;
 use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\Writer\AsWriter;
+use Pizgariu\ImmutableTestBuilder\Writer\ExcludingWriter;
+use Pizgariu\ImmutableTestBuilder\Writer\IncludingWriter;
+use Pizgariu\ImmutableTestBuilder\Writer\WithoutWriter;
+use Pizgariu\ImmutableTestBuilder\Writer\WithWriter;
 use ReflectionClass;
 
 /**
  * Turns a magic modifier call into the write it performs. It parses the prefix,
- * maps it to the one resolver that owns its meaning (assign, empty, append,
+ * maps it to the one writer that owns its meaning (assign, empty, append,
  * filter), resolves the target property and checks the arity, then delegates
  * the write. AbstractBuilder::__call hands the result straight to mutate(), so a
  * magic call travels the same path as a handwritten one. The returned closure
@@ -45,12 +50,12 @@ final class ModifierResolver
             ));
         }
 
-        $resolver = match ($prefix) {
-            Prefix::With => new WithResolver(),
-            Prefix::Without => new WithoutResolver(),
-            Prefix::As => new AsResolver(),
-            Prefix::Including => new IncludingResolver(),
-            Prefix::Excluding => new ExcludingResolver(),
+        $writer = match ($prefix) {
+            Prefix::With => new WithWriter(),
+            Prefix::Without => new WithoutWriter(),
+            Prefix::As => new AsWriter(),
+            Prefix::Including => new IncludingWriter(),
+            Prefix::Excluding => new ExcludingWriter(),
             Prefix::From, Prefix::For, Prefix::Having => throw new BadMethodCallException(sprintf(
                 '%s() on %s is a %s* modifier and %s* is never magic - hydration, ownership and multi-property concepts are written explicitly.',
                 $method,
@@ -99,6 +104,6 @@ final class ModifierResolver
             ));
         }
 
-        return Closure::bind($resolver->write($property, $arguments), null, $class);
+        return Closure::bind($writer->write($property, $arguments), null, $class);
     }
 }

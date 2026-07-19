@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Resolver;
+namespace Pizgariu\ImmutableTestBuilder\Writer;
 
 use BadMethodCallException;
 use Closure;
-use Pizgariu\ImmutableTestBuilder\Contract\PrefixResolverInterface;
+use Pizgariu\ImmutableTestBuilder\Contract\Writer\PrefixWriterInterface;
 use ReflectionNamedType;
 use ReflectionProperty;
 
@@ -18,7 +18,7 @@ use ReflectionProperty;
  *
  * @internal
  */
-final class WithoutResolver implements PrefixResolverInterface
+final class WithoutWriter implements PrefixWriterInterface
 {
     public function write(ReflectionProperty $property, array $arguments): Closure
     {

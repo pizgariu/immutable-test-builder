@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Contract;
+namespace Pizgariu\ImmutableTestBuilder\Contract\Writer;
 
 use BadMethodCallException;
 use Closure;
 use ReflectionProperty;
 
 /**
- * One DSL prefix's magic behaviour - the write it performs on a resolved
- * property. Each implementation owns a single prefix (assign, empty, append,
- * filter). ModifierResolver maps the parsed prefix to its implementation and
- * binds the result into the concrete builder scope.
+ * One DSL prefix's write - the mutation it performs on a resolved property.
+ * Each implementation owns a single prefix (assign, empty, append, filter).
+ * ModifierResolver maps the parsed prefix to its writer and binds the result
+ * into the concrete builder scope.
  *
  * @internal the kernel's derivation engine, not a consumer extension point
  */
-interface PrefixResolverInterface
+interface PrefixWriterInterface
 {
     /**
      * Derive the write this prefix performs. The property is already resolved

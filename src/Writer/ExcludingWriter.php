@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Resolver;
+namespace Pizgariu\ImmutableTestBuilder\Writer;
 
 use Closure;
-use Pizgariu\ImmutableTestBuilder\Contract\PrefixResolverInterface;
+use Pizgariu\ImmutableTestBuilder\Contract\Writer\PrefixWriterInterface;
 use ReflectionProperty;
 
 /**
@@ -14,7 +14,7 @@ use ReflectionProperty;
  *
  * @internal
  */
-final class ExcludingResolver implements PrefixResolverInterface
+final class ExcludingWriter implements PrefixWriterInterface
 {
     public function write(ReflectionProperty $property, array $arguments): Closure
     {
