@@ -48,15 +48,34 @@ abstract class AbstractBuilder implements BuilderInterface
     }
 
     /**
-     * The magic half of the DSL. Resolves the prefix, the target property
-     * and the written value, then funnels the change through mutate() like
-     * every handwritten modifier.
+     * The magic half of the DSL. Delegates to resolveModifier() for the
+     * derivation, then funnels the write through mutate() like every
+     * handwritten modifier.
      *
      * @param array<int, mixed> $arguments
      *
      * @throws BadMethodCallException when the name is outside the DSL, the prefix is never magic, no property matches or the arity is wrong
      */
     final public function __call(string $method, array $arguments): static
+    {
+        return $this->mutate($this->resolveModifier($method, ...$arguments));
+    }
+
+    /**
+     * The magic resolver and the single source of truth for what each prefix
+     * means. Turns a modifier call into the write it performs - resolving the
+     * prefix, the target property and the value from the declarations, and
+     * returning a closure already bound into the concrete class scope so
+     * mutate() can apply it to the clone. A handwritten modifier reuses the
+     * derivation by handing the result straight to mutate().
+     *
+     * @param mixed ...$arguments
+     *
+     * @return Closure(object): void
+     *
+     * @throws BadMethodCallException when the name is outside the DSL, the prefix is never magic, no property matches or the arity is wrong
+     */
+    final protected function resolveModifier(string $method, mixed ...$arguments): Closure
     {
         $prefix = Prefix::ofMethod($method);
 
@@ -175,7 +194,7 @@ abstract class AbstractBuilder implements BuilderInterface
             )),
         };
 
-        return $this->mutate(Closure::bind($write, null, static::class));
+        return Closure::bind($write, null, static::class);
     }
 
     /**
