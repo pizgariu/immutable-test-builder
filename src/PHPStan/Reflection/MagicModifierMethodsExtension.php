@@ -12,6 +12,7 @@ use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
+use LogicException;
 
 /**
  * Teaches PHPStan every magic modifier the kernel implements at runtime.
@@ -32,7 +33,7 @@ final class MagicModifierMethodsExtension implements MethodsClassReflectionExten
         $property = $this->magicPropertyName($classReflection, $methodName);
 
         if (null === $prefix || null === $property) {
-            throw new \LogicException(sprintf('getMethod(%s) called without a positive hasMethod().', $methodName));
+            throw new LogicException(sprintf('getMethod(%s) called without a positive hasMethod().', $methodName));
         }
 
         return new MagicModifierMethod($classReflection, $methodName, $this->parametersFor($classReflection, $prefix, $property, $methodName));

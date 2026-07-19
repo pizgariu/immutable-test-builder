@@ -386,9 +386,10 @@ A built-in data generator is not on any roadmap - randomness stays the project's
 composer install
 vendor/bin/phpunit
 vendor/bin/phpstan analyse
+vendor/bin/php-cs-fixer fix
 ```
 
-PHPStan runs at level max over `src` and `tests`, with the bundled rule set included - the package dogfoods its own DSL. CI validates `composer.json` strictly, then runs the suite and the analysis on PHP 8.3, 8.4 and 8.5, on every push to `master` and every pull request. `fail-fast` is off, so a break on one interpreter does not hide the others.
+PHPStan runs at level max over `src` and `tests`, with the bundled rule set included - the package dogfoods its own DSL. Coding style is enforced by php-cs-fixer on a PER-CS 2.0 base with the risky set on. CI validates `composer.json` strictly, then runs the suite and the analysis on PHP 8.3, 8.4 and 8.5, and checks the style once, on every push to `master` and every pull request. `fail-fast` is off, so a break on one interpreter does not hide the others.
 
 ---
 
