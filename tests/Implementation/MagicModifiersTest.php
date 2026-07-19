@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Tests;
+namespace Pizgariu\ImmutableTestBuilder\Tests\Implementation;
 
 use BadMethodCallException;
 use PHPUnit\Framework\Attributes\DataProvider;

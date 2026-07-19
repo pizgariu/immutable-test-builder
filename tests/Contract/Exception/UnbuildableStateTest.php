@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Tests\Exception;
+namespace Pizgariu\ImmutableTestBuilder\Tests\Contract\Exception;
 
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
