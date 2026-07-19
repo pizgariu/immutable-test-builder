@@ -8,7 +8,6 @@ use BadMethodCallException;
 use Closure;
 use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
 use ReflectionClass;
-use ReflectionProperty;
 
 /**
  * Turns a magic modifier call into the write it performs. It parses the prefix,
@@ -61,17 +60,7 @@ final class ModifierResolver
             )),
         };
 
-        $property = self::property($prefix, $class, $method);
-        self::assertArity($prefix, $class, $method, $arguments);
-
-        return Closure::bind($resolver->write($property, $arguments), null, $class);
-    }
-
-    /**
-     * @param class-string $class
-     */
-    private static function property(Prefix $prefix, string $class, string $method): ReflectionProperty
-    {
+        $property = null;
         $reflection = new ReflectionClass($class);
 
         foreach ($prefix->propertyCandidates($method) as $candidate) {
@@ -79,26 +68,24 @@ final class ModifierResolver
                 continue;
             }
 
-            $property = $reflection->getProperty($candidate);
+            $candidateProperty = $reflection->getProperty($candidate);
 
-            if (!$property->isStatic()) {
-                return $property;
+            if (!$candidateProperty->isStatic()) {
+                $property = $candidateProperty;
+
+                break;
             }
         }
 
-        throw new BadMethodCallException(sprintf(
-            '%s() has no matching property on %s (tried $%s) - declare the property or write the modifier explicitly.',
-            $method,
-            $class,
-            implode(', $', $prefix->propertyCandidates($method)),
-        ));
-    }
+        if (null === $property) {
+            throw new BadMethodCallException(sprintf(
+                '%s() has no matching property on %s (tried $%s) - declare the property or write the modifier explicitly.',
+                $method,
+                $class,
+                implode(', $', $prefix->propertyCandidates($method)),
+            ));
+        }
 
-    /**
-     * @param array<int, mixed> $arguments
-     */
-    private static function assertArity(Prefix $prefix, string $class, string $method, array $arguments): void
-    {
         $expected = $prefix->takesParameters() ? 1 : 0;
 
         if (count($arguments) !== $expected) {
@@ -111,5 +98,7 @@ final class ModifierResolver
                 $prefix->value,
             ));
         }
+
+        return Closure::bind($resolver->write($property, $arguments), null, $class);
     }
 }
