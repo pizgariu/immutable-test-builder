@@ -7,7 +7,7 @@ namespace Pizgariu\ImmutableTestBuilder\Tests\Exception;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
 
 final class UnbuildableStateTest extends TestCase
 {

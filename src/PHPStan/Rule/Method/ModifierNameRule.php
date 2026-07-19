@@ -10,8 +10,8 @@ use PHPStan\Node\InClassMethodNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
-use Pizgariu\ImmutableTestBuilder\Enum\KernelMethod;
-use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\Contract\Enum\KernelMethod;
+use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
 use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
 
 /**

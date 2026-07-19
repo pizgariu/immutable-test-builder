@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
 use PHPUnit\Framework\TestCase;
-use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
 
 final class UserBuilderTest extends TestCase
 {

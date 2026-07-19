@@ -8,7 +8,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
 
 /**
  * The one place the rules decide what a concrete builder is and which declared method counts as a modifier.

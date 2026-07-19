@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Enum;
+namespace Pizgariu\ImmutableTestBuilder\Contract\Enum;
 
 /**
  * The modifier DSL as a single source of truth. The kernel's __call, the

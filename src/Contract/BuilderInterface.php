@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Contract;
 
-use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
 
 /**
  * Contract for immutable test data builders.

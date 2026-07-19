@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
-use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**

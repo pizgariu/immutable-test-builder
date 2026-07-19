@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Enum;
+namespace Pizgariu\ImmutableTestBuilder\Contract\Enum;
 
 /**
  * The kernel's own method names as one vocabulary - the rules compare against these instead of scattering string literals.

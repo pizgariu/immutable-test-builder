@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Exception;
+namespace Pizgariu\ImmutableTestBuilder\Contract\Exception;
 
 use LogicException;
 

@@ -10,7 +10,7 @@ use PHPStan\Reflection\MethodsClassReflectionExtension;
 use PHPStan\Type\ArrayType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
-use Pizgariu\ImmutableTestBuilder\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 use LogicException;
 

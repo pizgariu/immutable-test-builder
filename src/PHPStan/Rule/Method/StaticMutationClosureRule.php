@@ -15,7 +15,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\Enum\KernelMethod;
+use Pizgariu\ImmutableTestBuilder\Contract\Enum\KernelMethod;
 
 /**
  * The mutation closure receives the clone as its parameter and has no

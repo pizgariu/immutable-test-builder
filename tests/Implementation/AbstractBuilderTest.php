@@ -7,7 +7,7 @@ namespace Pizgariu\ImmutableTestBuilder\Tests\Implementation;
 use Closure;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\Spaceship;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\SpaceshipBuilder;
 use ReflectionClass;
