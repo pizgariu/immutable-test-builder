@@ -46,8 +46,8 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
-use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
  * withName(), withEmail(), withoutEmail() and includingRole() are never
@@ -252,7 +252,7 @@ A project that wants richer generated data plugs its own generator in through it
 ```php
 use Faker\Factory;
 use Faker\Generator;
-use Pizgariu\ImmutableTestBuilder\AbstractBuilder;
+use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 abstract class ProjectBuilder extends AbstractBuilder
 {
@@ -302,7 +302,30 @@ The trivial modifiers do not exist as code. `__call` and the `Prefix` enum imple
 | `including*(item)` | appends with `[]=`, resolving the simple plural (`includingRole` writes `$roles`) |
 | `excluding*(item)` | filters the item out, resolving the same plural |
 
-`from*`, `for*` and `having*` are never magic - hydration, ownership and multi-property concepts deserve a handwritten body. A declared method always wins, because the engine only answers when no method exists: `asDeactivated()` above is handwritten precisely because no `$deactivated` property could tell the kernel what deactivating means.
+`from*`, `for*` and `having*` are never magic - hydration, ownership and multi-property concepts deserve a handwritten body:
+
+```php
+public function fromApplicant(Applicant $applicant): static
+{
+    return $this->mutate(static function (self $builder) use ($applicant): void {
+        $builder->email = $applicant->email;
+        $builder->firstName = $applicant->firstName;
+        $builder->lastName = $applicant->lastName;
+    });
+}
+
+public function forAccount(Account $account): static
+{
+    return $this->mutate(['accountId' => $account->id]);
+}
+
+public function havingName(string $firstName, string $lastName): static
+{
+    return $this->mutate(['firstName' => $firstName, 'lastName' => $lastName]);
+}
+```
+
+The full grammar, magic and handwritten side by side, lives in [`tests/Example/MembershipBuilder`](tests/Example/MembershipBuilder.php) with a test that exercises every prefix. A declared method always wins, because the engine only answers when no method exists: `asDeactivated()` earlier is handwritten precisely because no `$deactivated` property could tell the kernel what deactivating means.
 
 Sealed state stays sealed. The magic writer is bound into the concrete class scope with `Closure::bind`, so properties remain private and every derived modifier still funnels through `mutate()` - same clone, same isolation, same branching guarantees. A call outside the contract fails loudly with `BadMethodCallException` and the way out: unknown prefix, a prefix that is never magic, a missing property or the wrong arity.
 
@@ -351,7 +374,7 @@ PHP 8.3+ (`^8.3`). Nothing else - the package has zero runtime dependencies.
 
 The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The API surface described above is stable for 1.0.0.
 
-- **2.0.0** - an entity integrity check, and a Rector set that removes trivial modifiers.
+- **2.0.0** - the entity coverage rule and the Rector set are landing on this line, with PHPStan 2.0 support to follow.
 
 A built-in data generator is not on any roadmap - randomness stays the project's choice, plugged in through `seed()`. Collection helper utilities are out of scope as well; `including*` and `excluding*` modifiers stay hand-written one-liners.
 
