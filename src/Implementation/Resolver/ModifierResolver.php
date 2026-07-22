@@ -13,6 +13,7 @@ use Pizgariu\ImmutableTestBuilder\Implementation\Writer\IncludingWriter;
 use Pizgariu\ImmutableTestBuilder\Implementation\Writer\WithoutWriter;
 use Pizgariu\ImmutableTestBuilder\Implementation\Writer\WithWriter;
 use ReflectionClass;
+use ReflectionException;
 
 /**
  * Turns a magic modifier call into the write it performs. It parses the prefix,
@@ -51,11 +52,11 @@ final class ModifierResolver
         }
 
         $writer = match ($prefix) {
-            Prefix::With => new WithWriter(),
-            Prefix::Without => new WithoutWriter(),
             Prefix::As => new AsWriter(),
             Prefix::Including => new IncludingWriter(),
             Prefix::Excluding => new ExcludingWriter(),
+            Prefix::Without => new WithoutWriter(),
+            Prefix::With => new WithWriter(),
             Prefix::From, Prefix::For, Prefix::Having => throw new BadMethodCallException(sprintf(
                 '%s() on %s is a %s* modifier and %s* is never magic - hydration, ownership and multi-property concepts are written explicitly.',
                 $method,
@@ -65,8 +66,19 @@ final class ModifierResolver
             )),
         };
 
+        try {
+            $reflection = new ReflectionClass($class);
+            // @phpstan-ignore catch.neverThrown (class-string is a phpdoc contract, not a runtime guarantee - the belt stays for callers that break it)
+        } catch (ReflectionException $exception) {
+            throw new BadMethodCallException(sprintf(
+                'Cannot resolve %s() - reflection failed on %s, the very class executing this call. That state should be impossible, so if it surfaces the runtime or autoloader is broken, not the builder. Original error: %s',
+                $method,
+                $class,
+                $exception->getMessage(),
+            ), 0, $exception);
+        }
+
         $property = null;
-        $reflection = new ReflectionClass($class);
 
         foreach ($prefix->propertyCandidates($method) as $candidate) {
             if (!$reflection->hasProperty($candidate)) {
