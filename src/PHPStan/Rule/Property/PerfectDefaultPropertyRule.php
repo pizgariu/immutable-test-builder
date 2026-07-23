@@ -17,7 +17,7 @@ use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
-use Pizgariu\ImmutableTestBuilder\Contract\Enum\KernelMethod;
+use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
 

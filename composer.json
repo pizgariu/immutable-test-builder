@@ -7,7 +7,6 @@
         "testing",
         "test-data",
         "builder",
-        "faker",
         "immutable",
         "fixtures"
     ],
