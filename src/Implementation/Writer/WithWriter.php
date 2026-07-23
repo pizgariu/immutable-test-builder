@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pizgariu\ImmutableTestBuilder\Implementation\Writer;
 
 use Closure;
-use Pizgariu\ImmutableTestBuilder\Contract\Writer\PrefixWriterInterface;
 use ReflectionProperty;
 
 /**

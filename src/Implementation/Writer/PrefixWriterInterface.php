@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Contract\Writer;
+namespace Pizgariu\ImmutableTestBuilder\Implementation\Writer;
 
 use BadMethodCallException;
 use Closure;
