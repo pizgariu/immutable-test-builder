@@ -6,9 +6,8 @@ namespace Pizgariu\ImmutableTestBuilder\Implementation\Writer;
 
 use BadMethodCallException;
 use Closure;
-use Pizgariu\ImmutableTestBuilder\Contract\Writer\PrefixWriterInterface;
 use ReflectionNamedType;
-use ReflectionProperty;
+use ReflectionType;
 
 /**
  * without*() empties the property. The empty value is inferred from the
@@ -18,23 +17,19 @@ use ReflectionProperty;
  *
  * @internal
  */
-final class WithoutWriter implements PrefixWriterInterface
+final class WithoutWriter extends AbstractTypeAwareWriter
 {
-    public function write(ReflectionProperty $property, array $arguments): Closure
+    protected function derive(string $name, ?ReflectionType $type, array $arguments): Closure
     {
-        $name = $property->getName();
-        $value = $this->emptyValueFor($property);
+        $value = $this->emptyValueFor($name, $type);
 
         return static function (object $clone) use ($name, $value): void {
             $clone->{$name} = $value;
         };
     }
 
-    private function emptyValueFor(ReflectionProperty $property): mixed
+    private function emptyValueFor(string $name, ?ReflectionType $type): mixed
     {
-        $type = $property->getType();
-        $name = $property->getName();
-
         if (null === $type || $type->allowsNull()) {
             return null;
         }

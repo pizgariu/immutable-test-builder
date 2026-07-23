@@ -6,9 +6,8 @@ namespace Pizgariu\ImmutableTestBuilder\Implementation\Writer;
 
 use BadMethodCallException;
 use Closure;
-use Pizgariu\ImmutableTestBuilder\Contract\Writer\PrefixWriterInterface;
 use ReflectionNamedType;
-use ReflectionProperty;
+use ReflectionType;
 
 /**
  * as*() sets a boolean flag - true by default, or an explicit bool when given,
@@ -18,13 +17,10 @@ use ReflectionProperty;
  *
  * @internal
  */
-final class AsWriter implements PrefixWriterInterface
+final class AsWriter extends AbstractTypeAwareWriter
 {
-    public function write(ReflectionProperty $property, array $arguments): Closure
+    protected function derive(string $name, ?ReflectionType $type, array $arguments): Closure
     {
-        $name = $property->getName();
-        $type = $property->getType();
-
         if (!$type instanceof ReflectionNamedType || 'bool' !== $type->getName()) {
             throw new BadMethodCallException(sprintf(
                 'as%s() raises a boolean flag but $%s is %s - declare it bool or write the modifier by hand.',

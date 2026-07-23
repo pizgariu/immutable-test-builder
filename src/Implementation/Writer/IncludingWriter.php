@@ -6,9 +6,8 @@ namespace Pizgariu\ImmutableTestBuilder\Implementation\Writer;
 
 use BadMethodCallException;
 use Closure;
-use Pizgariu\ImmutableTestBuilder\Contract\Writer\PrefixWriterInterface;
 use ReflectionNamedType;
-use ReflectionProperty;
+use ReflectionType;
 
 /**
  * including*() appends to a collection property without replacing it. The
@@ -17,13 +16,10 @@ use ReflectionProperty;
  *
  * @internal
  */
-final class IncludingWriter implements PrefixWriterInterface
+final class IncludingWriter extends AbstractTypeAwareWriter
 {
-    public function write(ReflectionProperty $property, array $arguments): Closure
+    protected function derive(string $name, ?ReflectionType $type, array $arguments): Closure
     {
-        $name = $property->getName();
-        $type = $property->getType();
-
         if (!$type instanceof ReflectionNamedType || 'array' !== $type->getName()) {
             throw new BadMethodCallException(sprintf(
                 'including*() targeting $%s appends to a collection but the property is %s - declare it array or write the modifier by hand.',
