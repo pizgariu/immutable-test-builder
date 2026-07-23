@@ -30,6 +30,7 @@ final class MembershipBuilderTest extends TestCase
         self::assertSame('ripley@example.test', $membership->email);
         self::assertTrue($membership->active);
         self::assertSame(['admin'], $membership->tags);
+        self::assertSame([], MembershipBuilder::create()->withoutTags()->build()->tags);
     }
 
     public function testFromHydratesSeveralFieldsFromASource(): void

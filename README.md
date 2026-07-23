@@ -7,7 +7,7 @@ Declare one valid object, once. Every test rents a tailored copy through modifie
 [![PHP versions](https://img.shields.io/badge/php-8.3%20%7C%208.4%20%7C%208.5-blue.svg)](https://github.com/pizgariu/immutable-test-builder)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Immutable test data builders for PHP. A builder is born with a perfect default: `build()` succeeds immediately, seeded with realistic faker data, so a test states only the values it asserts on. Every modifier returns a NEW instance, so a builder can sit in a shared fixture or serve as the trunk for divergent variants and no test corrupts another. One contract, one abstract base, one exception and a PHPStan rule set that polices the DSL. Pure standard library, zero runtime dependencies.
+Immutable test data builders for PHP. A builder is born with a perfect default: `build()` succeeds immediately, seeded with realistic generated data, so a test states only the values it asserts on. Every modifier returns a NEW instance, so a builder can sit in a shared fixture or serve as the trunk for divergent variants and no test corrupts another. One contract, one abstract base, one exception and a PHPStan rule set that polices the DSL. Pure standard library, zero runtime dependencies.
 
 ---
 
@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
-use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
@@ -111,7 +111,7 @@ declare(strict_types=1);
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
 use PHPUnit\Framework\TestCase;
-use Pizgariu\ImmutableTestBuilder\Exception\UnbuildableState;
+use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
 
 final class UserBuilderTest extends TestCase
 {
@@ -183,19 +183,44 @@ The payoff is what tests stop saying. A test that fills every field before it ca
 
 ## Immutability via mutate()
 
-`AbstractBuilder` carries the whole engine in one method:
+`AbstractBuilder` carries the immutability engine in one method:
 
 ```php
-final protected function mutate(Closure $mutation): static
+final protected function mutate(Closure|array $mutation): static
 {
+    if (is_array($mutation)) {
+        foreach (array_keys($mutation) as $property) {
+            if (!property_exists(static::class, $property)) {
+                throw new BadMethodCallException(sprintf(
+                    'mutate() on %s cannot write $%s - the concrete scope sees no such property. Fix the key, or declare shared base state protected so the bound write can reach it.',
+                    static::class,
+                    $property,
+                ));
+            }
+        }
+    }
+
     $clone = clone $this;
-    $mutation($clone);
+
+    if ($mutation instanceof Closure) {
+        $mutation($clone);
+
+        return $clone;
+    }
+
+    $write = static function (object $target) use ($mutation): void {
+        foreach ($mutation as $property => $value) {
+            $target->{$property} = $value;
+        }
+    };
+
+    Closure::bind($write, null, static::class)($clone);
 
     return $clone;
 }
 ```
 
-Clone, apply the change to the clone, return the clone. Every public modifier of a concrete builder is a one-liner delegating here:
+Clone, apply the change to the clone, return the clone - and refuse a map key that names no property the concrete scope can write, so a typo never becomes a silent dynamic property. Every public modifier of a concrete builder is a one-liner delegating here:
 
 ```php
 public function withName(string $name): static
@@ -298,7 +323,7 @@ The trivial modifiers do not exist as code. `__call` and the `Prefix` enum imple
 | --- | --- |
 | `with*(value)` | assigns the argument to the matching property |
 | `without*()` | assigns the inferred empty value - `null` for nullable, `[]`, `''`, `0`, `0.0`, `false` by type |
-| `as*()` | raises the matching boolean flag to `true` |
+| `as*(bool|null = true)` | sets the matching boolean flag - `asArmed()` raises it, `asArmed(false)` lowers it, `asMothballed(null)` clears a nullable one |
 | `including*(item)` | appends with `[]=`, resolving the simple plural (`includingRole` writes `$roles`) |
 | `excluding*(item)` | filters the item out, resolving the same plural |
 
@@ -327,9 +352,9 @@ public function havingName(string $firstName, string $lastName): static
 
 The full grammar, magic and handwritten side by side, lives in [`tests/Example/MembershipBuilder`](tests/Example/MembershipBuilder.php) with a test that exercises every prefix. A declared method always wins, because the engine only answers when no method exists: `asDeactivated()` earlier is handwritten precisely because no `$deactivated` property could tell the kernel what deactivating means.
 
-Sealed state stays sealed. The magic writer is bound into the concrete class scope with `Closure::bind`, so properties remain private and every derived modifier still funnels through `mutate()` - same clone, same isolation, same branching guarantees. A call outside the contract fails loudly with `BadMethodCallException` and the way out: unknown prefix, a prefix that is never magic, a missing property or the wrong arity.
+Sealed state stays sealed. The magic writer is bound into the concrete class scope with `Closure::bind`, so properties remain private and every derived modifier still funnels through `mutate()` - same clone, same isolation, same branching guarantees. A call outside the contract fails loudly with `BadMethodCallException` and the way out: unknown prefix, a prefix that is never magic, a missing property, the wrong arity, named arguments (magic reads its value positionally), a flag that is not `bool`, a collection that is not `array`, or an empty value that cannot be inferred.
 
-And the types hold. The bundled `MagicModifierMethodsExtension`, registered by the same `extension.neon`, teaches PHPStan every derived signature from the same `Prefix` semantics - `->withName('x')` analyses at level max with zero annotations and no mapper.
+And the types hold. The bundled `MagicModifierMethodsExtension`, registered by the same `extension.neon`, teaches PHPStan every derived signature from the same `Prefix` semantics - `->withName('x')` analyses at level max with zero annotations and no mapper. It also never advertises a modifier the writers would refuse on the property type, so `asCargo()` on an `int` is an undefined method for analysis exactly as it is a refusal at runtime.
 
 ---
 
@@ -348,7 +373,7 @@ Nine rules, one directory per abstraction type:
 | --- | --- | --- |
 | `FinalBuilderRule` | `Rule/Class` | a concrete builder that is not final - a builder is a leaf, extension points belong in an abstract base |
 | `ModifierNameRule` | `Rule/Method` | a public method outside the DSL - and `set*`, `make*`, `add*` each get a message explaining why the name lies |
-| `ModifierBehaviourRule` | `Rule/Method` | a body that breaks its prefix's promise - `without*`/`as*` taking parameters, `without*` assigning real values, `including*` that never appends, `excluding*` that appends, `having*` that writes a single property |
+| `ModifierBehaviourRule` | `Rule/Method` | a body that breaks its prefix's promise - `without*` taking parameters, `as*` declaring anything but one optional bool, `without*` assigning real values, `including*` that never appends, `excluding*` that appends, `having*` that writes a single property |
 | `ModifierDelegatesToMutateRule` | `Rule/Method` | a modifier that is not a static-returning one-liner through `mutate()` - the whole immutability proof in one shape check |
 | `SeedDisciplineRule` | `Rule/Method` | a public `seed()` (re-seeding a live builder is mutation through the back door) and any `seed()` that calls a modifier or `build()` - the returned clone would be silently thrown away |
 | `BuildReturnTypeRule` | `Rule/Method` | a `build()` without a concrete non-nullable return type - an impossible state throws `UnbuildableState`, it never leaks out as null or mixed |
