@@ -8,6 +8,12 @@ namespace Pizgariu\ImmutableTestBuilder\Contract\Enum;
  * The modifier DSL as a single source of truth. The kernel's __call, the
  * bundled PHPStan reflection extension and every rule share this enum, so
  * the grammar can never drift between runtime and analysis.
+ *
+ * This is the formal grammar of the DSL and deliberately part of the stable
+ * Contract surface. A consumer never has to call it, yet every builder is
+ * written in these prefixes, so changing a case or its semantics is a
+ * breaking change. Custom tooling over the DSL (generators, codemods, own
+ * rules) may read it freely.
  */
 enum Prefix: string
 {
