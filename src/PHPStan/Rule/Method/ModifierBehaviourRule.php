@@ -79,7 +79,7 @@ final class ModifierBehaviourRule implements Rule
         if (!$prefix->takesParameters()) {
             if ($parameterCount > 0) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
-                    '%s() on builder %s must not take parameters - a %s modifier names the entire change in its method name.',
+                    '%s() on builder %s must not take parameters - %s modifiers name the entire change in their method name.',
                     $name,
                     $display,
                     implode(' or ', array_map(static fn (Prefix $bare): string => $bare->value . '*', Prefix::parameterless())),

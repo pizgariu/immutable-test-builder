@@ -42,36 +42,56 @@ enum Prefix: string
     }
 
     /**
-     * The prefixes that name the entire change in the method name. Every
-     * other prefix feeds the builder outside data.
+     * Projection of takesParameters() in case order.
      *
      * @return list<self>
      */
     public static function parameterless(): array
     {
-        return [self::Without, self::As];
-    }
-
-    public function takesParameters(): bool
-    {
-        return !in_array($this, self::parameterless(), true);
+        return array_values(array_filter(
+            self::cases(),
+            static fn (self $prefix): bool => !$prefix->takesParameters(),
+        ));
     }
 
     /**
-     * The prefixes the kernel can implement from a property declaration
-     * alone. from*, for* and having* are never magic - hydration, ownership
-     * and multi-property concepts deserve a handwritten body.
+     * without* and as* name the entire change in the method name. Every
+     * other prefix feeds the builder outside data. Exhaustive on purpose - a
+     * new case must declare its appetite here or the analysis fails.
+     */
+    public function takesParameters(): bool
+    {
+        return match ($this) {
+            self::Without, self::As => false,
+            self::From, self::For, self::Having, self::Including, self::Excluding, self::With => true,
+        };
+    }
+
+    /**
+     * Projection of autoImplementable() in case order.
      *
      * @return list<self>
      */
     public static function magic(): array
     {
-        return [self::With, self::Without, self::As, self::Including, self::Excluding];
+        return array_values(array_filter(
+            self::cases(),
+            static fn (self $prefix): bool => $prefix->autoImplementable(),
+        ));
     }
 
+    /**
+     * Whether the kernel can implement this prefix from a property
+     * declaration alone. from*, for* and having* are never magic - hydration,
+     * ownership and multi-property concepts deserve a handwritten body.
+     * Exhaustive on purpose - a new case must pick a side here.
+     */
     public function autoImplementable(): bool
     {
-        return in_array($this, self::magic(), true);
+        return match ($this) {
+            self::With, self::Without, self::As, self::Including, self::Excluding => true,
+            self::From, self::For, self::Having => false,
+        };
     }
 
     /**
@@ -90,5 +110,4 @@ enum Prefix: string
             default => [$base],
         };
     }
-
 }

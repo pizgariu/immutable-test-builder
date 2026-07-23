@@ -76,8 +76,8 @@ final class PrefixTest extends TestCase
 
     public function testMagicAndParameterlessSplitTheGrammar(): void
     {
-        self::assertSame([Prefix::With, Prefix::Without, Prefix::As, Prefix::Including, Prefix::Excluding], Prefix::magic());
-        self::assertSame([Prefix::Without, Prefix::As], Prefix::parameterless());
+        self::assertSame([Prefix::As, Prefix::Including, Prefix::Excluding, Prefix::Without, Prefix::With], Prefix::magic());
+        self::assertSame([Prefix::As, Prefix::Without], Prefix::parameterless());
 
         foreach (Prefix::magic() as $prefix) {
             self::assertTrue($prefix->autoImplementable());

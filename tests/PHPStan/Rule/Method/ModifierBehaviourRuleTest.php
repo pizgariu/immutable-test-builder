@@ -25,11 +25,11 @@ final class ModifierBehaviourRuleTest extends RuleTestCase
 
         $this->analyse([__DIR__ . '/../../data/modifier-behaviour.php'], [
             [
-                sprintf('withoutOwner() on builder %s must not take parameters - a without* or as* modifier names the entire change in its method name.', $builder),
+                sprintf('withoutOwner() on builder %s must not take parameters - as* or without* modifiers name the entire change in their method name.', $builder),
                 32,
             ],
             [
-                sprintf('asArchived() on builder %s must not take parameters - a without* or as* modifier names the entire change in its method name.', $builder),
+                sprintf('asArchived() on builder %s must not take parameters - as* or without* modifiers name the entire change in their method name.', $builder),
                 39,
             ],
             [
