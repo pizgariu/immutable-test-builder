@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Implementation;
 
+use BadMethodCallException;
 use Closure;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\Spaceship;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\SpaceshipBuilder;
+use Pizgariu\ImmutableTestBuilder\Tests\Fixture\StationBuilder;
 use ReflectionClass;
 
 final class AbstractBuilderTest extends TestCase
@@ -114,6 +116,26 @@ final class AbstractBuilderTest extends TestCase
             self::assertStringContainsString('fuel tank is empty', $exception->getMessage());
             self::assertStringContainsString('Drop withoutFuel() or skip asLaunched().', $exception->getMessage());
         }
+    }
+
+    public function testMapMutationRefusesAnUndeclaredKey(): void
+    {
+        $builder = StationBuilder::create();
+
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('cannot write $nane');
+
+        $builder->withMistypedName('Verlaine');
+    }
+
+    public function testMapMutationRefusesAParentPrivateProperty(): void
+    {
+        $builder = StationBuilder::create();
+
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('cannot write $designation');
+
+        $builder->forDesignation('LV-426');
     }
 
     public function testConstructorIsNotPubliclyInstantiable(): void

@@ -76,10 +76,28 @@ abstract class AbstractBuilder implements BuilderInterface
      * clone - replace it inside the modifier instead of mutating it in
      * place, or deep-copy it in an overridden __clone().
      *
+     * The map form refuses loudly when a key names no property the concrete
+     * scope can write - a typo or a parent-private ingredient would otherwise
+     * become a silent dynamic property and build() would return stale data.
+     *
      * @param Closure(static): void|array<string, mixed> $mutation
+     *
+     * @throws BadMethodCallException when a map key names no property visible to the concrete builder
      */
     final protected function mutate(Closure|array $mutation): static
     {
+        if (is_array($mutation)) {
+            foreach (array_keys($mutation) as $property) {
+                if (!property_exists(static::class, $property)) {
+                    throw new BadMethodCallException(sprintf(
+                        'mutate() on %s cannot write $%s - the concrete scope sees no such property. Fix the key, or declare shared base state protected so the bound write can reach it.',
+                        static::class,
+                        $property,
+                    ));
+                }
+            }
+        }
+
         $clone = clone $this;
 
         if ($mutation instanceof Closure) {
