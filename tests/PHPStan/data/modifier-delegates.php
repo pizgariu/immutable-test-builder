@@ -60,3 +60,26 @@ final class ShipmentBuilder extends AbstractBuilder
         return sprintf('%s x%d', $this->carrier, $this->parcels);
     }
 }
+
+final class HandRolledBuilder implements \Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface
+{
+    private string $label = 'crate';
+
+    public static function create(): static
+    {
+        return new static();
+    }
+
+    public function withLabel(string $label): static
+    {
+        $clone = clone $this;
+        $clone->label = $label;
+
+        return $clone;
+    }
+
+    public function build(): string
+    {
+        return $this->label;
+    }
+}

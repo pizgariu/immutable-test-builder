@@ -37,7 +37,7 @@ final class ModifierDelegatesToMutateRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = ConcreteBuilder::fromScope($scope);
+        $class = ConcreteBuilder::kernelFromScope($scope);
 
         if (null === $class) {
             return [];

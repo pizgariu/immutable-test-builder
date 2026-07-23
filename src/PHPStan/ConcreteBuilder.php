@@ -9,6 +9,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
 use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
  * The one place the rules decide what a concrete builder is and which declared method counts as a modifier.
@@ -26,6 +27,22 @@ final class ConcreteBuilder
         }
 
         return $class->implementsInterface(BuilderInterface::class) ? $class : null;
+    }
+
+    /**
+     * The kernel-shape gate. Rules that demand mutate() or seed() only apply
+     * to builders inheriting the kernel - a hand-rolled BuilderInterface
+     * implementor keeps the contract rules and skips the kernel ones.
+     */
+    public static function kernelFromScope(Scope $scope): ?ClassReflection
+    {
+        $class = self::fromScope($scope);
+
+        if (null === $class || !$class->isSubclassOf(AbstractBuilder::class)) {
+            return null;
+        }
+
+        return $class;
     }
 
     public static function declaredModifierName(ClassMethod $method): ?string
