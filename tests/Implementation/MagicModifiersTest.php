@@ -48,6 +48,16 @@ final class MagicModifiersTest extends TestCase
         self::assertNull(FreighterBuilder::create()->asMothballed(null)->build()['mothballed']);
     }
 
+    public function testMagicRefusesNamedArguments(): void
+    {
+        $builder = FreighterBuilder::create();
+
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('does not accept named arguments');
+
+        $builder->asArmed(armed: false);
+    }
+
     /**
      * @param array<int, mixed> $arguments
      */

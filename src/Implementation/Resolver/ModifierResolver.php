@@ -32,7 +32,7 @@ final class ModifierResolver
 
     /**
      * @param class-string $class
-     * @param array<int, mixed> $arguments
+     * @param array<int|string, mixed> $arguments
      *
      * @return Closure(object): void
      *
@@ -65,6 +65,15 @@ final class ModifierResolver
                 $prefix->value,
             )),
         };
+
+        if (!array_is_list($arguments)) {
+            throw new BadMethodCallException(sprintf(
+                '%s() on %s does not accept named arguments - a magic modifier reads its value positionally, so call %s(value).',
+                $method,
+                $class,
+                $method,
+            ));
+        }
 
         try {
             $reflection = new ReflectionClass($class);

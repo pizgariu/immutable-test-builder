@@ -51,9 +51,9 @@ abstract class AbstractBuilder implements BuilderInterface
      * property declarations and this funnels it through mutate() like every
      * handwritten modifier.
      *
-     * @param array<int, mixed> $arguments
+     * @param array<int|string, mixed> $arguments
      *
-     * @throws BadMethodCallException when the name is outside the DSL, the prefix is never magic, no property matches or the arity is wrong
+     * @throws BadMethodCallException when the name is outside the DSL, the prefix is never magic, no property matches, the arity is wrong or the arguments are named
      */
     final public function __call(string $method, array $arguments): static
     {

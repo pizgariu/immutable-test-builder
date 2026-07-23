@@ -96,7 +96,7 @@ final class ModifierResolverTest extends TestCase
 
     /**
      * @param class-string $class
-     * @param array<int, mixed> $arguments
+     * @param array<int|string, mixed> $arguments
      */
     #[DataProvider('provideRefusals')]
     public function testRefusesWhatItCannotDerive(string $class, string $method, array $arguments, string $fragment): void
@@ -108,7 +108,7 @@ final class ModifierResolverTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{class: class-string, method: string, arguments: array<int, mixed>, fragment: string}>
+     * @return iterable<string, array{class: class-string, method: string, arguments: array<int|string, mixed>, fragment: string}>
      */
     public static function provideRefusals(): iterable
     {
@@ -123,5 +123,7 @@ final class ModifierResolverTest extends TestCase
         yield 'as on a non-bool property' => ['class' => FreighterBuilder::class, 'method' => 'asCargo', 'arguments' => [], 'fragment' => 'raises a boolean flag'];
         yield 'as with a non-bool value' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => ['yes'], 'fragment' => 'takes a bool'];
         yield 'as null into a non-nullable flag' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => [null], 'fragment' => 'not nullable'];
+        yield 'named argument on with' => ['class' => FreighterBuilder::class, 'method' => 'withPilot', 'arguments' => ['pilot' => 'Kane'], 'fragment' => 'named arguments'];
+        yield 'named argument on as' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => ['armed' => false], 'fragment' => 'named arguments'];
     }
 }
