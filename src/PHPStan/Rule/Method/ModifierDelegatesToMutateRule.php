@@ -16,7 +16,8 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
-use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
+use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
+use Pizgariu\ImmutableTestBuilder\PHPStan\Node\DeclaredModifier;
 
 /**
  * A modifier is a one-liner: a static-returning single statement delegating
@@ -37,14 +38,14 @@ final class ModifierDelegatesToMutateRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = ConcreteBuilder::kernelFromScope($scope);
+        $class = BuilderScope::kernel($scope);
 
         if (null === $class) {
             return [];
         }
 
         $method = $node->getOriginalNode();
-        $name = ConcreteBuilder::declaredModifierName($method);
+        $name = DeclaredModifier::name($method);
 
         if (null === $name) {
             return [];

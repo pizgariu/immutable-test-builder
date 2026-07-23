@@ -16,7 +16,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
 use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
-use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
+use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
  * seed() fills the perfect default and nothing else: it stays protected
@@ -38,7 +38,7 @@ final class SeedDisciplineRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = ConcreteBuilder::kernelFromScope($scope);
+        $class = BuilderScope::kernel($scope);
 
         if (null === $class) {
             return [];

@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\PHPStan;
+namespace Pizgariu\ImmutableTestBuilder\PHPStan\Analyser;
 
-use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
-use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
- * The one place the rules decide what a concrete builder is and which declared method counts as a modifier.
+ * The one place the rules read the analysed scope as a builder: concrete()
+ * answers whether the scope is a concrete builder at all, kernel() whether it
+ * also inherits the kernel.
  */
-final class ConcreteBuilder
+final class BuilderScope
 {
     private function __construct() {}
 
-    public static function fromScope(Scope $scope): ?ClassReflection
+    public static function concrete(Scope $scope): ?ClassReflection
     {
         $class = $scope->getClassReflection();
 
@@ -34,25 +34,14 @@ final class ConcreteBuilder
      * to builders inheriting the kernel - a hand-rolled BuilderInterface
      * implementor keeps the contract rules and skips the kernel ones.
      */
-    public static function kernelFromScope(Scope $scope): ?ClassReflection
+    public static function kernel(Scope $scope): ?ClassReflection
     {
-        $class = self::fromScope($scope);
+        $class = self::concrete($scope);
 
         if (null === $class || !$class->isSubclassOf(AbstractBuilder::class)) {
             return null;
         }
 
         return $class;
-    }
-
-    public static function declaredModifierName(ClassMethod $method): ?string
-    {
-        if (!$method->isPublic() || $method->isStatic()) {
-            return null;
-        }
-
-        $name = $method->name->toString();
-
-        return null === Prefix::ofMethod($name) ? null : $name;
     }
 }

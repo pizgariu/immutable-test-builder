@@ -19,7 +19,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
-use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
+use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
  * The perfect default as a per-property obligation: every non-static
@@ -42,7 +42,7 @@ final class PerfectDefaultPropertyRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = ConcreteBuilder::fromScope($scope);
+        $class = BuilderScope::concrete($scope);
 
         if (null === $class || !$class->isSubclassOf(AbstractBuilder::class)) {
             return [];

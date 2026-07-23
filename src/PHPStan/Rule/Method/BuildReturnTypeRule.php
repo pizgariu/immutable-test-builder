@@ -14,7 +14,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
-use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
+use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
  * build() never hands back a half-thing: a concrete builder declares a
@@ -35,7 +35,7 @@ final class BuildReturnTypeRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = ConcreteBuilder::fromScope($scope);
+        $class = BuilderScope::concrete($scope);
 
         if (null === $class) {
             return [];

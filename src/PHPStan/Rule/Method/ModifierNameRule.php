@@ -12,7 +12,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
 use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
-use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
+use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
  * The public surface of a concrete builder is the DSL and nothing else: build(), the create() factory and the modifier prefixes.
@@ -33,7 +33,7 @@ final class ModifierNameRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = ConcreteBuilder::fromScope($scope);
+        $class = BuilderScope::concrete($scope);
 
         if (null === $class) {
             return [];
