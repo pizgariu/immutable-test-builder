@@ -55,6 +55,11 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  * Only the meaningful modifier has a body: asDeactivated() flips $active,
  * a property no prefix could guess from the method name.
  *
+ * PHPStan types every derived call through the bundled extension. An IDE
+ * does not read PHPStan extensions, so autocomplete wants @method tags on
+ * the builder - handwritten for now, derived automatically by the Rector
+ * set landing in 2.0.0.
+ *
  * @extends AbstractBuilder<User>
  */
 final class UserBuilder extends AbstractBuilder
@@ -323,7 +328,7 @@ The trivial modifiers do not exist as code. `__call` and the `Prefix` enum imple
 | --- | --- |
 | `with*(value)` | assigns the argument to the matching property |
 | `without*()` | assigns the inferred empty value - `null` for nullable, `[]`, `''`, `0`, `0.0`, `false` by type |
-| `as*(bool|null = true)` | sets the matching boolean flag - `asArmed()` raises it, `asArmed(false)` lowers it, `asMothballed(null)` clears a nullable one |
+| `as*(bool\|null = true)` | sets the matching boolean flag - `asArmed()` raises it, `asArmed(false)` lowers it, `asMothballed(null)` clears a nullable one |
 | `including*(item)` | appends with `[]=`, resolving the simple plural (`includingRole` writes `$roles`) |
 | `excluding*(item)` | filters the item out, resolving the same plural |
 
@@ -355,6 +360,8 @@ The full grammar, magic and handwritten side by side, lives in [`tests/Example/M
 Sealed state stays sealed. The magic writer is bound into the concrete class scope with `Closure::bind`, so properties remain private and every derived modifier still funnels through `mutate()` - same clone, same isolation, same branching guarantees. A call outside the contract fails loudly with `BadMethodCallException` and the way out: unknown prefix, a prefix that is never magic, a missing property, the wrong arity, named arguments (magic reads its value positionally), a flag that is not `bool`, a collection that is not `array`, or an empty value that cannot be inferred.
 
 And the types hold. The bundled `MagicModifierMethodsExtension`, registered by the same `extension.neon`, teaches PHPStan every derived signature from the same `Prefix` semantics - `->withName('x')` analyses at level max with zero annotations and no mapper. It also never advertises a modifier the writers would refuse on the property type, so `asCargo()` on an `int` is an undefined method for analysis exactly as it is a refusal at runtime.
+
+Your IDE is a different reader. It does not consult PHPStan extensions, so autocomplete for the derived modifiers comes from `@method` tags on the builder class - written by hand today. The Rector set landing in 2.0.0 derives and maintains them automatically, turning the tags from a chore into generated output.
 
 ---
 
@@ -401,7 +408,7 @@ PHP 8.3+ (`^8.3`). Nothing else - the package has zero runtime dependencies.
 
 The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The API surface described above is stable for 1.0.0.
 
-- **2.0.0** - the entity coverage rule and the Rector set are landing on this line, with PHPStan 2.0 support to follow.
+- **2.0.0** - the entity coverage rule and the Rector set (which also derives the `@method` tags IDEs need for the magic modifiers) are landing on this line, with PHPStan 2.0 support to follow.
 
 A built-in data generator is not on any roadmap - randomness stays the project's choice, plugged in through `seed()`. Collection helper utilities are out of scope as well; `including*` and `excluding*` modifiers stay hand-written one-liners.
 

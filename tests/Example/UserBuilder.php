@@ -13,6 +13,11 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  * Only the meaningful modifier has a body: asDeactivated() flips $active,
  * a property no prefix could guess from the method name.
  *
+ * PHPStan types every derived call through the bundled extension. An IDE
+ * does not read PHPStan extensions, so autocomplete wants @method tags on
+ * the builder - handwritten for now, derived automatically by the Rector
+ * set landing in 2.0.0.
+ *
  * @extends AbstractBuilder<User>
  */
 final class UserBuilder extends AbstractBuilder
