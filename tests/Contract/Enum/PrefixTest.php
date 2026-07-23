@@ -35,24 +35,24 @@ final class PrefixTest extends TestCase
     }
 
     #[DataProvider('provideParameterAppetites')]
-    public function testTakesParameters(Prefix $prefix, bool $takesParameters): void
+    public function testFeeds(Prefix $prefix, bool $feeds): void
     {
-        self::assertSame($takesParameters, $prefix->takesParameters());
+        self::assertSame($feeds, $prefix->feeds());
     }
 
     /**
-     * @return iterable<string, array{prefix: Prefix, takesParameters: bool}>
+     * @return iterable<string, array{prefix: Prefix, feeds: bool}>
      */
     public static function provideParameterAppetites(): iterable
     {
-        yield 'with feeds' => ['prefix' => Prefix::With, 'takesParameters' => true];
-        yield 'from feeds' => ['prefix' => Prefix::From, 'takesParameters' => true];
-        yield 'for feeds' => ['prefix' => Prefix::For, 'takesParameters' => true];
-        yield 'having feeds' => ['prefix' => Prefix::Having, 'takesParameters' => true];
-        yield 'including feeds' => ['prefix' => Prefix::Including, 'takesParameters' => true];
-        yield 'excluding feeds' => ['prefix' => Prefix::Excluding, 'takesParameters' => true];
-        yield 'without names the change' => ['prefix' => Prefix::Without, 'takesParameters' => false];
-        yield 'as names the change' => ['prefix' => Prefix::As, 'takesParameters' => false];
+        yield 'with feeds' => ['prefix' => Prefix::With, 'feeds' => true];
+        yield 'from feeds' => ['prefix' => Prefix::From, 'feeds' => true];
+        yield 'for feeds' => ['prefix' => Prefix::For, 'feeds' => true];
+        yield 'having feeds' => ['prefix' => Prefix::Having, 'feeds' => true];
+        yield 'including feeds' => ['prefix' => Prefix::Including, 'feeds' => true];
+        yield 'excluding feeds' => ['prefix' => Prefix::Excluding, 'feeds' => true];
+        yield 'without names the change' => ['prefix' => Prefix::Without, 'feeds' => false];
+        yield 'as names the change' => ['prefix' => Prefix::As, 'feeds' => false];
     }
 
     /**

@@ -42,7 +42,7 @@ enum Prefix: string
     }
 
     /**
-     * Projection of takesParameters() in case order.
+     * Projection of feeds() in case order.
      *
      * @return list<self>
      */
@@ -50,7 +50,7 @@ enum Prefix: string
     {
         return array_values(array_filter(
             self::cases(),
-            static fn (self $prefix): bool => !$prefix->takesParameters(),
+            static fn (self $prefix): bool => !$prefix->feeds(),
         ));
     }
 
@@ -59,7 +59,7 @@ enum Prefix: string
      * other prefix feeds the builder outside data. Exhaustive on purpose - a
      * new case must declare its appetite here or the analysis fails.
      */
-    public function takesParameters(): bool
+    public function feeds(): bool
     {
         return match ($this) {
             self::Without, self::As => false,

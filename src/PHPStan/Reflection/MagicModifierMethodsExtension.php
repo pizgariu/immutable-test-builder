@@ -112,7 +112,7 @@ final class MagicModifierMethodsExtension implements MethodsClassReflectionExten
             ];
         }
 
-        if (!$prefix->takesParameters()) {
+        if (!$prefix->feeds()) {
             return [];
         }
 

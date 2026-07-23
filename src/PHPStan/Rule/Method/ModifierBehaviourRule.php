@@ -88,7 +88,7 @@ final class ModifierBehaviourRule implements Rule
                     ->build()
                 ;
             }
-        } elseif (!$prefix->takesParameters()) {
+        } elseif (!$prefix->feeds()) {
             if ($parameterCount > 0) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     '%s() on builder %s must not take parameters - %s* modifiers name the entire change in their method name.',

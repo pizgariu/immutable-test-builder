@@ -122,7 +122,7 @@ final class ModifierResolver
                 ));
             }
         } else {
-            $expected = $prefix->takesParameters() ? 1 : 0;
+            $expected = $prefix->feeds() ? 1 : 0;
 
             if (count($arguments) !== $expected) {
                 throw new BadMethodCallException(sprintf(
