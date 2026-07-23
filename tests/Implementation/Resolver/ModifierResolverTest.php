@@ -125,5 +125,7 @@ final class ModifierResolverTest extends TestCase
         yield 'as null into a non-nullable flag' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => [null], 'fragment' => 'not nullable'];
         yield 'named argument on with' => ['class' => FreighterBuilder::class, 'method' => 'withPilot', 'arguments' => ['pilot' => 'Kane'], 'fragment' => 'named arguments'];
         yield 'named argument on as' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => ['armed' => false], 'fragment' => 'named arguments'];
+        yield 'including on a non-collection' => ['class' => FreighterBuilder::class, 'method' => 'includingCallsign', 'arguments' => ['x'], 'fragment' => 'appends to a collection'];
+        yield 'excluding on a non-collection' => ['class' => FreighterBuilder::class, 'method' => 'excludingCargo', 'arguments' => [5], 'fragment' => 'filters a collection'];
     }
 }
