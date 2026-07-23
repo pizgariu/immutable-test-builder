@@ -68,6 +68,19 @@ enum Prefix: string
     }
 
     /**
+     * as* is the one prefix with an optional argument: asArmed() raises the
+     * flag, asArmed(false) lowers it, asMothballed(null) clears a nullable
+     * one. Exhaustive on purpose - a new case must pick a side here.
+     */
+    public function acceptsOptionalParameter(): bool
+    {
+        return match ($this) {
+            self::As => true,
+            self::From, self::For, self::Having, self::Including, self::Excluding, self::Without, self::With => false,
+        };
+    }
+
+    /**
      * Projection of autoImplementable() in case order.
      *
      * @return list<self>

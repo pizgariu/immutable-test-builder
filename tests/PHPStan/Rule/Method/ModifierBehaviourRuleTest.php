@@ -22,14 +22,15 @@ final class ModifierBehaviourRuleTest extends RuleTestCase
     {
         $builder = 'Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\ModifierBehaviour\CargoBuilder';
         $arrayBuilder = 'Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\ModifierBehaviour\ArrayCargoBuilder';
+        $flagBuilder = 'Pizgariu\ImmutableTestBuilder\Tests\PHPStan\Data\ModifierBehaviour\FlagCargoBuilder';
 
         $this->analyse([__DIR__ . '/../../data/modifier-behaviour.php'], [
             [
-                sprintf('withoutOwner() on builder %s must not take parameters - as* or without* modifiers name the entire change in their method name.', $builder),
+                sprintf('withoutOwner() on builder %s must not take parameters - without* modifiers name the entire change in their method name.', $builder),
                 32,
             ],
             [
-                sprintf('asArchived() on builder %s must not take parameters - as* or without* modifiers name the entire change in their method name.', $builder),
+                sprintf('asArchived() on builder %s may declare at most one optional bool parameter - as* raises the flag by default and an explicit bool or null only overrides it.', $builder),
                 39,
             ],
             [
@@ -63,6 +64,14 @@ final class ModifierBehaviourRuleTest extends RuleTestCase
             [
                 sprintf('havingWeight() on builder %s mutates a single property - having* is for one inseparable multi-property concept. A single write is a with*.', $arrayBuilder),
                 169,
+            ],
+            [
+                sprintf('asDocked() on builder %s may declare at most one optional bool parameter - as* raises the flag by default and an explicit bool or null only overrides it.', $flagBuilder),
+                208,
+            ],
+            [
+                sprintf('asBanded() on builder %s may declare at most one optional bool parameter - as* raises the flag by default and an explicit bool or null only overrides it.', $flagBuilder),
+                213,
             ],
         ]);
     }

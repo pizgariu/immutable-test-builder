@@ -15,6 +15,8 @@ use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\NullableType;
+use PhpParser\Node\Param;
 use PhpParser\Node\Scalar\DNumber;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\String_;
@@ -33,11 +35,10 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\ConcreteBuilder;
  * A declared modifier's body must keep the promise its prefix makes. The
  * kernel funnels every mutation through the closure or property map handed
  * to mutate(), so the semantics are statically checkable right there:
- * without* and as* take
- * no parameters, the feeding prefixes take at least one, without* only
- * writes empty values, including* appends, excluding* never appends, and
- * having* writes more than one property or it is a with* in a having*
- * costume.
+ * without* takes no parameters, as* at most one optional bool, the feeding
+ * prefixes take at least one, without* only writes empty values, including*
+ * appends, excluding* never appends, and having* writes more than one
+ * property or it is a with* in a having* costume.
  *
  * @implements Rule<InClassMethodNode>
  */
@@ -76,13 +77,24 @@ final class ModifierBehaviourRule implements Rule
         $parameterCount = count($method->getParams());
         $display = $class->getDisplayName();
 
-        if (!$prefix->takesParameters()) {
-            if ($parameterCount > 0) {
+        if ($prefix->acceptsOptionalParameter()) {
+            if (!$this->declaresAtMostOneOptionalBoolFlag($method->getParams())) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
-                    '%s() on builder %s must not take parameters - %s modifiers name the entire change in their method name.',
+                    '%s() on builder %s may declare at most one optional bool parameter - as* raises the flag by default and an explicit bool or null only overrides it.',
                     $name,
                     $display,
-                    implode(' or ', array_map(static fn (Prefix $bare): string => $bare->value . '*', Prefix::parameterless())),
+                ))
+                    ->identifier('immutableTestBuilder.modifierArity')
+                    ->build()
+                ;
+            }
+        } elseif (!$prefix->takesParameters()) {
+            if ($parameterCount > 0) {
+                $errors[] = RuleErrorBuilder::message(sprintf(
+                    '%s() on builder %s must not take parameters - %s* modifiers name the entire change in their method name.',
+                    $name,
+                    $display,
+                    $prefix->value,
                 ))
                     ->identifier('immutableTestBuilder.modifierArity')
                     ->build()
@@ -196,6 +208,30 @@ final class ModifierBehaviourRule implements Rule
         }
 
         return $errors;
+    }
+
+    /**
+     * @param array<Param> $params
+     */
+    private function declaresAtMostOneOptionalBoolFlag(array $params): bool
+    {
+        if ([] === $params) {
+            return true;
+        }
+
+        if (1 !== count($params)) {
+            return false;
+        }
+
+        $param = $params[0];
+
+        if (null === $param->default) {
+            return false;
+        }
+
+        $type = $param->type instanceof NullableType ? $param->type->type : $param->type;
+
+        return $type instanceof Identifier && 'bool' === $type->toLowerString();
     }
 
     /**

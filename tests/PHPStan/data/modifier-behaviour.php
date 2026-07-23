@@ -186,3 +186,42 @@ final class ArrayCargoBuilder extends AbstractBuilder
         $this->city = 'LV';
     }
 }
+
+final class FlagCargoBuilder extends AbstractBuilder
+{
+    private bool $sealed = false;
+
+    private ?bool $flagged = null;
+
+    private string $band = '';
+
+    public function asSealed(bool $sealed = true): static
+    {
+        return $this->mutate(['sealed' => $sealed]);
+    }
+
+    public function asFlagged(?bool $flagged = null): static
+    {
+        return $this->mutate(['flagged' => $flagged]);
+    }
+
+    public function asDocked(bool $flag): static
+    {
+        return $this->mutate(['sealed' => $flag]);
+    }
+
+    public function asBanded(string $band = 'crate'): static
+    {
+        return $this->mutate(['band' => $band]);
+    }
+
+    public function build(): string
+    {
+        return $this->band;
+    }
+
+    protected function seed(): void
+    {
+        $this->band = 'plain';
+    }
+}

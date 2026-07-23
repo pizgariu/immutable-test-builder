@@ -36,6 +36,18 @@ final class MagicModifiersTest extends TestCase
         self::assertFalse($freighter['armed']);
     }
 
+    public function testAsTakesAnExplicitBoolStatically(): void
+    {
+        $freighter = FreighterBuilder::create()->asArmed(true)->asArmed(false)->build();
+
+        self::assertFalse($freighter['armed']);
+    }
+
+    public function testAsClearsANullableFlagStatically(): void
+    {
+        self::assertNull(FreighterBuilder::create()->asMothballed(null)->build()['mothballed']);
+    }
+
     /**
      * @param array<int, mixed> $arguments
      */

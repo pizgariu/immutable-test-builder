@@ -86,5 +86,11 @@ final class PrefixTest extends TestCase
         self::assertFalse(Prefix::From->autoImplementable());
         self::assertFalse(Prefix::For->autoImplementable());
         self::assertFalse(Prefix::Having->autoImplementable());
+
+        self::assertTrue(Prefix::As->acceptsOptionalParameter());
+
+        foreach ([Prefix::From, Prefix::For, Prefix::Having, Prefix::Including, Prefix::Excluding, Prefix::Without, Prefix::With] as $prefix) {
+            self::assertFalse($prefix->acceptsOptionalParameter());
+        }
     }
 }

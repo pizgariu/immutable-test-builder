@@ -103,7 +103,7 @@ final class ModifierResolver
             ));
         }
 
-        if (Prefix::As === $prefix) {
+        if ($prefix->acceptsOptionalParameter()) {
             if (count($arguments) > 1) {
                 throw new BadMethodCallException(sprintf(
                     '%s() on %s takes at most 1 argument, %d given - as* raises a flag, optionally to an explicit bool.',
