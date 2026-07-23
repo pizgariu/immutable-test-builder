@@ -83,3 +83,31 @@ final class HandRolledBuilder implements \Pizgariu\ImmutableTestBuilder\Contract
         return $this->label;
     }
 }
+
+final class CrateYardBuilder extends AbstractBuilder
+{
+    private string $label = 'crate';
+
+    private function withScratch(string $label): static
+    {
+        $clone = clone $this;
+        $clone->label = $label;
+
+        return $clone;
+    }
+
+    public static function withTemplate(): self
+    {
+        return self::create();
+    }
+
+    public function build(): string
+    {
+        return $this->withScratch('marked')->label;
+    }
+
+    protected function seed(): void
+    {
+        $this->label = 'crate';
+    }
+}
