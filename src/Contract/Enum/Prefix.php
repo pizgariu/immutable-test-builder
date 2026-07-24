@@ -48,19 +48,6 @@ enum Prefix: string
     }
 
     /**
-     * Projection of feeds() in case order.
-     *
-     * @return list<self>
-     */
-    public static function parameterless(): array
-    {
-        return array_values(array_filter(
-            self::cases(),
-            static fn (self $prefix): bool => !$prefix->feeds(),
-        ));
-    }
-
-    /**
      * without* and as* name the entire change in the method name. Every
      * other prefix feeds the builder outside data. Exhaustive on purpose - a
      * new case must declare its appetite here or the analysis fails.

@@ -74,10 +74,9 @@ final class PrefixTest extends TestCase
         yield 'with speaks singular' => ['prefix' => Prefix::With, 'methodName' => 'withName', 'candidates' => ['name']];
     }
 
-    public function testMagicAndParameterlessSplitTheGrammar(): void
+    public function testTheGrammarClassifiesEveryPrefix(): void
     {
         self::assertSame([Prefix::As, Prefix::Including, Prefix::Excluding, Prefix::Without, Prefix::With], Prefix::magic());
-        self::assertSame([Prefix::As, Prefix::Without], Prefix::parameterless());
 
         foreach (Prefix::magic() as $prefix) {
             self::assertTrue($prefix->autoImplementable());
