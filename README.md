@@ -332,6 +332,8 @@ The trivial modifiers do not exist as code. `__call` and the `Prefix` enum imple
 | `including*(item)` | appends with `[]=`, resolving the simple plural (`includingRole` writes `$roles`) |
 | `excluding*(item)` | filters the item out, resolving the same plural |
 
+Two attributes tune the derivation when a name cannot carry the whole story. `#[Plural(of: 'person')]` on a collection property teaches the simple-plural resolver an irregular one - `includingPerson()` then reaches `$people`. `#[NotMagic]` on a property seals it from derivation entirely, so a computed or reserved ingredient is reachable only through a handwritten modifier. Both are read by the runtime and by the PHPStan extension from the same source, so the sealed method is a runtime refusal and an undefined-method analysis error alike.
+
 `from*`, `for*` and `having*` are never magic - hydration, ownership and multi-property concepts deserve a handwritten body:
 
 ```php

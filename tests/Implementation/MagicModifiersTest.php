@@ -8,6 +8,7 @@ use BadMethodCallException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\FreighterBuilder;
+use Pizgariu\ImmutableTestBuilder\Tests\Fixture\RosterBuilder;
 
 /**
  * __call is thin: it hands the call to ModifierResolver and funnels the result
@@ -46,6 +47,13 @@ final class MagicModifiersTest extends TestCase
     public function testAsClearsANullableFlagStatically(): void
     {
         self::assertNull(FreighterBuilder::create()->asMothballed(null)->build()['mothballed']);
+    }
+
+    public function testMagicResolvesAnIrregularPluralThroughTheAttribute(): void
+    {
+        $roster = RosterBuilder::create()->includingPerson('Kane')->excludingPerson('Ripley')->build();
+
+        self::assertSame(['Kane'], $roster['people']);
     }
 
     public function testMagicRefusesNamedArguments(): void

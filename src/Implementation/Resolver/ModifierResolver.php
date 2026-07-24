@@ -87,25 +87,11 @@ final class ModifierResolver
             ), 0, $exception);
         }
 
-        $property = null;
-
-        foreach ($prefix->propertyCandidates($method) as $candidate) {
-            if (!$reflection->hasProperty($candidate)) {
-                continue;
-            }
-
-            $candidateProperty = $reflection->getProperty($candidate);
-
-            if (!$candidateProperty->isStatic()) {
-                $property = $candidateProperty;
-
-                break;
-            }
-        }
+        $property = MagicProperty::resolve($reflection, $prefix, $method);
 
         if (null === $property) {
             throw new BadMethodCallException(sprintf(
-                '%s() has no matching property on %s (tried $%s) - declare the property or write the modifier explicitly.',
+                '%s() has no matching property on %s (tried $%s) - declare the property, write the modifier explicitly, or drop a #[NotMagic] attribute.',
                 $method,
                 $class,
                 implode(', $', $prefix->propertyCandidates($method)),

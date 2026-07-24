@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\ModifierResolver;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\FreighterBuilder;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\GadgetBuilder;
+use Pizgariu\ImmutableTestBuilder\Tests\Fixture\RosterBuilder;
 
 final class ModifierResolverTest extends TestCase
 {
@@ -127,5 +128,6 @@ final class ModifierResolverTest extends TestCase
         yield 'named argument on as' => ['class' => FreighterBuilder::class, 'method' => 'asArmed', 'arguments' => ['armed' => false], 'fragment' => 'named arguments'];
         yield 'including on a non-collection' => ['class' => FreighterBuilder::class, 'method' => 'includingCallsign', 'arguments' => ['x'], 'fragment' => 'appends to a collection'];
         yield 'excluding on a non-collection' => ['class' => FreighterBuilder::class, 'method' => 'excludingCargo', 'arguments' => [5], 'fragment' => 'filters a collection'];
+        yield 'sealed by NotMagic' => ['class' => RosterBuilder::class, 'method' => 'withChecksum', 'arguments' => [7], 'fragment' => 'NotMagic'];
     }
 }
