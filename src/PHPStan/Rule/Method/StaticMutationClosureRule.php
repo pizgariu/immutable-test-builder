@@ -19,7 +19,7 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
 
 /**
  * The mutation closure receives the clone as its parameter and has no
- * business holding $this: a non-static closure keeps $this bound to the
+ * business holding $this - a non-static closure keeps $this bound to the
  * ORIGINAL builder, and a single $this-> write inside it would mutate the
  * trunk behind mutate()'s back.
  *

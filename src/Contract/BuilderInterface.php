@@ -9,18 +9,18 @@ use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
 /**
  * Contract for immutable test data builders.
  *
- * Perfect default: create() returns a builder that is complete from the very
+ * Perfect default - create() returns a builder that is complete from the very
  * first moment. Calling build() with no further setup succeeds and produces an
  * object seeded with realistic defaults. A test therefore states only the
  * values it asserts on. Everything else is already in place and valid, which
  * keeps tests short and stops them from over-specifying data they do not
  * care about.
  *
- * Immutability: every modifier returns a NEW builder instance and leaves the
- * receiver untouched. Two guarantees follow. Test isolation: a builder held in
+ * Immutability - every modifier returns a NEW builder instance and leaves the
+ * receiver untouched. Two guarantees follow. Test isolation - a builder held in
  * a shared fixture, a class property or a helper method can never be corrupted
  * by one test on behalf of the next, because no call site can mutate it.
- * Safe reuse and branching: a partially tailored builder can serve as the
+ * Safe reuse and branching - a partially tailored builder can serve as the
  * trunk for several divergent variants inside a single test, and none of the
  * variants observes the changes made to the others. Both guarantees hold for
  * scalar, array and immutable-object ingredients. A mutable object ingredient

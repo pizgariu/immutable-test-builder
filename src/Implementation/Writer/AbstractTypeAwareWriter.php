@@ -9,7 +9,7 @@ use ReflectionProperty;
 use ReflectionType;
 
 /**
- * Base for the writers whose derivation depends on the property type: it
+ * Base for the writers whose derivation depends on the property type - it
  * preloads the name and the declared type once, so every concrete writer
  * starts from the same pair instead of unpacking the reflection itself. A
  * writer that never looks at the type implements the interface directly.

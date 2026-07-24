@@ -61,7 +61,7 @@ enum Prefix: string
     }
 
     /**
-     * as* is the one prefix with an optional argument: asArmed() raises the
+     * as* is the one prefix with an optional argument - asArmed() raises the
      * flag, asArmed(false) lowers it, asMothballed(null) clears a nullable one.
      */
     public function acceptsOptionalParameter(): bool

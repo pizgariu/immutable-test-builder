@@ -22,9 +22,9 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
- * The perfect default as a per-property obligation: every non-static
+ * The perfect default as a per-property obligation - every non-static
  * property of a concrete builder either carries an inline default or is
- * assigned directly in seed(). Deliberate limit: only direct
+ * assigned directly in seed(). Deliberate limit - only direct
  * $this->property assignments inside seed() count - a builder that seeds
  * through helper methods opts out of this rule's protection.
  *

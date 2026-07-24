@@ -17,7 +17,7 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
 use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
- * build() never hands back a half-thing: a concrete builder declares a
+ * build() never hands back a half-thing - a concrete builder declares a
  * concrete, non-nullable return type. The impossible state throws
  * UnbuildableState - it does not leak out as null or mixed.
  *

@@ -20,7 +20,7 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 use Pizgariu\ImmutableTestBuilder\PHPStan\Node\DeclaredModifier;
 
 /**
- * A modifier is a one-liner: a static-returning single statement delegating
+ * A modifier is a one-liner - a static-returning single statement delegating
  * to mutate(). The clone-and-write lives in the kernel, so this shape is the
  * whole immutability proof a concrete builder needs.
  *

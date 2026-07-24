@@ -13,7 +13,7 @@ use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
- * Builder state is sealed and writable: private (modifiers write through
+ * Builder state is sealed and writable - private (modifiers write through
  * closures sharing class scope), per-instance and never readonly, because
  * mutate() writes to the clone at runtime. Abstract bases are exempt - they
  * may hold immutable configuration, like a memoized project-wide generator.

@@ -15,7 +15,7 @@ use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
 use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
- * The public surface of a concrete builder is the DSL and nothing else: build(), the create() factory and the modifier prefixes.
+ * The public surface of a concrete builder is the DSL and nothing else - build(), the create() factory and the modifier prefixes.
  *
  * @implements Rule<InClassMethodNode>
  */

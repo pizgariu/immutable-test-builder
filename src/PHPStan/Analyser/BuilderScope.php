@@ -10,7 +10,7 @@ use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
- * The one place the rules read the analysed scope as a builder: concrete()
+ * The one place the rules read the analysed scope as a builder - concrete()
  * answers whether the scope is a concrete builder at all, kernel() whether it
  * also inherits the kernel.
  */

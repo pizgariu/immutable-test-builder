@@ -73,7 +73,7 @@ final class MagicModifierMethodsExtension implements MethodsClassReflectionExten
     }
 
     /**
-     * Mirrors the writers' own refusals: a prefix is only derived for a
+     * Mirrors the writers' own refusals - a prefix is only derived for a
      * property whose type the runtime write can honour.
      */
     private function propertyTypeSupports(Prefix $prefix, Type $type): bool

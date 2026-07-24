@@ -19,7 +19,7 @@ use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
 use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
- * seed() fills the perfect default and nothing else: it stays protected
+ * seed() fills the perfect default and nothing else - it stays protected
  * (a public seed() could re-run on a live builder, which is mutation through
  * the back door), it never calls a modifier (the returned clone would be
  * thrown away) and it never calls build() (the builder is not complete yet).
