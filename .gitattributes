@@ -1,0 +1,11 @@
+# Keep the Composer dist tarball lean - dev-only paths never ship.
+# extension.neon and src/PHPStan/** MUST ship - the README setup includes
+# extension.neon, which registers the bundled rule classes.
+/.github            export-ignore
+/tests              export-ignore
+/.gitattributes     export-ignore
+/.gitignore         export-ignore
+/CHANGELOG.md       export-ignore
+/.php-cs-fixer.dist.php  export-ignore
+/phpstan.neon.dist       export-ignore
+/phpunit.xml.dist        export-ignore
