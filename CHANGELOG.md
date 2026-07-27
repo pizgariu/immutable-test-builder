@@ -6,7 +6,7 @@ All notable changes to immutable-test-builder are recorded here. This project fo
 
 Nothing yet.
 
-## [1.0.0] - 2026-07-22
+## [1.0.0] - 2026-07-24
 
 ### Added
 - **The `BuilderInterface` contract: a perfect default in, a valid object or a loud refusal out.** Two methods are the whole promise. `create()` returns a builder that `build()`s successfully with no further calls, so a test states only the values it asserts on. `build()` returns the target object or throws `UnbuildableState` - it never hands back a half-thing. The interface is covariant over what it builds, so a `BuilderInterface<Admin>` passes wherever a `BuilderInterface<User>` is asked for. Contracts live under `Contract` (the interface, the `Prefix` vocabulary, the exception), the engine under `Implementation`.
