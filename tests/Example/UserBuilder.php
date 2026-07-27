@@ -18,6 +18,11 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  * the builder - handwritten for now, derived automatically by the Rector
  * set landing in 2.0.0.
  *
+ * @method UserBuilder withName(string $name)
+ * @method UserBuilder withEmail(?string $email)
+ * @method UserBuilder withoutEmail()
+ * @method UserBuilder includingRole(string $role)
+ *
  * @extends AbstractBuilder<User>
  */
 final class UserBuilder extends AbstractBuilder
