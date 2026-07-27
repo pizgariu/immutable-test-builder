@@ -10,7 +10,7 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 /**
  * withName(), withEmail(), withoutEmail() and includingRole() are never
  * written here - the kernel derives them from the property declarations.
- * Only the meaningful modifier has a body: asDeactivated() flips $active,
+ * Only the meaningful modifier has a body - asDeactivated() flips $active,
  * a property no prefix could guess from the method name.
  *
  * PHPStan types every derived call through the bundled extension. An IDE

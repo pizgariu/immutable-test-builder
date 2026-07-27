@@ -9,7 +9,7 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 /**
  * The DSL end to end. The magic __call derives with*, without*, as*,
  * including* and excluding* from the property declarations, so the only
- * modifiers written by hand are the three prefixes that are never magic:
+ * modifiers written by hand are the three prefixes that are never magic -
  * from* hydrates from a source object, for* establishes ownership, and
  * having* mutates one inseparable multi-property concept atomically.
  *

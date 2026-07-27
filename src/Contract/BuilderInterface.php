@@ -28,7 +28,7 @@ use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
  * in an overridden __clone().
  *
  * Modifier naming DSL (a documented contract of this library, statically
- * enforced by the bundled PHPStan rule set): with*(value) sets a value,
+ * enforced by the bundled PHPStan rule set) - with*(value) sets a value,
  * without*() empties or nullifies a value, as*() performs a semantic boolean
  * or state transition, from*(source) hydrates the builder from an existing
  * object, for*(owner) establishes context or ownership, including*(item) and
@@ -37,7 +37,7 @@ use Pizgariu\ImmutableTestBuilder\Contract\Exception\UnbuildableState;
  * concept. The prefixes set*, make* and add* are never used. Every modifier
  * returns a new instance.
  *
- * A builder driven into an impossible state never produces a broken object:
+ * A builder driven into an impossible state never produces a broken object -
  * build() fails loudly with UnbuildableState, whose message names the builder
  * and tells the caller the way out.
  *

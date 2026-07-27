@@ -11,7 +11,7 @@ use Pizgariu\ImmutableTestBuilder\Tests\Fixture\FreighterBuilder;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\RosterBuilder;
 
 /**
- * __call is thin: it hands the call to ModifierResolver and funnels the result
+ * __call is thin - it hands the call to ModifierResolver and funnels the result
  * through mutate(). ModifierResolverTest pins the derivation itself. This pins
  * the wiring - a magic call clones like any modifier, chains and propagates the
  * resolver's refusal.

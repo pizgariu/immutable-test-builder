@@ -9,7 +9,7 @@ use Pizgariu\ImmutableTestBuilder\Contract\Attribute\Plural;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
- * Exercises the derivation attributes: $people is the irregular plural of
+ * Exercises the derivation attributes - $people is the irregular plural of
  * 'person', and $checksum is sealed from magic.
  *
  * @extends AbstractBuilder<array<string, mixed>>

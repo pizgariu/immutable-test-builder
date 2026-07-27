@@ -7,7 +7,7 @@ namespace Pizgariu\ImmutableTestBuilder\Tests\Fixture;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
- * Base with a PRIVATE ingredient on purpose: the concrete scope cannot see it,
+ * Base with a PRIVATE ingredient on purpose - the concrete scope cannot see it,
  * so a map-form write against it must be refused, not silently shadowed.
  *
  * @template-covariant T

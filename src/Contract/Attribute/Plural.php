@@ -10,7 +10,7 @@ use Attribute;
  * Declares the singular a collection property answers to, for the cases the
  * naive plural cannot reach. including*() and excluding*() derive a singular
  * stem from the method name and look for that stem plus a simple +s plural. An
- * irregular plural needs this bridge:
+ * irregular plural needs this bridge.
  *
  *     #[Plural(of: 'person')]
  *     private array $people;
