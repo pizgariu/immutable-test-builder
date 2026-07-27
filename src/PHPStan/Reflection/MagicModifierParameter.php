@@ -11,6 +11,8 @@ use PHPStan\Type\Type;
 /**
  * The single by-value parameter a magic modifier takes - required for the
  * feeding prefixes, optional with a default for as*.
+ *
+ * @internal
  */
 final readonly class MagicModifierParameter implements ParameterReflection
 {

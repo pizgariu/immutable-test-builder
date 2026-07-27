@@ -25,6 +25,8 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\Node\DeclaredModifier;
  * whole immutability proof a concrete builder needs.
  *
  * @implements Rule<InClassMethodNode>
+ *
+ * @internal
  */
 final class ModifierDelegatesToMutateRule implements Rule
 {

@@ -25,6 +25,8 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
  * thrown away) and it never calls build() (the builder is not complete yet).
  *
  * @implements Rule<InClassMethodNode>
+ *
+ * @internal
  */
 final class SeedDisciplineRule implements Rule
 {

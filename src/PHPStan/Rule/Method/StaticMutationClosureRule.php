@@ -24,6 +24,8 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
  * trunk behind mutate()'s back.
  *
  * @implements Rule<MethodCall>
+ *
+ * @internal
  */
 final class StaticMutationClosureRule implements Rule
 {

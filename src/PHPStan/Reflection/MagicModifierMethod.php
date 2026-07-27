@@ -15,6 +15,8 @@ use PHPStan\Type\Type;
 
 /**
  * The reflection of one derived modifier - public, non-static, returning static, parameters shaped by the prefix.
+ *
+ * @internal
  */
 final readonly class MagicModifierMethod implements MethodReflection
 {

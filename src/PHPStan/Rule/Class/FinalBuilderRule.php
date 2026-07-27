@@ -16,6 +16,8 @@ use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
  * A concrete builder is a leaf - extension points belong in an abstract base, never in a buildable class.
  *
  * @implements Rule<InClassNode>
+ *
+ * @internal
  */
 final class FinalBuilderRule implements Rule
 {

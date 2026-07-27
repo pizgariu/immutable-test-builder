@@ -35,13 +35,15 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\Node\DeclaredModifier;
 /**
  * A declared modifier's body must keep the promise its prefix makes. The
  * kernel funnels every mutation through the closure or property map handed
- * to mutate(), so the semantics are statically checkable right there:
+ * to mutate(), so the semantics are statically checkable right there -
  * without* takes no parameters, as* at most one optional bool, the feeding
  * prefixes take at least one, without* only writes empty values, including*
  * appends, excluding* never appends, and having* writes more than one
  * property or it is a with* in a having* costume.
  *
  * @implements Rule<InClassMethodNode>
+ *
+ * @internal
  */
 final class ModifierBehaviourRule implements Rule
 {

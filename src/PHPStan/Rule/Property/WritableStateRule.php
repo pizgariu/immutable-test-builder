@@ -19,6 +19,8 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
  * may hold immutable configuration, like a memoized project-wide generator.
  *
  * @implements Rule<ClassPropertyNode>
+ *
+ * @internal
  */
 final class WritableStateRule implements Rule
 {

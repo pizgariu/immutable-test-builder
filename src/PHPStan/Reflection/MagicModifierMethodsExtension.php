@@ -25,6 +25,8 @@ use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\MagicProperty;
  * refuse on the property type (as* on a non-bool, including* on a non-array,
  * without* with no inferrable empty value) is not advertised at all, so the
  * mismatch surfaces as an undefined-method error at the call site.
+ *
+ * @internal
  */
 final class MagicModifierMethodsExtension implements MethodsClassReflectionExtension
 {

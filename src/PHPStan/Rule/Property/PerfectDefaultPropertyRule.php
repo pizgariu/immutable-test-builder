@@ -29,6 +29,8 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
  * through helper methods opts out of this rule's protection.
  *
  * @implements Rule<InClassNode>
+ *
+ * @internal
  */
 final class PerfectDefaultPropertyRule implements Rule
 {

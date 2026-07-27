@@ -22,6 +22,8 @@ use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
  * UnbuildableState - it does not leak out as null or mixed.
  *
  * @implements Rule<InClassMethodNode>
+ *
+ * @internal
  */
 final class BuildReturnTypeRule implements Rule
 {
