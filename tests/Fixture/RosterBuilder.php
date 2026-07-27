@@ -12,6 +12,9 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  * Exercises the derivation attributes - $people is the irregular plural of
  * 'person', and $checksum is sealed from magic.
  *
+ * @method RosterBuilder includingPerson(string $person)
+ * @method RosterBuilder excludingPerson(string $person)
+ *
  * @extends AbstractBuilder<array<string, mixed>>
  */
 final class RosterBuilder extends AbstractBuilder

@@ -10,6 +10,11 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  * Declares only state, seed() and build() - every modifier exercised by the
  * magic tests is derived by the kernel.
  *
+ * @method FreighterBuilder withCallsign(string $callsign)
+ * @method FreighterBuilder withoutArmed()
+ * @method FreighterBuilder asArmed(bool $armed = true)
+ * @method FreighterBuilder asMothballed(?bool $mothballed = true)
+ *
  * @extends AbstractBuilder<array<string, mixed>>
  */
 final class FreighterBuilder extends AbstractBuilder

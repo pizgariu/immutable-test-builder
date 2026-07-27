@@ -13,6 +13,12 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  * from* hydrates from a source object, for* establishes ownership, and
  * having* mutates one inseparable multi-property concept atomically.
  *
+ * @method MembershipBuilder withEmail(string $email)
+ * @method MembershipBuilder withoutTags()
+ * @method MembershipBuilder asActive(bool $active = true)
+ * @method MembershipBuilder includingTag(string $tag)
+ * @method MembershipBuilder excludingTag(string $tag)
+ *
  * @extends AbstractBuilder<Membership>
  */
 final class MembershipBuilder extends AbstractBuilder
