@@ -21,7 +21,7 @@ use ReflectionProperty;
  *
  * @internal the kernel's derivation engine, not part of the public API
  */
-final class MagicProperty
+final class PropertyResolver
 {
     private function __construct() {}
 

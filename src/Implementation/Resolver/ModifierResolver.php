@@ -87,7 +87,7 @@ final class ModifierResolver
             ), 0, $exception);
         }
 
-        $property = MagicProperty::resolve($reflection, $prefix, $method);
+        $property = PropertyResolver::resolve($reflection, $prefix, $method);
 
         if (null === $property) {
             throw new BadMethodCallException(sprintf(

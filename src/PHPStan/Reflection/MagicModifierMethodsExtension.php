@@ -15,7 +15,7 @@ use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
-use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\MagicProperty;
+use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\PropertyResolver;
 
 /**
  * Teaches PHPStan every magic modifier the kernel implements at runtime.
@@ -59,7 +59,7 @@ final class MagicModifierMethodsExtension implements MethodsClassReflectionExten
             return null;
         }
 
-        $property = MagicProperty::resolve($classReflection->getNativeReflection(), $prefix, $methodName);
+        $property = PropertyResolver::resolve($classReflection->getNativeReflection(), $prefix, $methodName);
 
         if (null === $property) {
             return null;
