@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\FreighterBuilder;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\RosterBuilder;
+use Pizgariu\ImmutableTestBuilder\Tests\Fixture\ShuttleBuilder;
 
 /**
  * __call is thin - it hands the call to ModifierResolver and funnels the result
@@ -54,6 +55,29 @@ final class MagicModifiersTest extends TestCase
         $roster = RosterBuilder::create()->includingPerson('Kane')->excludingPerson('Ripley')->build();
 
         self::assertSame(['Kane'], $roster['people']);
+    }
+
+    public function testIncludingStartsANullableCollectionFresh(): void
+    {
+        self::assertSame(['crate'], ShuttleBuilder::create()->includingCargo('crate')->build()['cargo']);
+    }
+
+    public function testExcludingLeavesANullCollectionNull(): void
+    {
+        self::assertNull(ShuttleBuilder::create()->excludingCargo('crate')->build()['cargo']);
+    }
+
+    public function testWithoutPrefersNullForANullableCollection(): void
+    {
+        self::assertNull(ShuttleBuilder::create()->includingCargo('crate')->withoutCargo()->build()['cargo']);
+    }
+
+    public function testTheShallowCloneSharesAnObjectIngredientWithTheTrunk(): void
+    {
+        $trunk = ShuttleBuilder::create();
+        $branch = $trunk->withName('Narcissus')->asDocked(false);
+
+        self::assertSame($trunk->build()['departedAt'], $branch->build()['departedAt']);
     }
 
     public function testMagicRefusesNamedArguments(): void
