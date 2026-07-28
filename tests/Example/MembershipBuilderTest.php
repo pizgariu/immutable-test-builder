@@ -59,7 +59,7 @@ final class MembershipBuilderTest extends TestCase
         self::assertSame('Schaefer', $membership->lastName);
     }
 
-    public function testEveryModifierLeavesTheTrunkUntouched(): void
+    public function testFromLeavesTheTrunkUntouched(): void
     {
         $base = MembershipBuilder::create();
         $before = $base->build();

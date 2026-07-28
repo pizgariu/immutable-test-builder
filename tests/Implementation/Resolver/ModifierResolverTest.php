@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pizgariu\ImmutableTestBuilder\Tests\Implementation\Resolver;
 
 use BadMethodCallException;
-use Closure;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\ModifierResolver;
@@ -20,8 +19,6 @@ final class ModifierResolverTest extends TestCase
         $freighter = FreighterBuilder::create();
 
         $write = ModifierResolver::resolve(FreighterBuilder::class, 'withCallsign', ['Nostromo']);
-
-        self::assertInstanceOf(Closure::class, $write);
 
         $write($freighter);
 
@@ -129,5 +126,6 @@ final class ModifierResolverTest extends TestCase
         yield 'including on a non-collection' => ['class' => FreighterBuilder::class, 'method' => 'includingCallsign', 'arguments' => ['x'], 'fragment' => 'appends to a collection'];
         yield 'excluding on a non-collection' => ['class' => FreighterBuilder::class, 'method' => 'excludingCargo', 'arguments' => [5], 'fragment' => 'filters a collection'];
         yield 'sealed by NotMagic' => ['class' => RosterBuilder::class, 'method' => 'withChecksum', 'arguments' => [7], 'fragment' => 'NotMagic'];
+        yield 'wrong singular for the Plural attribute' => ['class' => RosterBuilder::class, 'method' => 'includingHuman', 'arguments' => ['Kane'], 'fragment' => 'no matching property'];
     }
 }
