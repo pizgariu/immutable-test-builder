@@ -52,13 +52,18 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 /**
  * withName(), withEmail(), withoutEmail() and includingRole() are never
  * written here - the kernel derives them from the property declarations.
- * Only the meaningful modifier has a body: asDeactivated() flips $active,
+ * Only the meaningful modifier has a body - asDeactivated() flips $active,
  * a property no prefix could guess from the method name.
  *
  * PHPStan types every derived call through the bundled extension. An IDE
  * does not read PHPStan extensions, so autocomplete wants @method tags on
  * the builder - handwritten for now, derived automatically by the Rector
  * set landing in 2.0.0.
+ *
+ * @method UserBuilder withName(string $name)
+ * @method UserBuilder withEmail(?string $email)
+ * @method UserBuilder withoutEmail()
+ * @method UserBuilder includingRole(string $role)
  *
  * @extends AbstractBuilder<User>
  */
@@ -392,7 +397,7 @@ Nine rules, one directory per abstraction type:
 
 Abstract bases are exempt where it matters: they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. The rules police what you write by hand - a derived modifier is correct by construction, because the kernel implements each prefix's semantics exactly once. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
 
-The rule set reads the `PhpParser\Node` types, so it wants php-parser 5.* under analysis. The builders themselves have no such requirement - the kernel stays zero-dependency and runs anywhere on PHP 8.3+.
+The rule set needs nothing beyond `phpstan/phpstan` itself - the phar ships its own php-parser, and the `nikic/php-parser` pin in this package's `require-dev` only keeps development of the rules on the 5.x node shapes. The builders have no requirement at all - the kernel stays zero-dependency and runs anywhere on PHP 8.3+.
 
 ---
 
@@ -412,7 +417,7 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). 
 
 - **2.0.0** - the entity coverage rule and the Rector set (which also derives the `@method` tags IDEs need for the magic modifiers) are landing on this line, with PHPStan 2.0 support to follow.
 
-A built-in data generator is not on any roadmap - randomness stays the project's choice, plugged in through `seed()`. Collection helper utilities are out of scope as well; `including*` and `excluding*` modifiers stay hand-written one-liners.
+A built-in data generator is not on any roadmap - randomness stays the project's choice, plugged in through `seed()`. Bulk collection utilities are out of scope as well - the magic `including*` and `excluding*` already cover single-item appends and removals, and anything richer deserves a handwritten modifier.
 
 ---
 
