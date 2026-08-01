@@ -9,3 +9,4 @@
 /.php-cs-fixer.dist.php  export-ignore
 /phpstan.neon.dist       export-ignore
 /phpunit.xml.dist        export-ignore
+/SECURITY.md        export-ignore
