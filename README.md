@@ -401,6 +401,21 @@ The rule set needs nothing beyond `phpstan/phpstan` itself - the phar ships its 
 
 ---
 
+## How it compares
+
+The PHP test-data space is mostly about persistence. This package deliberately is not.
+
+| Package | What it does | Where this package differs |
+|---|---|---|
+| [`zenstruck/foundry`](https://packagist.org/packages/zenstruck/foundry) | Entity factories for Symfony and Doctrine - states, faker defaults, persisted object graphs | Foundry is at home in a booted Symfony app persisting Doctrine entities. This kernel builds any object in memory - value objects, DTOs, aggregates, plain arrays - with zero dependencies, and its DSL is enforced at analysis time instead of discovered at runtime |
+| [`nelmio/alice`](https://packagist.org/packages/nelmio/alice) | Fixtures declared in YAML with faker expressions | YAML is invisible to static analysis and refactoring - a renamed property breaks the fixture at runtime. Every builder here is plain typed PHP that PHPStan and an IDE follow end to end |
+| [`liip/test-fixtures-bundle`](https://packagist.org/packages/liip/test-fixtures-bundle) | Loads Doctrine fixtures into a test database and caches database states | A different layer entirely - it loads data, this package constructs objects. The two compose in one suite |
+| Hand-written builders | The classic pattern, one bespoke builder set per project | The kernel deletes the boilerplate (trivial modifiers stop existing as code) and the bundled rules keep the discipline that bespoke builders lose over time |
+
+Foundry and this package are two layers, not two answers - persisted entity graphs for integration tests there, valid domain objects for unit and application tests here.
+
+---
+
 ## Install
 
 ```
