@@ -33,9 +33,29 @@ enum Prefix: string
      */
     private const string PROPERTY_START = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
+    /**
+     * Every case, ordered by how often a real suite asks for it rather than by
+     * declaration. The lookup is a linear scan, so the order is pure cost - and
+     * with* leads because it is the modifier tests reach for most, while the
+     * three that are never magic sit at the back where only a refusal pays for
+     * them. Correctness does not depend on this at all, since the boundary is
+     * what separates with* from without*, so the list may be reordered freely.
+     * It must stay COMPLETE though, and PrefixTest walks every case to say so.
+     */
+    private const array SCAN_ORDER = [
+        self::With,
+        self::Without,
+        self::As,
+        self::Including,
+        self::Excluding,
+        self::From,
+        self::For,
+        self::Having,
+    ];
+
     public static function ofMethod(string $methodName): ?self
     {
-        foreach (self::cases() as $prefix) {
+        foreach (self::SCAN_ORDER as $prefix) {
             if ($prefix->matches($methodName)) {
                 return $prefix;
             }

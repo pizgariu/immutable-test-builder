@@ -38,6 +38,26 @@ final class PrefixTest extends TestCase
         yield 'empty name' => ['methodName' => '', 'prefix' => null];
     }
 
+    /**
+     * The scan list is hand ordered for cost, so nothing but this stops a new
+     * case from being left out of it and going silently unresolvable.
+     */
+    #[DataProvider('provideEveryCase')]
+    public function testOfMethodResolvesEveryDeclaredCase(Prefix $prefix): void
+    {
+        self::assertSame($prefix, Prefix::ofMethod($prefix->value . 'Ingredient'));
+    }
+
+    /**
+     * @return iterable<string, array{prefix: Prefix}>
+     */
+    public static function provideEveryCase(): iterable
+    {
+        foreach (Prefix::cases() as $prefix) {
+            yield $prefix->value => ['prefix' => $prefix];
+        }
+    }
+
     #[DataProvider('provideParameterAppetites')]
     public function testFeeds(Prefix $prefix, bool $feeds): void
     {
