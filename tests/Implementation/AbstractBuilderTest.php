@@ -138,6 +138,16 @@ final class AbstractBuilderTest extends TestCase
         $builder->forDesignation('LV-426');
     }
 
+    public function testMapMutationRefusesAStaticProperty(): void
+    {
+        $builder = StationBuilder::create();
+
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('cannot write $registry');
+
+        $builder->withRegistry('LV-426');
+    }
+
     public function testConstructorIsNotPubliclyInstantiable(): void
     {
         $constructor = (new ReflectionClass(SpaceshipBuilder::class))->getConstructor();

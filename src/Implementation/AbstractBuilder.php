@@ -8,6 +8,7 @@ use BadMethodCallException;
 use Closure;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
 use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\ModifierResolver;
+use ReflectionProperty;
 
 /**
  * Base class for immutable test data builders.
@@ -80,21 +81,23 @@ abstract class AbstractBuilder implements BuilderInterface
      * clone - replace it inside the modifier instead of mutating it in
      * place, or deep-copy it in an overridden __clone().
      *
-     * The map form refuses loudly when a key names no property the concrete
-     * scope can write - a typo or a parent-private ingredient would otherwise
-     * become a silent dynamic property and build() would return stale data.
+     * The map form refuses loudly when a key names no INSTANCE property the
+     * concrete scope can write. A typo or a parent-private ingredient would
+     * otherwise become a silent dynamic property and build() would return stale
+     * data, and a static one would take the write nowhere at all, since the
+     * clone shares it with every other instance rather than owning a copy.
      *
      * @param Closure(static): void|array<string, mixed> $mutation
      *
-     * @throws BadMethodCallException when a map key names no property visible to the concrete builder
+     * @throws BadMethodCallException when a map key names no writable instance property of the concrete builder
      */
     final protected function mutate(Closure|array $mutation): static
     {
         if (is_array($mutation)) {
             foreach (array_keys($mutation) as $property) {
-                if (!property_exists(static::class, $property)) {
+                if (!property_exists(static::class, $property) || (new ReflectionProperty(static::class, $property))->isStatic()) {
                     throw new BadMethodCallException(sprintf(
-                        'mutate() on %s cannot write $%s - the concrete scope sees no such property. Fix the key, or declare shared base state protected so the bound write can reach it.',
+                        'mutate() on %s cannot write $%s - the concrete scope sees no such instance property. Fix the key, declare shared base state protected so the bound write can reach it, or drop the static, which a clone would not carry anyway.',
                         static::class,
                         $property,
                     ));
