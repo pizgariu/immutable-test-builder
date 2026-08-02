@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Benchmark;
 
-use PhpBench\Attributes as Bench;
+use PhpBench\Attributes as Benchmark;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\FreighterBuilder;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\SpaceshipBuilder;
 
@@ -17,12 +17,12 @@ use Pizgariu\ImmutableTestBuilder\Tests\Fixture\SpaceshipBuilder;
  * price of not writing the method. That ratio holds on any machine. The numbers
  * beside it do not, which is why nothing here asserts a duration.
  */
-#[Bench\Revs(5000)]
-#[Bench\Iterations(5)]
-#[Bench\Warmup(1)]
-#[Bench\RetryThreshold(3.0)]
-#[Bench\BeforeMethods('setUp')]
-final class MagicModifierBench
+#[Benchmark\Revs(5000)]
+#[Benchmark\Iterations(5)]
+#[Benchmark\Warmup(1)]
+#[Benchmark\RetryThreshold(3.0)]
+#[Benchmark\BeforeMethods('setUp')]
+final class MagicModifierBenchmark
 {
     private FreighterBuilder $derived;
 

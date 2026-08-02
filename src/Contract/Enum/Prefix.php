@@ -17,6 +17,10 @@ namespace Pizgariu\ImmutableTestBuilder\Contract\Enum;
  */
 enum Prefix: string
 {
+    // Declared in reading order, from the prefixes that bring outside data to
+    // the ones that name the change themselves. Nothing derives meaning or cost
+    // from the position of a case, so this order is free to be the one that
+    // reads best.
     case From = 'from';
     case For = 'for';
     case As = 'as';
@@ -34,55 +38,40 @@ enum Prefix: string
     private const string PROPERTY_START = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
     /**
-     * Every case, ordered by how often a real suite asks for it rather than by
-     * declaration. The lookup is a linear scan, so the order is pure cost - and
-     * with* leads because it is the modifier tests reach for most, while the
-     * three that are never magic sit at the back where only a refusal pays for
-     * them. Correctness does not depend on this at all, since the boundary is
-     * what separates with* from without*, so the list may be reordered freely.
-     * It must stay COMPLETE though, and PrefixTest walks every case to say so.
+     * The prefix a method name opens with, or null when the name is outside the
+     * DSL entirely.
+     *
+     * The name states where its own prefix ends, at the lowercase run before a
+     * property name begins, so this reads that boundary once and looks the value
+     * up. No case is asked whether it matches and none is walked past, which is
+     * what keeps the declaration order above free of any weight.
+     *
+     * Deliberately no regular expression either. This runs on every magic call,
+     * and a boundary scan plus a lookup costs a fraction of compiling a pattern.
      */
-    private const array SCAN_ORDER = [
-        self::With,
-        self::Without,
-        self::As,
-        self::Including,
-        self::Excluding,
-        self::From,
-        self::For,
-        self::Having,
-    ];
-
     public static function ofMethod(string $methodName): ?self
     {
-        foreach (self::SCAN_ORDER as $prefix) {
-            if ($prefix->matches($methodName)) {
-                return $prefix;
-            }
+        $length = strcspn($methodName, self::PROPERTY_START);
+
+        if ($length === strlen($methodName)) {
+            return null;
         }
 
-        return null;
+        return self::tryFrom(substr($methodName, 0, $length));
     }
 
     /**
-     * Whether the method name opens with this prefix followed by the start of a
-     * property name, which is an uppercase letter or a digit. That boundary is
-     * what keeps with* from swallowing without* - the lowercase 'o' fails it -
-     * so the case order of ofMethod() carries no meaning.
+     * Whether this is the prefix the method name opens with. Answered by
+     * ofMethod() rather than by its own comparison, so the grammar is parsed in
+     * exactly one place and the two can never drift apart.
      *
-     * Deliberately no regular expression. This runs on every magic call, once
-     * per case, and a literal boundary lookup costs a fraction of compiling a
-     * pattern that was assembled per call.
+     * The uppercase or digit boundary is what keeps with* from swallowing
+     * without*, because the lowercase 'o' of withoutFuel is not where a property
+     * name starts, so the whole word is read as the prefix instead.
      */
     public function matches(string $methodName): bool
     {
-        if (!str_starts_with($methodName, $this->value)) {
-            return false;
-        }
-
-        $boundary = $methodName[strlen($this->value)] ?? '';
-
-        return '' !== $boundary && str_contains(self::PROPERTY_START, $boundary);
+        return $this === self::ofMethod($methodName);
     }
 
     /**
@@ -129,7 +118,7 @@ enum Prefix: string
     public function autoImplementable(): bool
     {
         return match ($this) {
-            self::With, self::Without, self::As, self::Including, self::Excluding => true,
+            self::As, self::Including, self::Excluding, self::Without, self::With => true,
             self::From, self::For, self::Having => false,
         };
     }
@@ -137,7 +126,8 @@ enum Prefix: string
     /**
      * Property names a magic call may resolve to. Collection prefixes speak
      * in singular (includingRole) about plural state ($roles), so they also
-     * try the simple plural.
+     * try the simple plural. Exhaustive on purpose, like the two above - a new
+     * case must say whether it speaks plural instead of inheriting a default.
      *
      * @return list<string>
      */
@@ -147,7 +137,7 @@ enum Prefix: string
 
         return match ($this) {
             self::Including, self::Excluding => [$base, $base . 's'],
-            default => [$base],
+            self::From, self::For, self::As, self::Having, self::Without, self::With => [$base],
         };
     }
 }

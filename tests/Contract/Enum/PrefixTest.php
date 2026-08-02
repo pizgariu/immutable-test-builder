@@ -39,8 +39,9 @@ final class PrefixTest extends TestCase
     }
 
     /**
-     * The scan list is hand ordered for cost, so nothing but this stops a new
-     * case from being left out of it and going silently unresolvable.
+     * Resolution reads the prefix off the name instead of walking the cases, so
+     * this proves every declared one is reachable and that the declaration order
+     * never became load bearing.
      */
     #[DataProvider('provideEveryCase')]
     public function testOfMethodResolvesEveryDeclaredCase(Prefix $prefix): void

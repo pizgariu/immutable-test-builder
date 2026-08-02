@@ -2,6 +2,7 @@
     "$schema": "vendor/phpbench/phpbench/phpbench.schema.json",
     "runner.bootstrap": "vendor/autoload.php",
     "runner.path": "benchmark",
+    "runner.file_pattern": "*Benchmark.php",
     "runner.php_config": {
         "memory_limit": "1G"
     },
