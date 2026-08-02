@@ -366,7 +366,7 @@ The full grammar, magic and handwritten side by side, lives in [`tests/Example/M
 
 Sealed state stays sealed. The magic writer is bound into the concrete class scope with `Closure::bind`, so properties remain private and every derived modifier still funnels through `mutate()` - same clone, same isolation, same branching guarantees. A call outside the contract fails loudly with `BadMethodCallException` and the way out: unknown prefix, a prefix that is never magic, a missing property, the wrong arity, named arguments (magic reads its value positionally), a flag that is not `bool`, a collection that is not `array`, or an empty value that cannot be inferred.
 
-And the types hold. The bundled `MagicModifierMethodsExtension`, registered by the same `extension.neon`, teaches PHPStan every derived signature from the same `Prefix` semantics - `->withName('x')` analyses at level max with zero annotations and no mapper. It also never advertises a modifier the writers would refuse on the property type, so `asCargo()` on an `int` is an undefined method for analysis exactly as it is a refusal at runtime.
+And the types hold. The bundled `MagicModifierMethodsExtension`, registered by the same `config/extension.neon`, teaches PHPStan every derived signature from the same `Prefix` semantics - `->withName('x')` analyses at level max with zero annotations and no mapper. It also never advertises a modifier the writers would refuse on the property type, so `asCargo()` on an `int` is an undefined method for analysis exactly as it is a refusal at runtime.
 
 Your IDE is a different reader. It does not consult PHPStan extensions, so autocomplete for the derived modifiers comes from `@method` tags on the builder class - written by hand today. The Rector set landing in 2.0.0 derives and maintains them automatically, turning the tags from a chore into generated output.
 
@@ -378,7 +378,7 @@ The package bundles a PHPStan rule set that enforces the DSL on every class impl
 
 ```neon
 includes:
-    - vendor/pizgariu/immutable-test-builder/extension.neon
+    - vendor/pizgariu/immutable-test-builder/config/extension.neon
 ```
 
 Nine rules, one directory per abstraction type:

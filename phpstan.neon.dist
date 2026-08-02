@@ -1,5 +1,5 @@
 includes:
-    - extension.neon
+    - config/extension.neon
 
 parameters:
     level: max

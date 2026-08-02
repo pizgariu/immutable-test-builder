@@ -25,7 +25,7 @@
         "phpunit/phpunit": "^10.5 || ^11.0 || ^12.0"
     },
     "suggest": {
-        "phpstan/phpstan": "Turns the bundled DSL rule set on - include extension.neon in your phpstan configuration (^1.12)"
+        "phpstan/phpstan": "Turns the bundled DSL rule set on - include config/extension.neon in your phpstan configuration (^1.12)"
     },
     "autoload": {
         "psr-4": {
