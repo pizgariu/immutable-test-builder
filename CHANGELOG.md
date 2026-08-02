@@ -8,6 +8,17 @@ All notable changes to immutable-test-builder are recorded here. This project fo
 
 Nothing yet.
 
+## [1.0.1] - 2026-08-02
+
+Faster on the path every magic call takes, with every answer the grammar gives left untouched.
+
+### Changed
+- **Prefix matching drops the regular expression.** `Prefix::matches()` assembled a pattern with `sprintf()` and handed it to `preg_match()`, once per enum case, so one magic modifier paid for up to eight pattern builds before the resolver even looked at a property. It now tests the prefix with `str_starts_with()` and the property boundary against a literal character set, which stays locale-independent where a `ctype` call would not. Measured over three runs of 200000 calls each, `Prefix::ofMethod('withCallsign')` falls from 1.90 to 1.17 microseconds and a full magic modifier call from 4.02 to 3.18, taking about 21% off the whole call. The grammar answers exactly as before, proven by diffing a table of nineteen method names either side of the change, and the case order of `ofMethod()` still carries no meaning because the boundary is what separates `with*` from `without*`.
+- **The README title reads as a name rather than a slug.** The repository name already states the identifier, so the heading no longer repeats it in the same viewport.
+
+### Added
+- **The prefix boundary is pinned in both directions.** `PrefixTest` now covers a digit opening a property name (`with2FA`), a capitalized prefix being refused, a name shorter than any prefix, and an empty name. Four cases that could have quietly narrowed the boundary set with no test noticing.
+
 ## [1.0.0] - 2026-08-02
 
 One grammar, three readers that cannot disagree. The DSL is declared once as an enum, the kernel implements it from your property declarations, and the bundled rule set turns it into analysis errors - so a builder is correct by construction, typed without annotations, and refuses loudly the moment it cannot be.
@@ -20,5 +31,6 @@ One grammar, three readers that cannot disagree. The DSL is declared once as an 
 - **`UnbuildableState`, the loud failure.** A builder driven into an impossible state throws instead of producing a broken object that fails far from its cause. Two factories compose the two message shapes - `missing()` for an absent ingredient, `contradiction()` for calls that cancel each other out - and both name the builder by its short class name and end with concrete guidance, so the failing test points straight at the fix.
 - **The example suite - living documentation under `tests/Example`.** A readonly `User`, the `UserBuilder` that produces it, and the test that proves the three guarantees - the perfect default builds immediately, branches from one shared trunk never interfere, and the guard message reads exactly as promised. The README prints the same files verbatim.
 
-[Unreleased]: https://github.com/pizgariu/immutable-test-builder/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/pizgariu/immutable-test-builder/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/pizgariu/immutable-test-builder/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/pizgariu/immutable-test-builder/releases/tag/v1.0.0
