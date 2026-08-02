@@ -1,4 +1,4 @@
-# immutable-test-builder
+# Immutable Test Builder
 
 Declare one valid object, once. Every test rents a tailored copy through modifiers that never touch the original. Drive a builder somewhere impossible and it refuses loudly instead of building a lie.
 
