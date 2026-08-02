@@ -6,8 +6,8 @@ namespace Pizgariu\ImmutableTestBuilder\Tests\Fixture;
 
 /**
  * Exercises the map-form guard - one modifier mistypes its key, one targets the
- * base's private ingredient and one targets its shared static. All three must
- * fail loudly.
+ * base's private ingredient, one its shared static and one its readonly. All
+ * four must fail loudly.
  *
  * @extends AbstractStationBuilder<string>
  */
@@ -30,6 +30,11 @@ final class StationBuilder extends AbstractStationBuilder
         return $this->mutate(['registry' => $registry]);
     }
 
+    public function withCommissioned(string $commissioned): static
+    {
+        return $this->mutate(['commissioned' => $commissioned]);
+    }
+
     public function build(): string
     {
         return sprintf('%s %s', $this->designation(), $this->name);
@@ -38,5 +43,6 @@ final class StationBuilder extends AbstractStationBuilder
     protected function seed(): void
     {
         $this->name = 'Anesidora';
+        $this->commission('2122');
     }
 }

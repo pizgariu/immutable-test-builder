@@ -148,6 +148,16 @@ final class AbstractBuilderTest extends TestCase
         $builder->withRegistry('LV-426');
     }
 
+    public function testMapMutationRefusesAReadonlyProperty(): void
+    {
+        $builder = StationBuilder::create();
+
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('cannot write $commissioned');
+
+        $builder->withCommissioned('2122');
+    }
+
     public function testConstructorIsNotPubliclyInstantiable(): void
     {
         $constructor = (new ReflectionClass(SpaceshipBuilder::class))->getConstructor();

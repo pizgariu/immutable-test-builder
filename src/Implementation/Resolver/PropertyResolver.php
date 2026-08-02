@@ -81,9 +81,17 @@ final class PropertyResolver
         return null;
     }
 
+    /**
+     * A property the kernel is allowed to write on a clone. Static state is
+     * shared rather than owned, readonly cannot be written outside __clone() at
+     * all, and #[NotMagic] says so explicitly. WritableStateRule refuses the
+     * first two on a concrete builder, but an abstract base is exempt from it and
+     * may still hand one down, so the derivation checks for itself rather than
+     * trusting that the rules ran.
+     */
     private static function derivable(ReflectionProperty $property): bool
     {
-        return !$property->isStatic() && [] === $property->getAttributes(NotMagic::class);
+        return !$property->isStatic() && !$property->isReadOnly() && [] === $property->getAttributes(NotMagic::class);
     }
 
     private static function hasPlural(ReflectionProperty $property, string $singular): bool

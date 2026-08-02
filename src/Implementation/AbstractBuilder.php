@@ -103,7 +103,7 @@ abstract class AbstractBuilder implements BuilderInterface
                 $names = [];
 
                 foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
-                    if (!$property->isStatic()) {
+                    if (!$property->isStatic() && !$property->isReadOnly()) {
                         $names[$property->name] = true;
                     }
                 }
@@ -115,7 +115,7 @@ abstract class AbstractBuilder implements BuilderInterface
             foreach ($mutation as $property => $_) {
                 if (!isset($names[$property])) {
                     throw new BadMethodCallException(sprintf(
-                        'mutate() on %s cannot write $%s - the concrete scope sees no such instance property. Fix the key, declare shared base state protected so the bound write can reach it, or drop the static, which a clone would not carry anyway.',
+                        'mutate() on %s cannot write $%s - the concrete scope sees no writable instance property under that name. Fix the key, declare shared base state protected so the bound write can reach it, or drop the static or readonly, since a clone owns neither.',
                         static::class,
                         $property,
                     ));
