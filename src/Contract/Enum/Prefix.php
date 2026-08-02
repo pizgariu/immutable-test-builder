@@ -26,6 +26,13 @@ enum Prefix: string
     case Without = 'without';
     case With = 'with';
 
+    /**
+     * The characters a property name may open with, right after the prefix.
+     * Held as a literal so the boundary test never depends on the locale the
+     * way a ctype call would.
+     */
+    private const PROPERTY_START = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
     public static function ofMethod(string $methodName): ?self
     {
         foreach (self::cases() as $prefix) {
@@ -38,13 +45,24 @@ enum Prefix: string
     }
 
     /**
-     * Whether the method name opens with this prefix followed by a capitalized
-     * property name. The uppercase boundary keeps with* from swallowing
-     * without* - the lowercase 'o' fails the match.
+     * Whether the method name opens with this prefix followed by the start of a
+     * property name, which is an uppercase letter or a digit. That boundary is
+     * what keeps with* from swallowing without* - the lowercase 'o' fails it -
+     * so the case order of ofMethod() carries no meaning.
+     *
+     * Deliberately no regular expression. This runs on every magic call, once
+     * per case, and a literal boundary lookup costs a fraction of compiling a
+     * pattern that was assembled per call.
      */
     public function matches(string $methodName): bool
     {
-        return 1 === preg_match(sprintf('/^%s[A-Z0-9]/', $this->value), $methodName);
+        if (!str_starts_with($methodName, $this->value)) {
+            return false;
+        }
+
+        $boundary = $methodName[strlen($this->value)] ?? '';
+
+        return '' !== $boundary && str_contains(self::PROPERTY_START, $boundary);
     }
 
     /**

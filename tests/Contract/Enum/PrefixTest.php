@@ -32,6 +32,10 @@ final class PrefixTest extends TestCase
         yield 'outside the DSL' => ['methodName' => 'setName', 'prefix' => null];
         yield 'prefix without an uppercase boundary' => ['methodName' => 'withdraw', 'prefix' => null];
         yield 'bare prefix' => ['methodName' => 'with', 'prefix' => null];
+        yield 'a digit opens a property name too' => ['methodName' => 'with2FA', 'prefix' => Prefix::With];
+        yield 'the prefix itself is case sensitive' => ['methodName' => 'WithName', 'prefix' => null];
+        yield 'shorter than any prefix' => ['methodName' => 'at', 'prefix' => null];
+        yield 'empty name' => ['methodName' => '', 'prefix' => null];
     }
 
     #[DataProvider('provideParameterAppetites')]
