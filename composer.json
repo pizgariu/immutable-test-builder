@@ -21,6 +21,7 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.95",
         "nikic/php-parser": "^5.0",
+        "phpbench/phpbench": "^1.4",
         "phpstan/phpstan": "^1.12",
         "phpunit/phpunit": "^10.5 || ^11.0 || ^12.0"
     },
@@ -34,10 +35,21 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Pizgariu\\ImmutableTestBuilder\\Tests\\": "tests/"
+            "Pizgariu\\ImmutableTestBuilder\\Tests\\": "tests/",
+            "Pizgariu\\ImmutableTestBuilder\\Benchmark\\": "benchmark/"
         }
     },
     "config": {
         "sort-packages": true
+    },
+    "scripts": {
+        "benchmark": "phpbench run --report=aggregate",
+        "benchmark:baseline": "phpbench run --tag=baseline --store --progress=none",
+        "benchmark:check": "phpbench run --ref=baseline --report=aggregate --assert=\"mode(variant.time.avg) < mode(baseline.time.avg) +/- 15%\""
+    },
+    "scripts-descriptions": {
+        "benchmark": "Measure the kernel and the grammar lookup, reading subjects against each other",
+        "benchmark:baseline": "Store the current readings on this machine as the reference to compare against",
+        "benchmark:check": "Re-run against the stored baseline and fail when a subject drifts beyond the tolerance"
     }
 }

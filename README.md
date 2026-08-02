@@ -445,6 +445,16 @@ vendor/bin/phpstan analyse
 vendor/bin/php-cs-fixer fix
 ```
 
+The kernel is measured too, with [PHPBench](https://phpbench.readthedocs.io) under `benchmark`.
+
+```
+composer benchmark            # read the subjects against each other
+composer benchmark:baseline   # store this machine's readings as the reference
+composer benchmark:check      # re-run and fail on drift beyond the tolerance
+```
+
+Every claim there is a ratio, never a duration, because a duration means nothing on somebody else's hardware. `PrefixBench` prices the grammar scan by the position of a case, `MagicModifierBench` prices a derived modifier against a handwritten one that ends in the same `mutate()`, and `KernelBench` proves a chain stays linear in the number of modifiers. CI runs them once with a single revolution, which proves they still execute without asserting a stopwatch a shared runner cannot hold still.
+
 PHPStan runs at level max over `src` and `tests`, with the bundled rule set included - the package dogfoods its own DSL. Coding style is enforced by php-cs-fixer on a PER-CS 2.0 base with the risky set on. CI validates `composer.json` strictly, then runs the suite and the analysis on PHP 8.3, 8.4 and 8.5, and checks the style once, on every push to `master` and every pull request. `fail-fast` is off, so a break on one interpreter does not hide the others.
 
 ---

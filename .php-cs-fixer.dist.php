@@ -7,7 +7,7 @@ use PhpCsFixer\Finder;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 
 $directories = array_values(array_filter(
-    [__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/config'],
+    [__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/benchmark', __DIR__ . '/config'],
     'is_dir',
 ));
 

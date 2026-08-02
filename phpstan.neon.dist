@@ -6,5 +6,6 @@ parameters:
     paths:
         - src
         - tests
+        - benchmark
     excludePaths:
         - tests/PHPStan/data

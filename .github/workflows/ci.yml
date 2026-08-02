@@ -61,6 +61,28 @@ jobs:
             - name: Check coding standards
               run: vendor/bin/php-cs-fixer fix --dry-run --diff --no-interaction
 
+    benchmark:
+        runs-on: ubuntu-latest
+        name: Benchmark
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.3'
+                  coverage: none
+
+            - name: Install dependencies
+              run: composer update --prefer-dist --no-progress
+
+            # A shared runner cannot hold a duration still, so nothing here is
+            # asserted. This proves the benchmarks still execute against the
+            # kernel, which is the part that rots unnoticed.
+            - name: Run the benchmarks once
+              run: vendor/bin/phpbench run --revs=1 --iterations=1 --progress=none --report=aggregate
+
     lowest-deps:
         runs-on: ubuntu-latest
         name: Lowest deps
