@@ -31,7 +31,7 @@ enum Prefix: string
      * Held as a literal so the boundary test never depends on the locale the
      * way a ctype call would.
      */
-    private const PROPERTY_START = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    private const string PROPERTY_START = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
     public static function ofMethod(string $methodName): ?self
     {
