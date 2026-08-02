@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\FreighterBuilder;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\RosterBuilder;
 use Pizgariu\ImmutableTestBuilder\Tests\Fixture\ShuttleBuilder;
+use Pizgariu\ImmutableTestBuilder\Tests\Fixture\UnionBuilder;
 
 /**
  * __call is thin - it hands the call to ModifierResolver and funnels the result
@@ -101,6 +102,16 @@ final class MagicModifiersTest extends TestCase
 
         self::assertSame(['crate'], $shuttle->build()['cargo']);
         self::assertSame(['crate', 'more'], $shuttle->includingCargo('more')->build()['cargo']);
+    }
+
+    /**
+     * A union derives where the operation does not have to pick a member of it.
+     * with* only assigns, so it is the one prefix a union cannot confuse, and
+     * the refusals for the other four live in ModifierResolverTest.
+     */
+    public function testWithAssignsThroughAUnionTypedIngredient(): void
+    {
+        self::assertSame('admin', UnionBuilder::create()->withTags('admin')->build()['tags']);
     }
 
     public function testMagicRefusesNamedArguments(): void
