@@ -20,7 +20,7 @@ abstract class AbstractTypeAwareWriter implements PrefixWriterInterface
 {
     final public function write(ReflectionProperty $property, array $arguments): Closure
     {
-        return $this->derive($property->getName(), $property->getType(), $arguments);
+        return $this->derive($property->name, $property->getType(), $arguments);
     }
 
     /**

@@ -16,7 +16,7 @@ final class WithWriter implements PrefixWriterInterface
 {
     public function write(ReflectionProperty $property, array $arguments): Closure
     {
-        $name = $property->getName();
+        $name = $property->name;
         $value = $arguments[0] ?? null;
 
         return static function (object $clone) use ($name, $value): void {

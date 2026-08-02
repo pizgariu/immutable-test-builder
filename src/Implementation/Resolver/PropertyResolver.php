@@ -37,7 +37,7 @@ final class PropertyResolver
         /** @var array<string, ReflectionProperty|null> $resolved */
         static $resolved = [];
 
-        $key = $class->getName() . '::' . $method;
+        $key = $class->name . '::' . $method;
 
         if (array_key_exists($key, $resolved)) {
             return $resolved[$key];
