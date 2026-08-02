@@ -17,9 +17,9 @@ use ReflectionType;
  *
  * @internal
  */
-final class WithoutWriter extends AbstractTypeAwareWriter
+final class WithoutWriter implements PrefixWriterInterface
 {
-    protected function derive(string $name, ?ReflectionType $type, array $arguments): Closure
+    public function write(string $name, ?ReflectionType $type, array $arguments): Closure
     {
         $value = $this->emptyValueFor($name, $type);
 

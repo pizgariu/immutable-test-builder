@@ -17,9 +17,9 @@ use ReflectionType;
  *
  * @internal
  */
-final class AsWriter extends AbstractTypeAwareWriter
+final class AsWriter implements PrefixWriterInterface
 {
-    protected function derive(string $name, ?ReflectionType $type, array $arguments): Closure
+    public function write(string $name, ?ReflectionType $type, array $arguments): Closure
     {
         if (!$type instanceof ReflectionNamedType || 'bool' !== $type->getName()) {
             throw new BadMethodCallException(sprintf(

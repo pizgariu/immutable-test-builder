@@ -132,6 +132,6 @@ final class ModifierResolver
             }
         }
 
-        return Closure::bind($writer->write($property, $arguments), null, $class);
+        return Closure::bind($writer->write($property->name, $property->getType(), $arguments), null, $class);
     }
 }
