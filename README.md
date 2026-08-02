@@ -7,13 +7,13 @@ Declare one valid object, once. Every test rents a tailored copy through modifie
 [![PHP versions](https://img.shields.io/badge/php-8.3%20%7C%208.4%20%7C%208.5-blue.svg)](https://github.com/pizgariu/immutable-test-builder)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Immutable test data builders for PHP. A builder is born with a perfect default: `build()` succeeds immediately, seeded with realistic generated data, so a test states only the values it asserts on. Every modifier returns a NEW instance, so a builder can sit in a shared fixture or serve as the trunk for divergent variants and no test corrupts another. One contract, one abstract base, one exception and a PHPStan rule set that polices the DSL. Pure standard library, zero runtime dependencies.
+Immutable test data builders for PHP. A builder is born with a perfect default - `build()` succeeds immediately, seeded with realistic generated data, so a test states only the values it asserts on. Every modifier returns a NEW instance, so a builder can sit in a shared fixture or serve as the trunk for divergent variants and no test corrupts another. One contract, one abstract base, one exception and a PHPStan rule set that polices the DSL. Pure standard library, zero runtime dependencies.
 
 ---
 
 ## See it work
 
-This is the example suite under [`tests/Example`](tests/Example), printed verbatim: a readonly value object, the builder that produces it, and the test that proves the guarantees.
+This is the example suite under [`tests/Example`](tests/Example), printed verbatim - a readonly value object, the builder that produces it, and the test that proves the guarantees.
 
 ```php
 <?php
@@ -175,9 +175,9 @@ final class UserBuilderTest extends TestCase
 
 Three things in that test are the entire idea.
 
-**The default built immediately.** The first test puts nothing between `create()` and `build()`. The name and the email are generated in `seed()` around one random suffix, so every default user is complete and unique without any test typing them - the assertions check shape, not exact strings. The other two assertions pin deliberate constants - one sensible role, an active account - because a perfect default mixes generated uniqueness with opinionated fixed choices. Either way, no future test breaks because a required field was forgotten: the builder cannot exist without them.
+**The default built immediately.** The first test puts nothing between `create()` and `build()`. The name and the email are generated in `seed()` around one random suffix, so every default user is complete and unique without any test typing them - the assertions check shape, not exact strings. The other two assertions pin deliberate constants - one sensible role, an active account - because a perfect default mixes generated uniqueness with opinionated fixed choices. Either way, no future test breaks because a required field was forgotten. The builder cannot exist without them.
 
-**Three variants, one trunk, zero interference.** The second test tailors a base builder, then branches it twice. `includingRole()` gave the admin variant a second role, `asDeactivated()` switched the other variant off, and the assertions on the trunk still hold after both branches were taken: one role, active. Each modifier returned a new instance, so the trunk never learned about its descendants and the two branches never learned about each other. And look back at the builder - `withName()`, `withEmail()` and `includingRole()` are called here yet declared nowhere. The kernel derived them from `$name`, `$email` and `$roles`. Only `asDeactivated()` has a body, because no property could tell the engine that deactivating means `$active = false`.
+**Three variants, one trunk, zero interference.** The second test tailors a base builder, then branches it twice. `includingRole()` gave the admin variant a second role, `asDeactivated()` switched the other variant off, and the assertions on the trunk still hold after both branches were taken - one role, active. Each modifier returned a new instance, so the trunk never learned about its descendants and the two branches never learned about each other. And look back at the builder - `withName()`, `withEmail()` and `includingRole()` are called here yet declared nowhere. The kernel derived them from `$name`, `$email` and `$roles`. Only `asDeactivated()` has a body, because no property could tell the engine that deactivating means `$active = false`.
 
 **The impossible state refused to build.** `withoutEmail()` removes an ingredient `User` cannot exist without. `build()` does not hand back a broken object or a null - it throws `UnbuildableState`, and the asserted message names the builder, names the missing ingredient, and ends with the way out.
 
@@ -185,15 +185,15 @@ Three things in that test are the entire idea.
 
 ## Perfect default
 
-The contract's first law: `create()` returns a builder that must `build()` successfully with no further calls. A concrete builder keeps that promise in one place, `seed()`, which fills every ingredient with a realistic default and is called exactly once at creation.
+The contract's first law is that `create()` returns a builder that must `build()` successfully with no further calls. A concrete builder keeps that promise in one place, `seed()`, which fills every ingredient with a realistic default and is called exactly once at creation.
 
-The payoff is what tests stop saying. A test that fills every field before it can build drowns the one value it actually asserts on in noise, and every reader has to guess which lines matter. With a perfect default, a test states its assertion targets and nothing else; everything it stays silent about is already valid. How a default is produced is deliberately outside the kernel: a constant, a `random_int()` suffix, a full data generator - `seed()` is plain PHP and the choice stays with the project.
+The payoff is what tests stop saying. A test that fills every field before it can build drowns the one value it actually asserts on in noise, and every reader has to guess which lines matter. With a perfect default, a test states its assertion targets and nothing else. Everything it stays silent about is already valid. How a default is produced is deliberately outside the kernel. A constant, a `random_int()` suffix, a full data generator - `seed()` is plain PHP and the choice stays with the project.
 
 ---
 
 ## Immutability via mutate()
 
-`AbstractBuilder` carries the immutability engine in one method:
+`AbstractBuilder` carries the immutability engine in one method.
 
 ```php
 final protected function mutate(Closure|array $mutation): static
@@ -230,7 +230,7 @@ final protected function mutate(Closure|array $mutation): static
 }
 ```
 
-Clone, apply the change to the clone, return the clone - and refuse a map key that names no property the concrete scope can write, so a typo never becomes a silent dynamic property. Every public modifier of a concrete builder is a one-liner delegating here:
+Clone, apply the change to the clone, return the clone - and refuse a map key that names no property the concrete scope can write, so a typo never becomes a silent dynamic property. Every public modifier of a concrete builder is a one-liner delegating here.
 
 ```php
 public function withName(string $name): static
@@ -241,7 +241,7 @@ public function withName(string $name): static
 }
 ```
 
-A trivial write can skip the closure entirely - hand mutate() the property map instead:
+A trivial write can skip the closure entirely - hand mutate() the property map instead.
 
 ```php
 public function withCrew(int $crew): static
@@ -252,7 +252,7 @@ public function withCrew(int $crew): static
 
 After `seed()` runs, no builder instance is ever written again. Two guarantees follow. A builder held in a shared fixture, a class property or a helper method cannot be corrupted by one test on behalf of the next, because no call site can mutate it. And a partially tailored builder can serve as the trunk for several divergent variants inside a single test - the branching test above - with none of the variants observing the others.
 
-One boundary to know about: the clone is shallow. Isolation holds for scalar, array and immutable-object ingredients; a mutable object ingredient (an entity, an `ArrayObject`) is shared between trunk and branches. Replace such an ingredient inside the modifier instead of mutating it in place, or deep-copy it in an overridden `__clone()`.
+One boundary is worth knowing. The clone is shallow, so isolation holds for scalar, array and immutable-object ingredients. A mutable object ingredient (an entity, an `ArrayObject`) is shared between trunk and branches. Replace such an ingredient inside the modifier instead of mutating it in place, or deep-copy it in an overridden `__clone()`.
 
 The property-map form already speaks PHP 8.5's clone-with dialect, portable back to 8.3 through a write bound into the concrete class scope. When 8.5 becomes this package's floor, `mutate()` swaps its internals for the native call and no call site moves.
 
@@ -260,29 +260,29 @@ The property-map form already speaks PHP 8.5's clone-with dialect, portable back
 
 ## Loud failure
 
-A builder driven into an impossible state never produces a broken object. `build()` throws `UnbuildableState` (a `LogicException`), composed by one of two factories with a fixed message shape each:
+A builder driven into an impossible state never produces a broken object. `build()` throws `UnbuildableState` (a `LogicException`), composed by one of two factories with a fixed message shape each.
 
 ```
 <ShortName> cannot build yet - missing <ingredient>. <advice>
 <ShortName> was driven into a contradiction - <conflict>. <wayOut>
 ```
 
-`missing()` is for an ingredient that is absent, `contradiction()` for two calls that cancel each other out. Both name the offending builder by its short class name and end with concrete guidance, so the failing test points straight at the fix:
+`missing()` is for an ingredient that is absent, `contradiction()` for two calls that cancel each other out. Both name the offending builder by its short class name and end with concrete guidance, so the failing test points straight at the fix.
 
 ```
 UserBuilder cannot build yet - missing an email address. Call withEmail() or drop withoutEmail().
 OrderBuilder was driven into a contradiction - asPaid() combined with withoutPayment(). Drop one of the two calls.
 ```
 
-The alternative is worse than a crash: a builder that quietly hands back a half-valid object moves the failure into whatever code touches the object next, far from the line that caused it.
+The alternative is worse than a crash. A builder that quietly hands back a half-valid object moves the failure into whatever code touches the object next, far from the line that caused it.
 
 ---
 
 ## Bring your own randomness
 
-The kernel ships zero runtime dependencies and imposes no randomness strategy. `seed()` is plain PHP: the example above builds its perfect default around one `random_int()` suffix, and that is all the uniqueness most suites need.
+The kernel ships zero runtime dependencies and imposes no randomness strategy. `seed()` is plain PHP, and the example above builds its perfect default around one `random_int()` suffix, which is all the uniqueness most suites need.
 
-A project that wants richer generated data plugs its own generator in through its own abstract base - the kernel never knows:
+A project that wants richer generated data plugs its own generator in through its own abstract base - the kernel never knows.
 
 ```php
 use Faker\Factory;
@@ -306,7 +306,7 @@ Concrete builders extend `ProjectBuilder` and call `static::faker()` inside `see
 
 ## The naming DSL
 
-Modifier names are a documented contract of this library, not a suggestion:
+Modifier names are a documented contract of this library, not a suggestion.
 
 | Prefix | Meaning | Example |
 | --- | --- | --- |
@@ -321,13 +321,13 @@ Modifier names are a documented contract of this library, not a suggestion:
 
 Every modifier returns a new instance via `mutate()`, no exceptions.
 
-The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-place write, and nothing here writes in place - a `setName()` that returns a fresh instance is a name telling a lie. `add*` leaves open whether the collection is replaced or extended; `including*` commits to extending and `excluding*` to shrinking. `make*` says nothing about anything. The table is not a style guide waiting for review vigilance - the bundled PHPStan rule set turns it into analysis errors; the next sections show how.
+The prefixes `set*`, `make*` and `add*` are never used. `set*` promises an in-place write, and nothing here writes in place - a `setName()` that returns a fresh instance is a name telling a lie. `add*` leaves open whether the collection is replaced or extended, while `including*` commits to extending and `excluding*` to shrinking. `make*` says nothing about anything. The table is not a style guide waiting for review vigilance - the bundled PHPStan rule set turns it into analysis errors, and the next sections show how.
 
 ---
 
 ## Magic modifiers
 
-The trivial modifiers do not exist as code. `__call` and the `Prefix` enum implement five of the eight prefixes straight from the property declarations:
+The trivial modifiers do not exist as code. `__call` and the `Prefix` enum implement five of the eight prefixes straight from the property declarations.
 
 | Prefix | Derived behaviour |
 | --- | --- |
@@ -339,7 +339,7 @@ The trivial modifiers do not exist as code. `__call` and the `Prefix` enum imple
 
 Two attributes tune the derivation when a name cannot carry the whole story. `#[Plural(of: 'person')]` on a collection property teaches the simple-plural resolver an irregular one - `includingPerson()` then reaches `$people`. `#[NotMagic]` on a property seals it from derivation entirely, so a computed or reserved ingredient is reachable only through a handwritten modifier. Both are read by the runtime and by the PHPStan extension from the same source, so the sealed method is a runtime refusal and an undefined-method analysis error alike.
 
-`from*`, `for*` and `having*` are never magic - hydration, ownership and multi-property concepts deserve a handwritten body:
+`from*`, `for*` and `having*` are never magic - hydration, ownership and multi-property concepts deserve a handwritten body.
 
 ```php
 public function fromApplicant(Applicant $applicant): static
@@ -362,9 +362,9 @@ public function havingName(string $firstName, string $lastName): static
 }
 ```
 
-The full grammar, magic and handwritten side by side, lives in [`tests/Example/MembershipBuilder`](tests/Example/MembershipBuilder.php) with a test that exercises every prefix. A declared method always wins, because the engine only answers when no method exists: `asDeactivated()` earlier is handwritten precisely because no `$deactivated` property could tell the kernel what deactivating means.
+The full grammar, magic and handwritten side by side, lives in [`tests/Example/MembershipBuilder`](tests/Example/MembershipBuilder.php) with a test that exercises every prefix. A declared method always wins, because the engine only answers when no method exists. `asDeactivated()` earlier is handwritten precisely because no `$deactivated` property could tell the kernel what deactivating means.
 
-Sealed state stays sealed. The magic writer is bound into the concrete class scope with `Closure::bind`, so properties remain private and every derived modifier still funnels through `mutate()` - same clone, same isolation, same branching guarantees. A call outside the contract fails loudly with `BadMethodCallException` and the way out: unknown prefix, a prefix that is never magic, a missing property, the wrong arity, named arguments (magic reads its value positionally), a flag that is not `bool`, a collection that is not `array`, or an empty value that cannot be inferred.
+Sealed state stays sealed. The magic writer is bound into the concrete class scope with `Closure::bind`, so properties remain private and every derived modifier still funnels through `mutate()` - same clone, same isolation, same branching guarantees. A call outside the contract fails loudly with `BadMethodCallException` and the way out - unknown prefix, a prefix that is never magic, a missing property, the wrong arity, named arguments (magic reads its value positionally), a flag that is not `bool`, a collection that is not `array`, or an empty value that cannot be inferred.
 
 And the types hold. The bundled `MagicModifierMethodsExtension`, registered by the same `config/extension.neon`, teaches PHPStan every derived signature from the same `Prefix` semantics - `->withName('x')` analyses at level max with zero annotations and no mapper. It also never advertises a modifier the writers would refuse on the property type, so `asCargo()` on an `int` is an undefined method for analysis exactly as it is a refusal at runtime.
 
@@ -374,14 +374,14 @@ Your IDE is a different reader. It does not consult PHPStan extensions, so autoc
 
 ## Enforced by PHPStan
 
-The package bundles a PHPStan rule set that enforces the DSL on every class implementing `BuilderInterface`. One include turns it on:
+The package bundles a PHPStan rule set that enforces the DSL on every class implementing `BuilderInterface`. One include turns it on.
 
 ```neon
 includes:
     - vendor/pizgariu/immutable-test-builder/config/extension.neon
 ```
 
-Nine rules, one directory per abstraction type:
+Nine rules, one directory per abstraction type.
 
 | Rule | Lives in | What it refuses |
 | --- | --- | --- |
@@ -395,7 +395,7 @@ Nine rules, one directory per abstraction type:
 | `WritableStateRule` | `Rule/Property` | builder state that is not private, is static, or is readonly - readonly state would make `mutate()` throw at runtime |
 | `PerfectDefaultPropertyRule` | `Rule/Property` | a property with neither an inline default nor a direct assignment in `seed()` - the per-property face of the perfect default promise |
 
-Abstract bases are exempt where it matters: they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. The rules police what you write by hand - a derived modifier is correct by construction, because the kernel implements each prefix's semantics exactly once. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
+Abstract bases are exempt where it matters, so they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. The rules police what you write by hand - a derived modifier is correct by construction, because the kernel implements each prefix's semantics exactly once. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
 
 The rule set needs nothing beyond `phpstan/phpstan` itself - the phar ships its own php-parser, and the `nikic/php-parser` pin in this package's `require-dev` only keeps development of the rules on the 5.x node shapes. The builders have no requirement at all - the kernel stays zero-dependency and runs anywhere on PHP 8.3+.
 
