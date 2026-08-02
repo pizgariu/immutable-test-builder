@@ -61,7 +61,8 @@ final class KernelBench
             ->withCrew(7)
             ->withCrew(8)
             ->withCrew(9)
-            ->withCrew(10);
+            ->withCrew(10)
+        ;
     }
 
     public function benchBuild(): void

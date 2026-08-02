@@ -14,7 +14,8 @@ $directories = array_values(array_filter(
 $finder = Finder::create()
     ->in($directories)
     ->exclude('PHPStan/data')
-    ->append([__FILE__]);
+    ->append([__FILE__])
+;
 
 return (new Config())
     ->setParallelConfig(ParallelConfigFactory::detect())
@@ -34,6 +35,7 @@ return (new Config())
             'import_constants' => false,
             'import_functions' => false,
         ],
+        'multiline_whitespace_before_semicolons' => ['strategy' => 'new_line_for_chained_calls'],
         'no_unused_imports' => true,
         'native_function_invocation' => false,
         'ordered_class_elements' => false,

@@ -25,7 +25,8 @@ final class MembershipBuilderTest extends TestCase
             ->asActive()
             ->includingTag('admin')
             ->excludingTag('member')
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('ripley@example.test', $membership->email);
         self::assertTrue($membership->active);
@@ -37,7 +38,8 @@ final class MembershipBuilderTest extends TestCase
     {
         $membership = MembershipBuilder::create()
             ->fromApplicant(new Applicant('sarah@example.test', 'Sarah', 'Connor'))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('sarah@example.test', $membership->email);
         self::assertSame('Sarah', $membership->firstName);

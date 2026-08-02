@@ -23,7 +23,8 @@ final class UserBuilderTest extends TestCase
     {
         $base = UserBuilder::create()
             ->withName('Ellen Ripley')
-            ->withEmail('ripley@example.test');
+            ->withEmail('ripley@example.test')
+        ;
 
         $admin = $base->includingRole('admin');
         $deactivated = $base->asDeactivated();
