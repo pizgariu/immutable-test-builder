@@ -30,7 +30,30 @@ final class PropertyResolver
      */
     public static function resolve(ReflectionClass $class, Prefix $prefix, string $method): ?ReflectionProperty
     {
-        foreach ($prefix->propertyCandidates($method) as $name) {
+        // Memoised per class and method, the two things the answer depends on.
+        // A miss is cached as null just like a hit, so a refusal costs reflection
+        // once as well. The class belongs in the key because the same method name
+        // reaches a different property on every builder that declares it.
+        /** @var array<string, ReflectionProperty|null> $resolved */
+        static $resolved = [];
+
+        $key = $class->getName() . '::' . $method;
+
+        if (array_key_exists($key, $resolved)) {
+            return $resolved[$key];
+        }
+
+        return $resolved[$key] = self::derive($class, $prefix, $method);
+    }
+
+    /**
+     * @param ReflectionClass<object> $class
+     */
+    private static function derive(ReflectionClass $class, Prefix $prefix, string $method): ?ReflectionProperty
+    {
+        $candidates = $prefix->propertyCandidates($method);
+
+        foreach ($candidates as $name) {
             if (!$class->hasProperty($name)) {
                 continue;
             }
@@ -43,10 +66,13 @@ final class PropertyResolver
         }
 
         if (Prefix::Including === $prefix || Prefix::Excluding === $prefix) {
-            $singular = lcfirst(substr($method, strlen($prefix->value)));
+            // The singular the method spoke, taken from the candidates rather
+            // than sliced off the name again, so the Prefix enum stays the only
+            // place that knows how a method name becomes a property name.
+            $singular = $candidates[0];
 
             foreach ($class->getProperties() as $property) {
-                if (self::hasPlural($property, $singular) && self::derivable($property)) {
+                if (self::derivable($property) && self::hasPlural($property, $singular)) {
                     return $property;
                 }
             }

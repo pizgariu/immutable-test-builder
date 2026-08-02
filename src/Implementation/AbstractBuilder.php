@@ -8,7 +8,7 @@ use BadMethodCallException;
 use Closure;
 use Pizgariu\ImmutableTestBuilder\Contract\BuilderInterface;
 use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\ModifierResolver;
-use ReflectionProperty;
+use ReflectionClass;
 
 /**
  * Base class for immutable test data builders.
@@ -94,8 +94,26 @@ abstract class AbstractBuilder implements BuilderInterface
     final protected function mutate(Closure|array $mutation): static
     {
         if (is_array($mutation)) {
-            foreach (array_keys($mutation) as $property) {
-                if (!property_exists(static::class, $property) || (new ReflectionProperty(static::class, $property))->isStatic()) {
+            /** @var array<class-string, array<string, true>> $writable */
+            static $writable = [];
+
+            $names = $writable[static::class] ?? null;
+
+            if (null === $names) {
+                $names = [];
+
+                foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
+                    if (!$property->isStatic()) {
+                        $names[$property->name] = true;
+                    }
+                }
+
+                $writable[static::class] = $names;
+            }
+
+            // Walked by key, since array_keys() would allocate a second array to say what the first one already knows.
+            foreach ($mutation as $property => $_) {
+                if (!isset($names[$property])) {
                     throw new BadMethodCallException(sprintf(
                         'mutate() on %s cannot write $%s - the concrete scope sees no such instance property. Fix the key, declare shared base state protected so the bound write can reach it, or drop the static, which a clone would not carry anyway.',
                         static::class,

@@ -10,6 +10,7 @@ use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
 use Pizgariu\ImmutableTestBuilder\Implementation\Writer\AsWriter;
 use Pizgariu\ImmutableTestBuilder\Implementation\Writer\ExcludingWriter;
 use Pizgariu\ImmutableTestBuilder\Implementation\Writer\IncludingWriter;
+use Pizgariu\ImmutableTestBuilder\Implementation\Writer\PrefixWriterInterface;
 use Pizgariu\ImmutableTestBuilder\Implementation\Writer\WithoutWriter;
 use Pizgariu\ImmutableTestBuilder\Implementation\Writer\WithWriter;
 use ReflectionClass;
@@ -51,7 +52,10 @@ final class ModifierResolver
             ));
         }
 
-        $writer = match ($prefix) {
+        /** @var array<string, PrefixWriterInterface> $writers */
+        static $writers = [];
+
+        $writer = $writers[$prefix->name] ??= match ($prefix) {
             Prefix::As => new AsWriter(),
             Prefix::Including => new IncludingWriter(),
             Prefix::Excluding => new ExcludingWriter(),
@@ -75,8 +79,14 @@ final class ModifierResolver
             ));
         }
 
+        // Memoised per class. A class cannot gain or lose properties while the
+        // process runs, so this is a pure lookup table over an immutable fact,
+        // and it is what keeps reflection off the path of every magic call.
+        /** @var array<class-string, ReflectionClass<object>> $reflections */
+        static $reflections = [];
+
         try {
-            $reflection = new ReflectionClass($class);
+            $reflection = $reflections[$class] ??= new ReflectionClass($class);
             // @phpstan-ignore catch.neverThrown (class-string is a phpdoc contract, not a runtime guarantee - the belt stays for callers that break it)
         } catch (ReflectionException $exception) {
             throw new BadMethodCallException(sprintf(

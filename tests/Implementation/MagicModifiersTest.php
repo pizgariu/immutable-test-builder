@@ -80,6 +80,29 @@ final class MagicModifiersTest extends TestCase
         self::assertSame($trunk->build()['departedAt'], $branch->build()['departedAt']);
     }
 
+    /**
+     * The derivation is memoised, so this pins the one thing a memo can get
+     * wrong. $cargo is a nullable collection on the shuttle and a plain int on
+     * the freighter, so the same method name has to reach a different property
+     * on each and refuse on one of them. A key that forgot the class would let
+     * whichever builder ran first answer for both.
+     */
+    public function testTheDerivationIsKeyedPerClassAndNotPerMethodName(): void
+    {
+        $shuttle = ShuttleBuilder::create()->includingCargo('crate');
+
+        try {
+            // @phpstan-ignore method.notFound (the extension refuses to advertise this for the same reason the writer refuses to perform it, which is the other half of the point)
+            FreighterBuilder::create()->includingCargo(5);
+            self::fail('includingCargo() must be refused on the freighter, where $cargo is an int');
+        } catch (BadMethodCallException $refusal) {
+            self::assertStringContainsString('appends to a collection', $refusal->getMessage());
+        }
+
+        self::assertSame(['crate'], $shuttle->build()['cargo']);
+        self::assertSame(['crate', 'more'], $shuttle->includingCargo('more')->build()['cargo']);
+    }
+
     public function testMagicRefusesNamedArguments(): void
     {
         $builder = FreighterBuilder::create();
