@@ -7,7 +7,7 @@ Declare one valid object, once. Every test rents a tailored copy through modifie
 [![PHP versions](https://img.shields.io/badge/php-8.3%20%7C%208.4%20%7C%208.5-blue.svg)](https://github.com/pizgariu/immutable-test-builder)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Immutable test data builders for PHP. A builder is born with a perfect default - `build()` succeeds immediately, seeded with realistic generated data, so a test states only the values it asserts on. Every modifier returns a NEW instance, so a builder can sit in a shared fixture or serve as the trunk for divergent variants and no test corrupts another. One contract, one abstract base, one exception and a PHPStan rule set that polices the DSL. Pure standard library, zero runtime dependencies.
+Immutable test data builders for PHP. A builder is born with a perfect default - `build()` succeeds immediately, seeded with realistic generated data, so a test states only the values it asserts on. Every modifier returns a NEW instance, so a builder can sit in a shared fixture or serve as the trunk for divergent variants and no test corrupts another. One contract, one abstract base, one exception and a PHPStan rule set that polices how a builder must be written. Pure standard library, zero runtime dependencies.
 
 ---
 

@@ -1,6 +1,6 @@
 {
     "name": "pizgariu/immutable-test-builder",
-    "description": "Immutable test data builders for PHP - perfect defaults, clone-based tailoring per test, loud refusal on impossible state and a bundled PHPStan rule set that enforces the DSL. Zero runtime dependencies.",
+    "description": "Immutable test data builders for PHP - perfect defaults, clone-based tailoring per test, loud refusal on impossible state and a bundled PHPStan rule set that enforces how a builder must be written. Zero runtime dependencies.",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -26,7 +26,7 @@
         "phpunit/phpunit": "^10.5 || ^11.0 || ^12.0"
     },
     "suggest": {
-        "phpstan/phpstan": "Turns the bundled DSL rule set on - include config/extension.neon in your phpstan configuration (^1.12)"
+        "phpstan/phpstan": "Turns the bundled rule set on - include config/extension.neon in your phpstan configuration (^1.12)"
     },
     "autoload": {
         "psr-4": {
