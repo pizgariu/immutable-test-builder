@@ -6,7 +6,8 @@ All notable changes to immutable-test-builder are recorded here. This project fo
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+- **The benchmark suite gained a builder the size of a real one.** The fixtures beside it hold a handful of ingredients, which is enough to prove behaviour and useless for pricing it, so `ColonyBuilder` carries twenty and half of them wear handwritten modifiers. That lets a chain of ten derived calls be read against a chain of ten declared ones on the same object instead of across two fixtures, and it settles the question the small subjects could not answer. Deriving costs a CONSTANT multiple rather than a growing one - the tenth link in a chain prices at 2.04 microseconds against the first at 1.89, so the memo holds and neither chain length nor property count moves it. Ten derived land at 20.4 microseconds against 6.9 for ten declared, and `create()` over twenty ingredients at 0.41. The number that matters is the last one, because whatever a project puts in its own `seed()` dwarfs all of it. One `password_hash()` at bcrypt cost 4 measures 888 microseconds, which buys 617 derived modifier calls.
 
 ## [1.1.0] - 2026-08-03
 
