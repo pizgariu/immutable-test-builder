@@ -39,4 +39,5 @@ return (new Config())
         'no_unused_imports' => true,
         'native_function_invocation' => false,
         'ordered_class_elements' => false,
-    ]);
+    ])
+;
