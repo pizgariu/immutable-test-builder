@@ -1,5 +1,6 @@
 includes:
     - config/extension.neon
+    - config/performance.neon
 
 parameters:
     level: max

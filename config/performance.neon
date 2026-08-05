@@ -1,0 +1,45 @@
+# Advice about cost, deliberately kept out of extension.neon.
+#
+# The rules in extension.neon are terms of the contract - break one and the
+# builder is wrong. A rule in here only says a builder is expensive, which is a
+# different claim, so a project opts into it on purpose rather than inheriting it
+# with the grammar.
+#
+# The rule ships two entries it can defend as fact and guesses at nothing else.
+# Whatever else is expensive in your project is your knowledge, so declare it and
+# say why, because the reason ends up in the message a reader has to act on.
+#
+# Declare only calls whose result is an immutable VALUE. The advice the message
+# gives is to hoist or memoise, and that is safe for a string or an int and wrong
+# for an object - one instance shared by every builder means a test mutating it
+# mutates it for all of them, which is the isolation this package exists to give.
+# A nested builder is the clearest example of what NOT to declare. If a valid
+# default needs a related entity, building one per seed() is the price of that
+# default being valid, not a cost to remove.
+#
+#   parameters:
+#       immutableTestBuilder:
+#           costlyInSeed:
+#               'App\Security\Hasher::derive': 'its iteration count'
+#               'my_slow_helper': 'the sleep it does'
+#
+# A bare name is a function, a name with :: is a static call. Instance calls are
+# not matched, because a builder cannot hold an injected service - the kernel
+# seals the constructor - so an instance call in seed() is the builder talking to
+# itself.
+parameters:
+    immutableTestBuilder:
+        costlyInSeed: []
+
+parametersSchema:
+    immutableTestBuilder: structure([
+        costlyInSeed: arrayOf(string(), string())
+    ])
+
+services:
+    -
+        class: Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Performance\CostlyCallInSeedRule
+        arguments:
+            costlyInSeed: %immutableTestBuilder.costlyInSeed%
+        tags:
+            - phpstan.rules.rule

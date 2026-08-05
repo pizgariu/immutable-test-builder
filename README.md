@@ -400,6 +400,37 @@ Abstract bases are exempt where it matters, so they may hold immutable configura
 
 The rule set needs nothing beyond `phpstan/phpstan` itself - the phar ships its own php-parser, and the `nikic/php-parser` pin in this package's `require-dev` only keeps development of the rules on the 5.x node shapes. The builders have no requirement at all - the kernel stays zero-dependency and runs anywhere on PHP 8.3+.
 
+### One more include, for cost rather than contract
+
+Every rule above states a term of the contract, so breaking one means the builder is wrong. There is a tenth rule that only says a builder is expensive, which is a different claim, so it ships apart and a project turns it on deliberately.
+
+```neon
+includes:
+    - vendor/pizgariu/immutable-test-builder/config/performance.neon
+```
+
+| Rule | Lives in | What it refuses |
+| --- | --- | --- |
+| `CostlyCallInSeedRule` | `Rule/Performance` | `password_hash()` or `crypt()` inside `seed()`, plus whatever the project declares |
+
+`seed()` runs on every `create()`, so a suite pays whatever is in it once per builder it makes, and one `password_hash()` at bcrypt cost 4 measures around 888 microseconds. That is 617 derived modifier calls for a single seeded password, which makes it the one thing worth moving out of a builder before anything the kernel does.
+
+The rule ships two entries and guesses at no third. Both are PHP's own password API, both take a parameter whose whole job is to make them slower, and the message names it, so membership states a documented fact rather than an estimate. A general key derivation like `hash_pbkdf2()` is left alone on purpose, because it also derives encryption keys where a test may want the real thing.
+
+Everything else expensive is your knowledge, so you declare it. An entry carries the reason it is there, because that reason ends up in the message somebody has to act on.
+
+```neon
+parameters:
+    immutableTestBuilder:
+        costlyInSeed:
+            'App\Security\Hasher::derive': 'its iteration count'
+            'my_slow_helper': 'the sleep it does'
+```
+
+A bare name is a function, a name with `::` is a static call. Instance calls are not matched, and that is deliberate rather than unfinished - a builder cannot declare a constructor because the kernel seals it, so it holds no injected service, and an instance call inside `seed()` is the builder talking to itself.
+
+Declare only calls whose result is an immutable **value**. The message tells a reader to hoist or memoise, which is safe for a string and wrong for an object, because one instance shared by every builder means a test mutating it mutates it for all of them - the exact isolation the shallow clone above is careful to give you. A nested builder is the clearest thing not to declare. When a valid default needs a related entity, building one per `seed()` is what makes the default valid, not a cost to remove.
+
 ---
 
 ## How it compares
