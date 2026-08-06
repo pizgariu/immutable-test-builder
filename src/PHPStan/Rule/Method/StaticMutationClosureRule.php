@@ -35,6 +35,7 @@ final class StaticMutationClosureRule implements Rule
     }
 
     /**
+     * @param MethodCall $node
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array

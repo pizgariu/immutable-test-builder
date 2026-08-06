@@ -18,7 +18,6 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
-use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 
 /**
@@ -40,13 +39,14 @@ final class PerfectDefaultPropertyRule implements Rule
     }
 
     /**
+     * @param InClassNode $node
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $class = BuilderScope::concrete($scope);
+        $class = BuilderScope::kernel($scope);
 
-        if (null === $class || !$class->isSubclassOf(AbstractBuilder::class)) {
+        if (null === $class) {
             return [];
         }
 

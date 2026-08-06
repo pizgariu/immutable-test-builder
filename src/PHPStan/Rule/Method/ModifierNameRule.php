@@ -31,6 +31,7 @@ final class ModifierNameRule implements Rule
     }
 
     /**
+     * @param InClassMethodNode $node
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array

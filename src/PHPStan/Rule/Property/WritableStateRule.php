@@ -30,6 +30,7 @@ final class WritableStateRule implements Rule
     }
 
     /**
+     * @param ClassPropertyNode $node
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array

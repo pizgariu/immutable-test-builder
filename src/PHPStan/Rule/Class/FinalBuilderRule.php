@@ -27,6 +27,7 @@ final class FinalBuilderRule implements Rule
     }
 
     /**
+     * @param InClassNode $node
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array
