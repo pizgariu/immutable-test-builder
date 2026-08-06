@@ -49,7 +49,7 @@ final class SeedDisciplineRule implements Rule
 
         $method = $node->getOriginalNode();
 
-        if (KernelMethod::Seed->value !== $method->name->toString()) {
+        if (!KernelMethod::Seed->matches($method->name)) {
             return [];
         }
 
@@ -83,7 +83,7 @@ final class SeedDisciplineRule implements Rule
 
             $name = $call->name->toString();
 
-            if (KernelMethod::Build->value === $name) {
+            if (KernelMethod::Build->matches($name)) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     'seed() on builder %s calls build() - the builder is not complete while it is being seeded.',
                     $class->getDisplayName(),

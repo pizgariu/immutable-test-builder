@@ -46,7 +46,7 @@ final class BuildReturnTypeRule implements Rule
 
         $method = $node->getOriginalNode();
 
-        if (KernelMethod::Build->value !== $method->name->toString() || $method->isStatic()) {
+        if (!KernelMethod::Build->matches($method->name) || $method->isStatic()) {
             return [];
         }
 

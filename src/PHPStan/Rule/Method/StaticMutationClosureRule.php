@@ -9,7 +9,6 @@ use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -50,7 +49,7 @@ final class StaticMutationClosureRule implements Rule
             return [];
         }
 
-        if (!$node->name instanceof Identifier || KernelMethod::Mutate->value !== $node->name->toString()) {
+        if (!KernelMethod::Mutate->matches($node->name)) {
             return [];
         }
 

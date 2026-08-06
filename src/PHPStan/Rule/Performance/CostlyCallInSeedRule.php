@@ -86,7 +86,7 @@ final class CostlyCallInSeedRule implements Rule
 
         $method = $node->getOriginalNode();
 
-        if (KernelMethod::Seed->value !== $method->name->toString() || null === $method->stmts) {
+        if (!KernelMethod::Seed->matches($method->name) || null === $method->stmts) {
             return [];
         }
 

@@ -111,6 +111,6 @@ final class ModifierDelegatesToMutateRule implements Rule
 
         $call = $statement->expr;
 
-        return $call->var instanceof Variable && is_string($call->var->name) && 'this' === $call->var->name && $call->name instanceof Identifier && KernelMethod::Mutate->value === $call->name->toString();
+        return $call->var instanceof Variable && is_string($call->var->name) && 'this' === $call->var->name && KernelMethod::Mutate->matches($call->name);
     }
 }

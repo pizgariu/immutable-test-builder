@@ -55,7 +55,7 @@ final class ModifierNameRule implements Rule
         }
 
         if ($method->isStatic()) {
-            if (KernelMethod::Create->value === $name) {
+            if (KernelMethod::Create->matches($name)) {
                 return [];
             }
 
@@ -70,7 +70,7 @@ final class ModifierNameRule implements Rule
             ];
         }
 
-        if (KernelMethod::Build->value === $name || null !== Prefix::ofMethod($name)) {
+        if (KernelMethod::Build->matches($name) || null !== Prefix::ofMethod($name)) {
             return [];
         }
 

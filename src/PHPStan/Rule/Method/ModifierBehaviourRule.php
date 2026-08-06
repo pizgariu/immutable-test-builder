@@ -259,7 +259,7 @@ final class ModifierBehaviourRule implements Rule
             return null;
         }
 
-        if (!$call->name instanceof Identifier || KernelMethod::Mutate->value !== $call->name->toString() || $call->isFirstClassCallable()) {
+        if (!KernelMethod::Mutate->matches($call->name) || $call->isFirstClassCallable()) {
             return null;
         }
 
