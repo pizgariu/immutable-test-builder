@@ -93,36 +93,6 @@ abstract class AbstractBuilder implements BuilderInterface
      */
     final protected function mutate(Closure|array $mutation): static
     {
-        if (is_array($mutation)) {
-            /** @var array<class-string, array<string, true>> $writable */
-            static $writable = [];
-
-            $names = $writable[static::class] ?? null;
-
-            if (null === $names) {
-                $names = [];
-
-                foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
-                    if (!$property->isStatic() && !$property->isReadOnly()) {
-                        $names[$property->name] = true;
-                    }
-                }
-
-                $writable[static::class] = $names;
-            }
-
-            // Walked by key, since array_keys() would allocate a second array to say what the first one already knows.
-            foreach ($mutation as $property => $_) {
-                if (!isset($names[$property])) {
-                    throw new BadMethodCallException(sprintf(
-                        'mutate() on %s cannot write $%s - the concrete scope sees no writable instance property under that name. Fix the key, declare shared base state protected so the bound write can reach it, or drop the static or readonly, since a clone owns neither.',
-                        static::class,
-                        $property,
-                    ));
-                }
-            }
-        }
-
         $clone = clone $this;
 
         if ($mutation instanceof Closure) {
@@ -131,13 +101,36 @@ abstract class AbstractBuilder implements BuilderInterface
             return $clone;
         }
 
-        $write = static function (object $target) use ($mutation): void {
+        /** @var array<class-string, array<string, true>> $writable */
+        static $writable = [];
+
+        $names = $writable[static::class] ?? null;
+
+        if (null === $names) {
+            $names = [];
+
+            foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
+                if (!$property->isStatic() && !$property->isReadOnly()) {
+                    $names[$property->name] = true;
+                }
+            }
+
+            $writable[static::class] = $names;
+        }
+
+        Closure::bind(static function (object $target) use ($mutation, $names): void {
             foreach ($mutation as $property => $value) {
+                if (!isset($names[$property])) {
+                    throw new BadMethodCallException(sprintf(
+                        'mutate() on %s cannot write $%s - the concrete scope sees no writable instance property under that name. Fix the key, declare shared base state protected so the bound write can reach it, or drop the static or readonly, since a clone owns neither.',
+                        $target::class,
+                        $property,
+                    ));
+                }
+
                 $target->{$property} = $value;
             }
-        };
-
-        Closure::bind($write, null, static::class)($clone);
+        }, null, static::class)($clone);
 
         return $clone;
     }

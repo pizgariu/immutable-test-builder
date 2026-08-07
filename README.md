@@ -199,18 +199,6 @@ The payoff is what tests stop saying. A test that fills every field before it ca
 ```php
 final protected function mutate(Closure|array $mutation): static
 {
-    if (is_array($mutation)) {
-        foreach (array_keys($mutation) as $property) {
-            if (!property_exists(static::class, $property)) {
-                throw new BadMethodCallException(sprintf(
-                    'mutate() on %s cannot write $%s - the concrete scope sees no such property. Fix the key, or declare shared base state protected so the bound write can reach it.',
-                    static::class,
-                    $property,
-                ));
-            }
-        }
-    }
-
     $clone = clone $this;
 
     if ($mutation instanceof Closure) {
@@ -219,13 +207,36 @@ final protected function mutate(Closure|array $mutation): static
         return $clone;
     }
 
-    $write = static function (object $target) use ($mutation): void {
+    /** @var array<class-string, array<string, true>> $writable */
+    static $writable = [];
+
+    $names = $writable[static::class] ?? null;
+
+    if (null === $names) {
+        $names = [];
+
+        foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
+            if (!$property->isStatic() && !$property->isReadOnly()) {
+                $names[$property->name] = true;
+            }
+        }
+
+        $writable[static::class] = $names;
+    }
+
+    Closure::bind(static function (object $target) use ($mutation, $names): void {
         foreach ($mutation as $property => $value) {
+            if (!isset($names[$property])) {
+                throw new BadMethodCallException(sprintf(
+                    'mutate() on %s cannot write $%s - the concrete scope sees no writable instance property under that name. Fix the key, declare shared base state protected so the bound write can reach it, or drop the static or readonly, since a clone owns neither.',
+                    $target::class,
+                    $property,
+                ));
+            }
+
             $target->{$property} = $value;
         }
-    };
-
-    Closure::bind($write, null, static::class)($clone);
+    }, null, static::class)($clone);
 
     return $clone;
 }
@@ -257,6 +268,7 @@ One boundary is worth knowing. The clone is shallow, so isolation holds for scal
 
 The property-map form already speaks PHP 8.5's clone-with dialect, portable back to 8.3 through a write bound into the concrete class scope. When 8.5 becomes this package's floor, `mutate()` swaps its internals for the native call and no call site moves.
 
+> **Note:** The engine deliberately stops at a shallow clone instead of attempting a generic deep copy. A generic deep cloner would destroy the performance of a modifier chain and risk circular reference crashes on complex entity graphs. Keeping the kernel's clone shallow and fast means the CPU cost of copying heavy mutable state is never forced onto simple builders. When a specific builder does hold mutable objects or collections that need isolation, the project stays in control - you handle it explicitly by overriding `__clone()` in that concrete builder. Explicit overrides implicit, keeping the engine fast and predictable.
 ---
 
 ## Loud failure
