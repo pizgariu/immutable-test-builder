@@ -107,7 +107,7 @@ final class CostlyCallInSeedRule implements Rule
         $errors = [];
 
         foreach ($calls as $call) {
-            $called = self::nameOf($call, $scope);
+            $called = $this->nameOf($call, $scope);
             $reason = null === $called ? null : ($costly[strtolower($called)] ?? null);
 
             if (null === $called || null === $reason) {
@@ -134,7 +134,7 @@ final class CostlyCallInSeedRule implements Rule
      * static call resolves to joined to its method. self and static resolve
      * through the scope, so a project names the class it actually wrote.
      */
-    private static function nameOf(FuncCall|StaticCall $call, Scope $scope): ?string
+    private function nameOf(FuncCall|StaticCall $call, Scope $scope): ?string
     {
         if ($call instanceof FuncCall) {
             return $call->name instanceof Name ? $call->name->toString() : null;
