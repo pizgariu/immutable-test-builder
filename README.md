@@ -350,7 +350,7 @@ The trivial modifiers do not exist as code. `__call` and the `Prefix` enum imple
 | `including*(item)` | appends with `[]=`, resolving the simple plural (`includingRole` writes `$roles`) |
 | `excluding*(item)` | filters the item out, resolving the same plural |
 
-Two attributes tune the derivation when a name cannot carry the whole story. `#[Plural(of: 'person')]` on a collection property teaches the simple-plural resolver an irregular one - `includingPerson()` then reaches `$people`. `#[NotMagic]` on a property seals it from derivation entirely, so a computed or reserved ingredient is reachable only through a handwritten modifier. Both are read by the runtime and by the PHPStan extension from the same source, so the sealed method is a runtime refusal and an undefined-method analysis error alike.
+Two of the package's three attributes tune the derivation when a name cannot carry the whole story. `#[Plural(of: 'person')]` on a collection property teaches the simple-plural resolver an irregular one - `includingPerson()` then reaches `$people`. `#[NotMagic]` on a property seals it from derivation entirely, so a computed or reserved ingredient is reachable only through a handwritten modifier. Both are read by the runtime and by the PHPStan extension from the same source, so the sealed method is a runtime refusal and an undefined-method analysis error alike.
 
 `from*`, `for*` and `having*` are never magic - hydration, ownership and multi-property concepts deserve a handwritten body.
 
@@ -387,17 +387,18 @@ Your IDE is a different reader. It does not consult PHPStan extensions, so autoc
 
 ## Enforced by PHPStan
 
-The package bundles a PHPStan rule set that enforces the DSL on every class implementing `BuilderInterface`. One include turns it on.
+The package bundles a PHPStan rule set that enforces the DSL on every class implementing `BuilderInterface`. One include turns it on. Nine of the ten fire on sight. The tenth waits to be asked, for a reason worth reading below.
 
 ```neon
 includes:
     - vendor/pizgariu/immutable-test-builder/config/extension.neon
 ```
 
-Nine rules, one directory per abstraction type.
+Ten rules, one directory per abstraction type.
 
 | Rule | Lives in | What it refuses |
 | --- | --- | --- |
+| `BuiltTypeCoverageRule` | `Rule/Class` | on a builder that promised coverage, a required constructor parameter of the built type it owns no writable property for - and a promise it cannot check at all, since silence would read as coverage |
 | `FinalBuilderRule` | `Rule/Class` | a concrete builder that is not final - a builder is a leaf, extension points belong in an abstract base |
 | `ModifierNameRule` | `Rule/Method` | a public method outside the DSL - and `set*`, `make*`, `add*` each get a message explaining why the name lies |
 | `ModifierBehaviourRule` | `Rule/Method` | a body that breaks its prefix's promise - `without*` taking parameters, `as*` declaring anything but one optional bool, `without*` assigning real values, `including*` that never appends, `excluding*` that appends, `having*` that writes a single property |
@@ -408,13 +409,26 @@ Nine rules, one directory per abstraction type.
 | `WritableStateRule` | `Rule/Property` | builder state that is not private, is static, or is readonly - readonly state would make `mutate()` throw at runtime |
 | `PerfectDefaultPropertyRule` | `Rule/Property` | a property with neither an inline default nor a direct assignment in `seed()` - the per-property face of the perfect default promise |
 
-Abstract bases are exempt where it matters, so they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. The rules police what you write by hand - a derived modifier is correct by construction, because the kernel implements each prefix's semantics exactly once. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
+Abstract bases are exempt where it matters, so they may hold immutable configuration, like the memoized project generator above, without tripping the property rule. `BuiltTypeCoverageRule` says nothing at all until a builder invites it, which the section below explains. The rules police what you write by hand - a derived modifier is correct by construction, because the kernel implements each prefix's semantics exactly once. PHPStan itself stays optional - it sits in `suggest`, and without it the package is just the kernel.
 
 The rule set needs nothing beyond `phpstan/phpstan` itself - the phar ships its own php-parser, and the `nikic/php-parser` pin in this package's `require-dev` only keeps development of the rules on the 5.x node shapes. The builders have no requirement at all - the kernel stays zero-dependency and runs anywhere on PHP 8.3+.
 
+### The one rule that waits to be asked
+
+A builder pinning an ingredient to a single literal still builds a complete object. Whether that is a gap or a deliberate fixture is something only its author knows, so a rule that demanded coverage everywhere would be stating a preference. `#[CoversBuiltType]` turns it into a claim the builder makes about itself, which the rule then verifies.
+
+```php
+#[CoversBuiltType]
+final class MembershipBuilder extends AbstractBuilder
+```
+
+That reads as a promise to own every required ingredient of `Membership`, so a test can vary each one. Add a required field to `Membership` and the builder is told, by name, which ingredient it cannot write. Leave the attribute off and nothing is said, which is also what makes it the annotation to add LAST - a builder for a wide type grows one ingredient at a time and promises coverage once it is complete. A project-wide switch would demand all of them on the first day.
+
+Coverage means a property the builder can actually write, the same question `mutate()` asks. State inherited from an abstract base that is `static` or `readonly` is visible to the concrete scope and unwritable by a clone, so it never counts, and a promise the rule cannot check at all is reported rather than passed in silence. The promise is not inherited either, so putting the attribute on a shared base cannot opt in builders nobody has finished.
+
 ### One more include, for cost rather than contract
 
-Every rule above states a term of the contract, so breaking one means the builder is wrong. There is a tenth rule that only says a builder is expensive, which is a different claim, so it ships apart and a project turns it on deliberately.
+Every rule above states a term of the contract, so breaking one means the builder is wrong. There is an eleventh rule that only says a builder is expensive, which is a different claim, so it ships apart and a project turns it on deliberately.
 
 ```neon
 includes:
@@ -425,7 +439,7 @@ includes:
 | --- | --- | --- |
 | `CostlyCallInSeedRule` | `Rule/Performance` | `password_hash()` or `crypt()` inside `seed()`, plus whatever the project declares |
 
-`seed()` runs on every `create()`, so a suite pays whatever is in it once per builder it makes, and one `password_hash()` at bcrypt cost 4 measures around 888 microseconds. That is 617 derived modifier calls for a single seeded password, which makes it the one thing worth moving out of a builder before anything the kernel does.
+`seed()` runs on every `create()`, so a suite pays whatever is in it once per builder it makes, and one `password_hash()` at bcrypt cost 4 measures around 888 microseconds. That is 470 derived modifier calls for a single seeded password, which makes it the one thing worth moving out of a builder before anything the kernel does.
 
 The rule ships two entries and guesses at no third. Both are PHP's own password API, both take a parameter whose whole job is to make them slower, and the message names it, so membership states a documented fact rather than an estimate. A general key derivation like `hash_pbkdf2()` is left alone on purpose, because it also derives encryption keys where a test may want the real thing.
 
@@ -474,7 +488,7 @@ PHP 8.3+ (`^8.3`). Nothing else - the package has zero runtime dependencies.
 
 The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The API surface described above is stable for 1.0.0.
 
-- **2.0.0** - the entity coverage rule and the Rector set (which also derives the `@method` tags IDEs need for the magic modifiers) are landing on this line, with PHPStan 2.0 support to follow.
+- **2.0.0** - the Rector set (which also derives the `@method` tags IDEs need for the magic modifiers) is landing on this line, with PHPStan 2.0 support to follow.
 
 A built-in data generator is not on any roadmap - randomness stays the project's choice, plugged in through `seed()`. Bulk collection utilities are out of scope as well - the magic `including*` and `excluding*` already cover single-item appends and removals, and anything richer deserves a handwritten modifier.
 

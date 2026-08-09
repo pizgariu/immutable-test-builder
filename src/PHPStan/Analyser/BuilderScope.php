@@ -12,7 +12,8 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 /**
  * The one place the rules read the analysed scope as a builder - concrete()
  * answers whether the scope is a concrete builder at all, kernel() whether it
- * also inherits the kernel.
+ * also inherits the kernel, and base() whether it is an abstract builder, which
+ * is not held to what a concrete one promises but can still be worth addressing.
  *
  * @internal
  */
@@ -25,6 +26,21 @@ final class BuilderScope
         $class = $scope->getClassReflection();
 
         if (null === $class || $class->isInterface() || $class->isTrait() || $class->isEnum() || $class->isAbstract() || $class->isAnonymous()) {
+            return null;
+        }
+
+        return $class->implementsInterface(BuilderInterface::class) ? $class : null;
+    }
+
+    /**
+     * The base-shape gate. A rule that reports on an abstract builder is saying
+     * something about the declaration rather than about a builder a test can use.
+     */
+    public static function base(Scope $scope): ?ClassReflection
+    {
+        $class = $scope->getClassReflection();
+
+        if (null === $class || $class->isInterface() || $class->isTrait() || $class->isEnum() || !$class->isAbstract()) {
             return null;
         }
 

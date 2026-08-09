@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pizgariu\ImmutableTestBuilder\Tests\Example;
 
+use Pizgariu\ImmutableTestBuilder\Contract\Attribute\CoversBuiltType;
 use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
 
 /**
@@ -13,6 +14,11 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  * from* hydrates from a source object, for* establishes ownership, and
  * having* mutates one inseparable multi-property concept atomically.
  *
+ * It also promises coverage, so BuiltTypeCoverageRule holds this builder to
+ * owning every ingredient Membership requires. The package's own analysis is
+ * where that promise is checked, which keeps the rule from being a thing only
+ * its unit test ever runs.
+ *
  * @method MembershipBuilder withEmail(string $email)
  * @method MembershipBuilder withoutTags()
  * @method MembershipBuilder asActive(bool $active = true)
@@ -21,6 +27,7 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  *
  * @extends AbstractBuilder<Membership>
  */
+#[CoversBuiltType]
 final class MembershipBuilder extends AbstractBuilder
 {
     private string $email;

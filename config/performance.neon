@@ -1,9 +1,14 @@
 # Advice about cost, deliberately kept out of extension.neon.
 #
 # The rules in extension.neon are terms of the contract - break one and the
-# builder is wrong. A rule in here only says a builder is expensive, which is a
-# different claim, so a project opts into it on purpose rather than inheriting it
-# with the grammar.
+# builder is wrong. A rule in here only says a builder is expensive, and expensive
+# is not wrong, so it ships where nothing pulls it in by accident.
+#
+# The split is the CLAIM being made, not who asks for it. BuiltTypeCoverageRule
+# over in extension.neon also waits to be asked, per builder and through an
+# attribute, because only the author of a builder knows whether an unreachable
+# ingredient is a gap. It still says the builder is WRONG once asked, which is why
+# it belongs with the contract and this does not.
 #
 # The rule ships two entries it can defend as fact and guesses at nothing else.
 # Whatever else is expensive in your project is your knowledge, so declare it and

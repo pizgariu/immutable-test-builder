@@ -5,6 +5,7 @@ services:
             - phpstan.broker.methodsClassReflectionExtension
 
 rules:
+    - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Class\BuiltTypeCoverageRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Class\FinalBuilderRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\BuildReturnTypeRule
     - Pizgariu\ImmutableTestBuilder\PHPStan\Rule\Method\ModifierBehaviourRule
