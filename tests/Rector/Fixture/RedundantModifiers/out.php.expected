@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Pizgariu\ImmutableTestBuilder\Tests\Rector\Fixture\RedundantModifiers;
+
+use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
+
+/**
+ * @method self withName(string $name)
+ * @method self asActive()
+ * @method self withoutEmail()
+ */
+final class RedundantBuilder extends AbstractBuilder
+{
+    private string $name;
+
+    private bool $active;
+
+    private ?string $email;
+
+    private string $note;
+
+    public function withNote(string $note): static
+    {
+        return $this->mutate(['note' => strtoupper($note)]);
+    }
+
+    public function build(): string
+    {
+        return $this->name;
+    }
+
+    protected function seed(): void
+    {
+        $this->name = 'n';
+        $this->active = false;
+        $this->email = null;
+        $this->note = '';
+    }
+}

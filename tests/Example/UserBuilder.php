@@ -15,8 +15,8 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  *
  * PHPStan types every derived call through the bundled extension. An IDE
  * does not read PHPStan extensions, so autocomplete wants @method tags on
- * the builder - handwritten for now, derived automatically by the Rector
- * set landing in 2.0.0.
+ * the builder - and the bundled Rector set maintains them, replacing every
+ * modifier the kernel already derives with its tag.
  *
  * @method UserBuilder withName(string $name)
  * @method UserBuilder withEmail(?string $email)

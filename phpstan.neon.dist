@@ -10,3 +10,4 @@ parameters:
         - benchmark
     excludePaths:
         - tests/PHPStan/data
+        - tests/Rector/Fixture

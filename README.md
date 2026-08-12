@@ -57,8 +57,8 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  *
  * PHPStan types every derived call through the bundled extension. An IDE
  * does not read PHPStan extensions, so autocomplete wants @method tags on
- * the builder - handwritten for now, derived automatically by the Rector
- * set landing in 2.0.0.
+ * the builder - and the bundled Rector set maintains them, replacing every
+ * modifier the kernel already derives with its tag.
  *
  * @method UserBuilder withName(string $name)
  * @method UserBuilder withEmail(?string $email)
@@ -381,7 +381,7 @@ Sealed state stays sealed. The magic writer is bound into the concrete class sco
 
 And the types hold. The bundled `MagicModifierMethodsExtension`, registered by the same `config/extension.neon`, teaches PHPStan every derived signature from the same `Prefix` semantics - `->withName('x')` analyses at level max with zero annotations and no mapper. It also never advertises a modifier the writers would refuse on the property type, so `asCargo()` on an `int` is an undefined method for analysis exactly as it is a refusal at runtime.
 
-Your IDE is a different reader. It does not consult PHPStan extensions, so autocomplete for the derived modifiers comes from `@method` tags on the builder class - written by hand today. The Rector set landing in 2.0.0 derives and maintains them automatically, turning the tags from a chore into generated output.
+Your IDE is a different reader. It does not consult PHPStan extensions, so autocomplete for the derived modifiers comes from `@method` tags on the builder class - and the bundled Rector set writes and maintains them, as [its own section](#maintained-by-rector) shows.
 
 ---
 
@@ -459,6 +459,23 @@ Declare only calls whose result is an immutable **value**. The message tells a r
 
 ---
 
+## Maintained by Rector
+
+The bundled `RemoveRedundantModifierRector` deletes every modifier whose body only does what the kernel already derives - `with*(x)` assigning the bare parameter, `as*()` raising a bool, `without*()` writing the inferred empty value, each as the exact property-map `mutate()` one-liner - and leaves a `@method self` tag on the class in its place. The magic `__call` takes over with identical behaviour, and the tag keeps the IDE autocomplete the deleted method used to provide.
+
+```php
+use Pizgariu\ImmutableTestBuilder\Rector\RemoveRedundantModifierRector;
+use Rector\Config\RectorConfig;
+
+return RectorConfig::configure()
+    ->withPaths([__DIR__ . '/tests'])
+    ->withRules([RemoveRedundantModifierRector::class]);
+```
+
+A matching body shape alone never removes a method - the kernel itself must answer the same call. A hand-rolled builder with its own `mutate()` has no `__call` to catch the name once the method is gone, a `#[NotMagic]`-sealed ingredient makes the derivation refuse, and so does a flag the writers will not treat as one. Each keeps its body, pinned by a fixture that must come out unchanged.
+
+`rector/rector` stays in `require-dev` here and in yours - the package ships zero runtime dependencies and the rule class loads only when rector runs. The 1.x series requires `phpstan/phpstan ^1.12.5`, the same floor as the rule set, so one toolchain carries both.
+
 ## How it compares
 
 The PHP test-data space is mostly about persistence. This package deliberately is not.
@@ -488,7 +505,7 @@ PHP 8.3+ (`^8.3`). Nothing else - the package has zero runtime dependencies.
 
 The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The API surface described above is stable for 1.0.0.
 
-- **2.0.0** - the Rector set (which also derives the `@method` tags IDEs need for the magic modifiers) is landing on this line, with PHPStan 2.0 support to follow.
+- **2.0.0** - PHPStan 2.0 and Rector 2.x support land on this line.
 
 A built-in data generator is not on any roadmap - randomness stays the project's choice, plugged in through `seed()`. Bulk collection utilities are out of scope as well - the magic `including*` and `excluding*` already cover single-item appends and removals, and anything richer deserves a handwritten modifier.
 

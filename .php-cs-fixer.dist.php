@@ -14,6 +14,7 @@ $directories = array_values(array_filter(
 $finder = Finder::create()
     ->in($directories)
     ->exclude('PHPStan/data')
+    ->exclude('Rector/Fixture')
     ->append([__FILE__])
 ;
 
