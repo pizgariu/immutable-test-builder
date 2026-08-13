@@ -88,8 +88,14 @@ final class PropertyResolver
      * first two on a concrete builder, but an abstract base is exempt from it and
      * may still hand one down, so the derivation checks for itself rather than
      * trusting that the rules ran.
+     *
+     * Public so RemoveRedundantModifierRector can ask the same question instead
+     * of restating it. That rule deletes a handwritten modifier only where this
+     * answers true, so a second copy of the sentence could go stale and have it
+     * delete a method __call then refuses to answer. PHPStan's reflection adapter
+     * extends the native class, so the analysis passes its property straight in.
      */
-    private static function derivable(ReflectionProperty $property): bool
+    public static function derivable(ReflectionProperty $property): bool
     {
         return !$property->isStatic() && !$property->isReadOnly() && [] === $property->getAttributes(NotMagic::class);
     }

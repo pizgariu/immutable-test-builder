@@ -26,8 +26,8 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\MethodTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\MethodTagValueParameterNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\Reflection\ClassReflection;
-use Pizgariu\ImmutableTestBuilder\Contract\Attribute\NotMagic;
 use Pizgariu\ImmutableTestBuilder\Contract\Enum\Prefix;
+use Pizgariu\ImmutableTestBuilder\Implementation\Resolver\PropertyResolver;
 use Pizgariu\ImmutableTestBuilder\PHPStan\Analyser\BuilderScope;
 use Pizgariu\ImmutableTestBuilder\PHPStan\KernelMethod;
 use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory;
@@ -52,10 +52,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
  *
  * A matching shape is not enough on its own - the method goes only when the
  * kernel would answer the same call, which is also why the gate demands the
- * kernel itself. A hand-rolled builder with its own mutate() writes the same
- * one-liner and has no __call to catch the name once the method is gone, a
- * property sealed with #[NotMagic] makes the derivation refuse, and so does a
- * flag the writers will not treat as one. Each of those keeps its body.
+ * kernel itself and why the property question goes to PropertyResolver rather
+ * than being asked again here. A hand-rolled builder with its own mutate()
+ * writes the same one-liner and has no __call to catch the name once the method
+ * is gone, a property sealed with #[NotMagic] makes the derivation refuse, and
+ * so does a flag the writers will not treat as one. Each of those keeps its
+ * body.
  *
  * The tag's return type is self because concrete builders are final, so self is
  * exact and unambiguous where a leading static would re-parse as a static method.
@@ -212,7 +214,15 @@ AFTER,
 
         [$key, $value] = $item;
 
-        if ($prefix->propertyCandidates($name)[0] !== $key || !$this->derivable($class, $key)) {
+        $native = $class->getNativeReflection();
+
+        if ($prefix->propertyCandidates($name)[0] !== $key || !$native->hasProperty($key)) {
+            return null;
+        }
+
+        // Asked of the kernel rather than restated here. This deletes a method only where the
+        // derivation would answer the same call, so the two cannot be allowed to drift apart.
+        if (!PropertyResolver::derivable($native->getProperty($key))) {
             return null;
         }
 
@@ -339,25 +349,6 @@ AFTER,
     private function isConst(Expr $value, string $name): bool
     {
         return $value instanceof ConstFetch && $name === strtolower($value->name->toString());
-    }
-
-    /**
-     * What PropertyResolver asks before deriving - present, per instance,
-     * writable by a clone and not sealed. A modifier over anything else has no
-     * magic replacement, so removing it would turn a working call into a
-     * BadMethodCallException.
-     */
-    private function derivable(ClassReflection $class, string $property): bool
-    {
-        $native = $class->getNativeReflection();
-
-        if (!$native->hasProperty($property)) {
-            return false;
-        }
-
-        $declared = $native->getProperty($property);
-
-        return !$declared->isStatic() && !$declared->isReadOnly() && [] === $declared->getAttributes(NotMagic::class);
     }
 
     /**
