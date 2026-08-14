@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pizgariu\ImmutableTestBuilder\Tests\Rector;
 
 use PHPUnit\Framework\TestCase;
-use Pizgariu\ImmutableTestBuilder\Rector\RemoveRedundantModifierRector;
+use Pizgariu\ImmutableTestBuilder\Rector\Class_\RemoveRedundantModifierRector;
 use RuntimeException;
 
 /**
@@ -19,7 +19,7 @@ use RuntimeException;
  * directory holding in.php and, when the rule must rewrite it, an out.php.expected
  * beside it. A case without the expected file must come out untouched.
  *
- * @covers \Pizgariu\ImmutableTestBuilder\Rector\RemoveRedundantModifierRector
+ * @covers \Pizgariu\ImmutableTestBuilder\Rector\Class_\RemoveRedundantModifierRector
  */
 final class RemoveRedundantModifierRectorTest extends TestCase
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pizgariu\ImmutableTestBuilder\Rector;
+namespace Pizgariu\ImmutableTestBuilder\Rector\Class_;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;

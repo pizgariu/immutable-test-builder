@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Pizgariu\ImmutableTestBuilder\Rector\RemoveRedundantModifierRector;
+use Pizgariu\ImmutableTestBuilder\Rector\Class_\RemoveRedundantModifierRector;
 use Rector\Config\RectorConfig;
 
 return static function (RectorConfig $rectorConfig): void {

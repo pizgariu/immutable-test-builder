@@ -57,8 +57,9 @@ use Pizgariu\ImmutableTestBuilder\Implementation\AbstractBuilder;
  *
  * PHPStan types every derived call through the bundled extension. An IDE
  * does not read PHPStan extensions, so autocomplete wants @method tags on
- * the builder - and the bundled Rector set maintains them, replacing every
- * modifier the kernel already derives with its tag.
+ * the builder. These four are written by hand. The bundled Rector set writes
+ * them only where it deletes a modifier it replaces, so a builder magic from
+ * the start, like this one, tags itself.
  *
  * @method UserBuilder withName(string $name)
  * @method UserBuilder withEmail(?string $email)
@@ -381,7 +382,7 @@ Sealed state stays sealed. The magic writer is bound into the concrete class sco
 
 And the types hold. The bundled `MagicModifierMethodsExtension`, registered by the same `config/extension.neon`, teaches PHPStan every derived signature from the same `Prefix` semantics - `->withName('x')` analyses at level max with zero annotations and no mapper. It also never advertises a modifier the writers would refuse on the property type, so `asCargo()` on an `int` is an undefined method for analysis exactly as it is a refusal at runtime.
 
-Your IDE is a different reader. It does not consult PHPStan extensions, so autocomplete for the derived modifiers comes from `@method` tags on the builder class - and the bundled Rector set writes and maintains them, as [its own section](#maintained-by-rector) shows.
+Your IDE is a different reader. It does not consult PHPStan extensions, so autocomplete for the derived modifiers comes from `@method` tags on the builder class, written by hand. The bundled Rector set writes one only where it deletes the modifier it stands for, so it pays off when an existing builder full of handwritten modifiers moves onto the DSL rather than when a new one is born on it.
 
 ---
 
@@ -459,12 +460,12 @@ Declare only calls whose result is an immutable **value**. The message tells a r
 
 ---
 
-## Maintained by Rector
+## Migrating with Rector
 
 The bundled `RemoveRedundantModifierRector` deletes every modifier whose body only does what the kernel already derives - `with*(x)` assigning the bare parameter, `as*()` raising a bool, `without*()` writing the inferred empty value, each as the exact property-map `mutate()` one-liner - and leaves a `@method self` tag on the class in its place. The magic `__call` takes over with identical behaviour, and the tag keeps the IDE autocomplete the deleted method used to provide.
 
 ```php
-use Pizgariu\ImmutableTestBuilder\Rector\RemoveRedundantModifierRector;
+use Pizgariu\ImmutableTestBuilder\Rector\Class_\RemoveRedundantModifierRector;
 use Rector\Config\RectorConfig;
 
 return RectorConfig::configure()
@@ -473,6 +474,8 @@ return RectorConfig::configure()
 ```
 
 A matching body shape alone never removes a method - the kernel itself must answer the same call. A hand-rolled builder with its own `mutate()` has no `__call` to catch the name once the method is gone, a `#[NotMagic]`-sealed ingredient makes the derivation refuse, and so does a flag the writers will not treat as one. Each keeps its body, pinned by a fixture that must come out unchanged.
+
+This is a migration tool rather than a tag generator, and the difference matters. It reads the modifiers you wrote and hands back the tags that replace them, so a builder born magic writes its own handful of tags by hand and has nothing here to gain. An existing builder carrying twenty handwritten `with*` methods is the case it exists for.
 
 `rector/rector` stays in `require-dev` here and in yours - the package ships zero runtime dependencies and the rule class loads only when rector runs. The 1.x series requires `phpstan/phpstan ^1.12.5`, the same floor as the rule set, so one toolchain carries both.
 
